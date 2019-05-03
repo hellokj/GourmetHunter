@@ -1,6 +1,7 @@
 package character.trap;
 
 public class TrapGenerator {
+    // 破碎地板暫時移除
     private static final int TRAP_NORMAL = 0;
     private static final int TRAP_RUNNING = 1;
     private static final int TRAP_DANCING = 2;
@@ -11,7 +12,23 @@ public class TrapGenerator {
                     TRAP_DANCING, TRAP_STONE,
                     TRAP_SPRING};
 
+    // 陷阱生成機率
+    private int genRate_RunningTrap;
+    private int genRate_DancingTrap;
+    private int genRate_SpringTrap;
+    private int genRate_StoneTrap;
+    private int getGenRate_FragmentTrap;
+
     private static TrapGenerator trapGenerator;
+
+    private TrapGenerator(){
+        // 初始生成機率
+        genRate_RunningTrap = 20;
+        genRate_DancingTrap = 50;
+        genRate_SpringTrap = 25;
+        genRate_StoneTrap = 60;
+        getGenRate_FragmentTrap = 30;
+    }
 
     public static TrapGenerator getInstance(){
         if (trapGenerator == null){
@@ -39,8 +56,9 @@ public class TrapGenerator {
         return null;
     }
 
-    // 隨機生成器
-    public Trap genTrap(){
+    // 隨機生成器，傳入層數，調整生成機率
+    public Trap genTrap(int layer){
+        generationUpdater(layer);
         // 生成機制：
         //  先選擇哪種陷阱
         //  選擇後再判定有無過此機制的生成機率
@@ -48,22 +66,22 @@ public class TrapGenerator {
         int rate = (int)(Math.random()*100);
         switch (random){
             case TRAP_RUNNING:
-                if(rate > RunningTrap.generationRate){
-                    return new RunningTrap(2);
+                if(rate < genRate_RunningTrap){
+                    return new RunningTrap(1);
                 }
                 break;
             case TRAP_DANCING:
-                if(rate > DancingTrap.generationRate){
+                if(rate < genRate_DancingTrap){
                     return new DancingTrap();
                 }
                 break;
             case TRAP_STONE:
-                if(rate > StoneTrap.generationRate){
+                if(rate < genRate_StoneTrap){
                     return new StoneTrap();
                 }
                 break;
             case TRAP_SPRING:
-                if(rate > SpringTrap.generationRate){
+                if(rate < genRate_SpringTrap){
                     return new SpringTrap();
                 }
                 break;
@@ -77,5 +95,23 @@ public class TrapGenerator {
         }
         // 若生成失敗，固定生成基礎地板
         return new NormalTrap();
+    }
+
+    // 陷阱生成機率更新器，傳入層數調整機率
+    private void generationUpdater(int layer){
+        if (layer <= 5){
+            genRate_RunningTrap = 20;
+            genRate_DancingTrap = 50;
+            genRate_SpringTrap = 25;
+            genRate_StoneTrap = 60;
+            getGenRate_FragmentTrap = 30;
+        }
+        if (layer > 5 && layer <= 20){
+            genRate_RunningTrap = 0;
+            genRate_DancingTrap = 0;
+            genRate_SpringTrap = 100;
+            genRate_StoneTrap = 0;
+            getGenRate_FragmentTrap = 0;
+        }
     }
 }

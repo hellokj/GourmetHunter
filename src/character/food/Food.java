@@ -14,7 +14,7 @@ public class Food extends GameObject {
     private int offset; // 在階梯上位置
 
     public Food(Floor floor, int offset, BufferedImage image){
-        super(floor.getX() + 24*offset, floor.getY() - 24, 24, 24);
+        super(floor.getX() + 20*offset, floor.getY() - 20, 20, 20);
         this.offset = offset;
         this.isEaten = false;
         this.floor = floor;
@@ -24,8 +24,8 @@ public class Food extends GameObject {
 
     @Override
     public void update(){
-        this.x = floor.getX() + 24 * offset;
-        this.y = floor.getY() - 24;
+        this.x = floor.getX() + 20 * offset;
+        this.y = floor.getY() - 20;
         this.setBoundary();
     }
 

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class DancingTrap implements Trap {
-    public static final int generationRate = 50;
     private static final String[] imagePaths =
             // 0 : down, 1 : right, 2 : up, 3 : left
             {"floor/DancingFloor_0.png", "floor/DancingFloor_1.png", "floor/DancingFloor_2.png", "floor/DancingFloor_3.png"};

@@ -6,12 +6,18 @@ import frame.GameFrame;
 
 public class FloorGenerator {
 
-    public FloorGenerator(){
+    private static FloorGenerator floorGenerator;
 
+    public static FloorGenerator getInstance(){
+        if (floorGenerator == null){
+            floorGenerator = new FloorGenerator();
+        }
+        return floorGenerator;
     }
 
-    public Floor genFloor(Floor last){
-        Trap trap = TrapGenerator.getInstance().genTrap();
+    // 傳入當前層數，調整生成機率
+    public Floor genFloor(Floor last, int layer){
+        Trap trap = TrapGenerator.getInstance().genTrap(layer);
         Floor floor = new Floor(getRandom(0, GameFrame.FRAME_WIDTH - 64), last.bottom + getRandom(30, 50), trap);
         return floor;
     }

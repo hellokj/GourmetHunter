@@ -26,7 +26,7 @@ public class MenuScene extends Scene{
         this.hole = new GameObject(300,630,64,32,"background/hole.png");
         this.buttonStart = new Button(50,375, 150, 100, "button/Button_start.png");
         this.buttonLeader = new Button(280,375,150,100,"button/Button_LB.png");
-        this.player = new Actor(250, 700, 32, 32);
+        this.player = new Actor(250, 700, 32, 32,32, 32, "actor/Actor1.png");
     }
 
     @Override

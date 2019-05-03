@@ -5,8 +5,6 @@ import character.Floor;
 import util.ResourcesManager;
 
 public class RunningTrap implements Trap {
-    public static final int generationRate = 20;
-
     private static final String[] imagePaths =
             {"floor/RunningFloor_1.png", "floor/RunningFloor_2.png", "floor/RunningFloor_3.png", "floor/RunningFloor_4.png"};
     private boolean rotateDirection; // 轉動的方向 順時針or逆時針

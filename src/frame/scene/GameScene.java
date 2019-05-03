@@ -51,13 +51,13 @@ public class GameScene extends Scene {
         roof = new GameObject(0, 0, 500, 64, "background/Roof_new.png");
         endingFloor = new GameObject(0, 1200+20, 500, 32, "floor/EndingFloor.png");
         endingGate = new AnimationGameObject(300, endingFloor.getTop() - 64, 64, 64, 64, 64, "background/Door.png");
-        player = new Actor(250, 200, 32, 32);
+        player = new Actor(250, 200, 32, 32, 32, 32, "actor/Actor1.png");
         // 顯示板
         hungerLabel = new GameObject(28,8, 64, 32,64, 32, "background/HungerLabel.png");
         timeLabel = new GameObject(300 ,8,64, 32,64, 32, "background/TimeLabel.png");
         // 飢餓值
-        hungerBack = new GameObject(96, 16, 112, 16, "background/Hunger.png");
-        hungerCount = new GameObject(96, 16, 112, 16, "background/HungerCount.png");
+        hungerBack = new GameObject(96, 16, 100, 16, "background/Hunger.png");
+        hungerCount = new GameObject(96, 16, 0, 16, "background/HungerCount.png");
         // 時間相關
         time = 20;
         colon = " : ";
@@ -65,7 +65,7 @@ public class GameScene extends Scene {
         floors = new ArrayList<>();
         floors.add(new Floor(player.getX() - (64 - 32), 200 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立
         for (int i = 0; i < 9; i++) {
-            floors.add(floorGenerator.genFloor(floors.get(i)));
+            floors.add(floorGenerator.genFloor(floors.get(i), 0));
         }
         isOver = false;
         isCalled = false;
@@ -176,7 +176,7 @@ public class GameScene extends Scene {
                 hungerValue = player.getHunger();
                 if (floorAmount < 10 && time >= 5 && floors.size() < 15){
                     for (int i = 0; i < 10 - floorAmount; i++) {
-                        floors.add(floorGenerator.genFloor(findLast()));
+                        floors.add(floorGenerator.genFloor(findLast(), 0));
                     }
                 }
                 // 逆向摩擦力
@@ -188,6 +188,10 @@ public class GameScene extends Scene {
                 }
                 for (int i = 0; i < floors.size(); i++) {
                     player.checkOnFloor(floors.get(i));
+                    // 吃食物機制
+                    if (player.eat(floors.get(i).getFood())){
+                        floors.get(i).setFood(null); // 吃完，食物設回null
+                    }
                     floors.get(i).stay();
                     if (checkTopBoundary(floors.get(i))){
                         floors.remove(i);

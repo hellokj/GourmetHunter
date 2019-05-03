@@ -40,7 +40,7 @@ public class MainPanel extends javax.swing.JPanel {
         };
 
         // 更改初始場景
-        changeCurrentScene(genSceneById(INFINITY_GAME_SCENE));
+        changeCurrentScene(genSceneById(TWO_PLAYER_GAME_SCENE));
 
         // delay 25 ms
         Timer t1 = new Timer(25, new ActionListener() {

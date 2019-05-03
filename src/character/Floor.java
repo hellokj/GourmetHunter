@@ -117,10 +117,14 @@ public class Floor extends GameObject {
         if (food != null){
             try {
                 food.paint(g);
+                g.setColor(Color.GREEN);
+                g.drawRect(food.x-1, food.y-1, food.drawWidth + 1, food.drawHeight +1);
             }catch (NullPointerException e){
 
             }
         }
+        g.setColor(Color.YELLOW);
+        g.drawRect(x-1, y-1, drawWidth + 1, drawHeight +1);
         try {
             //  有機會畫到還未重設的畫圖模式 會報錯
             g.drawImage(floorImages.get(choosingImagesMode[choosingImagesCounter-1]), x, y - floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getHeight() + drawHeight, x + drawWidth, y + drawHeight, 0, 0, floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getWidth(), floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getHeight(), null);

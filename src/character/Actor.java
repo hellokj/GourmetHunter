@@ -35,10 +35,12 @@ public class Actor extends AnimationGameObject{
     private boolean invincible; // 無敵時間
     private int direction; // 角色方向
     private boolean dieState; // 死亡狀態
+    private boolean isEating; // 吃到東西
 
     // 每經過100次刷新，讓飢餓值上升
     private int hungerDelayCount, hungerDelay = 20;
     private int hunger; // 飢餓程度
+    private int score; // 統計總共吃了多少食物
 
     // delay
     private int stayDelayCount, stayDelay;
@@ -61,6 +63,7 @@ public class Actor extends AnimationGameObject{
         this.hunger = 0;
         this.state = true;
         this.canJump = true;
+        this.isEating = false;
     }
 
     // getter and setter
@@ -97,6 +100,12 @@ public class Actor extends AnimationGameObject{
             return MAX_SPEED_FAT;
         }
         return MAX_SPEED_SLIM;
+    }
+    public int getScore(){
+        return this.score;
+    }
+    public boolean isEating(){
+        return isEating;
     }
 
     public void reset(){
@@ -272,16 +281,12 @@ public class Actor extends AnimationGameObject{
             return false;
         }
         // 於階梯上
-        if(this.bottom + speedY > floor.top){
+        if(this.bottom + speedY > floor.top && this.speedY >= 0){
             y = floor.top - drawHeight; // 需修改
             speedY = floor.speedY;
             isOn = true;
             // 人物去碰觸地板，將地板狀態設為被接觸，並由地板觸發機關
             floor.isBeenTouched(this);
-            // 吃食物機制
-            if (eat(floor.getFood())){
-                floor.setFood(null); // 吃完，食物設回null
-            }
             return true;
         }
         isOn = false;
@@ -289,14 +294,15 @@ public class Actor extends AnimationGameObject{
     }
 
     // 人物吃
-    private boolean eat(Food food){
+    public boolean eat(Food food){
         if (food != null){
-            if (food.left > this.left && food.right < this.right && this.top < food.top){
+            if (food.left > this.left && food.right < this.right && this.top < food.top && this.bottom > food.top){
                 if (this.hunger - food.getHeal() <= 0){
                     this.hunger = 0;
                 }else {
                     this.hunger -= food.getHeal();
                 }
+                score += food.getHeal();
                 food.eaten(); // 狀態設置為被吃掉
                 return true;
             }
@@ -330,7 +336,7 @@ public class Actor extends AnimationGameObject{
             g.setColor(Color.WHITE);
             g.drawRect(x-1, y-1, drawWidth + 1, drawHeight +1);
             g.setColor(Color.RED);
-            g.drawRect(x + 4 - 1, y + 16 - 1, 24, 48);
+            g.drawRect(x + 4 - 1, y + 16 - 1, actualWidth, actualHeight);
         }
     }
 }
