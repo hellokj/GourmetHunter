@@ -17,8 +17,7 @@ public class Actor extends AnimationGameObject{
 
     // 胖瘦圖片
     private static final int HUNGER_LIMIT = 80;
-    private static BufferedImage imageFat = ResourcesManager.getInstance().getImage("actor/Actor1.png");
-    private static BufferedImage imageSlim = ResourcesManager.getInstance().getImage("actor/skeletona.png");
+    private BufferedImage imageFat, imageSlim = ResourcesManager.getInstance().getImage("actor/skeletona.png");
 
     // 身材速度上限
     private static final int MAX_SPEED_FAT = 10;
@@ -58,6 +57,7 @@ public class Actor extends AnimationGameObject{
     public Actor(int x, int y, int drawWidth, int drawHeight, int imageWidth, int imageHeight, String imageName) {
         super(x, y, drawWidth, drawHeight, imageWidth, imageHeight, imageName);
         this.direction = MOVE_RIGHT;
+        this.imageFat = ResourcesManager.getInstance().getImage(imageName);
         this.hunger = 0;
         this.state = true;
         this.canJump = true;
@@ -154,7 +154,7 @@ public class Actor extends AnimationGameObject{
         if (hungerDelayCount++ == hungerDelay){
             if (this.hunger + 5 >= 100){
                 this.hunger = 100;
-                this.die();
+//                this.die();
             }else {
                 this.hunger += 5; // 延遲到了，增加飢餓值
             }
@@ -223,11 +223,11 @@ public class Actor extends AnimationGameObject{
         if (hunger > HUNGER_LIMIT){
             this.image = imageSlim;
             this.state = false;
-            if (direction == MOVE_RIGHT){
-                this.speedX = this.speedX + 0.2f;
-            }else {
-                this.speedX = this.speedX - 0.2f;
-            }
+//            if (direction == MOVE_RIGHT){
+//                this.speedX = this.speedX + 0.2f;
+//            }else {
+//                this.speedX = this.speedX - 0.2f;
+//            }
         }else {
             this.state = true;
             this.image = imageFat;
@@ -245,7 +245,7 @@ public class Actor extends AnimationGameObject{
             this.setBoundary();
             if (this.hunger + 20 >= 100){
                 this.hunger = 100;
-                this.die();
+//                this.die();
             }else {
                 this.hunger += 20;
             }
@@ -291,7 +291,7 @@ public class Actor extends AnimationGameObject{
     // 人物吃
     private boolean eat(Food food){
         if (food != null){
-            if (food.left > this.left && food.right < this.right && this.top < food.top && this.bottom == food.bottom){
+            if (food.left > this.left && food.right < this.right && this.top < food.top){
                 if (this.hunger - food.getHeal() <= 0){
                     this.hunger = 0;
                 }else {
@@ -319,11 +319,18 @@ public class Actor extends AnimationGameObject{
             g.drawImage(image, x, y, x + drawWidth, y + drawHeight,
                     direction*4* drawWidth + drawWidth*imageOffsetX, imageOffsetY,
                     direction*4* drawWidth + drawWidth*imageOffsetX + drawWidth, imageOffsetY + drawHeight, null);
+            g.setColor(Color.WHITE);
+            g.drawRect(x-1, y-1, drawWidth + 1, drawHeight +1);
         }else { // 骷髏狀態
             this.drawWidth = 32;
             this.drawHeight = 64;
+            int actualWidth = 24, actualHeight = 48;
             g.drawImage(image, x, y, x + drawWidth, y + drawHeight,
                     drawWidth*imageOffsetX,imageOffsetY*drawHeight, drawWidth*imageOffsetX + drawWidth, imageOffsetY*drawHeight + drawHeight, null);
+            g.setColor(Color.WHITE);
+            g.drawRect(x-1, y-1, drawWidth + 1, drawHeight +1);
+            g.setColor(Color.RED);
+            g.drawRect(x + 4 - 1, y + 16 - 1, 24, 48);
         }
     }
 }
