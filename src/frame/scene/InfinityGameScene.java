@@ -82,13 +82,11 @@ public class InfinityGameScene extends Scene {
                     case KeyEvent.VK_RIGHT:
                         if (!isPause){
                             player.changeDir(Actor.MOVE_RIGHT);
-                            player.setSpeedX(player.getSpeedX()+3);
                         }
                         break;
                     case KeyEvent.VK_LEFT:
                         if (!isPause){
                             player.changeDir(Actor.MOVE_LEFT);
-                            player.setSpeedX(player.getSpeedX()-3);
                         }
                         break;
                     case KeyEvent.VK_UP:
@@ -144,7 +142,9 @@ public class InfinityGameScene extends Scene {
 
             @Override
             public  void keyReleased(KeyEvent e){
-//                player.setSpeedX(0);
+                if (key == e.getKeyCode()){
+                    key = -1;
+                }
             }
         };
     }
@@ -154,6 +154,9 @@ public class InfinityGameScene extends Scene {
         if (!isPause){
             if (!player.isDie()){ // 還沒死亡的狀態
                 MainPanel.checkLeftRightBoundary(player);
+                if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_LEFT){
+                    player.acceleration();
+                }
                 int floorAmount = checkSceneFloorAmount();
                 hungerValue = player.getHunger();
                 if (floorAmount < 10 && floors.size() < 15){
@@ -352,9 +355,9 @@ public class InfinityGameScene extends Scene {
     // 跳出選單
     private void menu(){
         isCalled = true;
-        button_resume = new Button(175, 150, 150, 100, "button/Button_Resume.png");
-        button_new_game = new Button(175, 300, 150, 100, "button/Button_NewGame.png");
-        button_menu = new Button(175, 450, 150, 100, "button/Button_Menu.png");
+        button_resume = new Button(175, 150, 150, 100, 150, 100, "button/Button_Resume.png");
+        button_new_game = new Button(175, 300, 150, 100, 150, 100,"button/Button_NewGame.png");
+        button_menu = new Button(175, 450, 150, 100, 150, 100, "button/Button_Menu.png");
         cursor = new GameObject(100, 150 + 25, 50, 50, 168, 140, "background/Cursor.png");
     }
 

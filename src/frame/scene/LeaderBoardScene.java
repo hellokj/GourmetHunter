@@ -24,13 +24,14 @@ public class LeaderBoardScene extends Scene {
     private ArrayList<String> serials, names, hungers; // 編號、名稱、飢餓值 (用來比較)
     private ArrayList<String> ranks; // 每列資料
     private int rank; // 排行
+    private int key;
     
     public LeaderBoardScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
         this.background = new GameObject(0,-22,500, 700, "background/MenuBackground.png");
         this.road = new GameObject(0, 644, 600, 44, "background/Road.png");
         this.paper = new GameObject(50,100,350,450, "background/Paper.png");
-        this.buttonBack = new Button(300,475, 150, 100, "button/Button_Back.png");
+        this.buttonBack = new Button(300,475, 150, 100, 150, 100, "button/Button_Back.png");
         this.player = new Actor(250, 622, 32, 32, 32, 32, "actor/Actor1.png");
         this.serials = new ArrayList<>();
         this.names = new ArrayList<>();
@@ -45,15 +46,13 @@ public class LeaderBoardScene extends Scene {
         return new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e){
-                int key = e.getKeyCode();
+                key = e.getKeyCode();
                 switch (key){
                     case KeyEvent.VK_RIGHT:
                         player.changeDir(Actor.MOVE_RIGHT);
-                        player.setSpeedX(player.getSpeedX()+5);
                         break;
                     case KeyEvent.VK_LEFT:
                         player.changeDir(Actor.MOVE_LEFT);
-                        player.setSpeedX(player.getSpeedX()-5);
                         break;
                     case KeyEvent.VK_SPACE:
                         if (player.canJump()){
@@ -64,7 +63,9 @@ public class LeaderBoardScene extends Scene {
             }
             @Override
             public void keyReleased(KeyEvent e){
-//                player.setSpeedX(0);
+                if (key == e.getKeyCode()){
+                    key = -1;
+                }
             }
         };
     }
@@ -77,6 +78,9 @@ public class LeaderBoardScene extends Scene {
             player.setSpeedY(0); // 落到地板上，
         }
         player.stay();
+        if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_LEFT){
+            player.acceleration();
+        }
         player.update();
         // 設定按鈕圖片
         buttonBack.setImageOffsetX(0);

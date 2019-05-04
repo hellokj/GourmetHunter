@@ -100,13 +100,11 @@ public class GameScene extends Scene {
                     case KeyEvent.VK_RIGHT:
                         if (!isPause){
                             player.changeDir(Actor.MOVE_RIGHT);
-                            player.setSpeedX(player.getSpeedX()+3);
                         }
                         break;
                     case KeyEvent.VK_LEFT:
                         if (!isPause){
                             player.changeDir(Actor.MOVE_LEFT);
-                            player.setSpeedX(player.getSpeedX()-3);
                         }
                         break;
                     case KeyEvent.VK_UP:
@@ -163,6 +161,9 @@ public class GameScene extends Scene {
             @Override
             public  void keyReleased(KeyEvent e){
 //                player.setSpeedX(0);
+                if (key == e.getKeyCode()){
+                    key = -1;
+                }
             }
         };
     }
@@ -231,6 +232,9 @@ public class GameScene extends Scene {
                 // 每次都要更新此次座標
                 for (Floor floor : floors) {
                     floor.update();
+                }
+                if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_LEFT){
+                    player.acceleration();
                 }
                 player.update();
                 // 掉落死亡 or 餓死後落下

@@ -8,8 +8,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
 
 public abstract class Scene {
-    public static final float GRAVITY = 0.5f;
-    public static final float FRICTION = 0.2f;
+    public static final float GRAVITY = 0.8f;
+    public static final float FRICTION = 0.3f;
     MainPanel.GameStatusChangeListener gsChangeListener;
 
     public Scene(MainPanel.GameStatusChangeListener gsChangeListener){

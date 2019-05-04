@@ -82,10 +82,5 @@ public class RunningTrap implements Trap {
                 }
             }
         }
-//        if (rotateDirection){
-//            player.setX(player.getX() + (int)rotateSpeed);
-//        }else {
-//            player.setX(player.getX() - (int)rotateSpeed);
-//        }
     }
 }

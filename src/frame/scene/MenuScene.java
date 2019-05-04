@@ -12,21 +12,21 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class MenuScene extends Scene{
-    private GameObject background, logo, road, hole_top, hole;
-    private Button buttonStart, buttonLeader;
+    private GameObject background, logo, road;
+    private Button buttonMode, buttonLeader, buttonExit;
     private Actor player;
-    private int countS,countL; // 碰觸按鈕延遲
+    private int countM,countL,countE; // 碰觸按鈕延遲
+    private int key;
 
     public MenuScene(MainPanel.GameStatusChangeListener gsChangeListener){
         super(gsChangeListener);
         this.background = new GameObject(0,-22,500, 700, "background/MenuBackground.png");
         this.logo = new GameObject(50,60,400,200,"background/Logo.png");
         this.road = new GameObject(0, 644, 600, 44, "background/Road.png");
-        this.hole_top = new GameObject(300,630,64,32,"background/hole_top.png");
-        this.hole = new GameObject(300,630,64,32,"background/hole.png");
-        this.buttonStart = new Button(50,375, 150, 100, "button/Button_start.png");
-        this.buttonLeader = new Button(280,375,150,100,"button/Button_LB.png");
-        this.player = new Actor(250, 700, 32, 32,32, 32, "actor/Actor1.png");
+        this.buttonMode = new Button(60,400, 100, 75, 150, 100, "button/Button_Mode.png");
+        this.buttonLeader = new Button(190,400,100, 75, 150, 100,"button/Button_LB.png");
+        this.buttonExit = new Button(320,400,100, 75, 150, 100,"button/Button_Exit.png");
+        this.player = new Actor(250, 700, 32, 32, 32, 32, "actor/Actor1.png");
     }
 
     @Override
@@ -34,15 +34,13 @@ public class MenuScene extends Scene{
         return new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e){
-                int key = e.getKeyCode();
+                key = e.getKeyCode();
                 switch (key){
                     case KeyEvent.VK_RIGHT:
                         player.changeDir(Actor.MOVE_RIGHT);
-                        player.setSpeedX(player.getSpeedX()+5);
                         break;
                     case KeyEvent.VK_LEFT:
                         player.changeDir(Actor.MOVE_LEFT);
-                        player.setSpeedX(player.getSpeedX()-5);
                         break;
                     case KeyEvent.VK_SPACE:
                         if (player.canJump()){
@@ -53,7 +51,9 @@ public class MenuScene extends Scene{
             }
             @Override
             public void keyReleased(KeyEvent e){
-//                player.setSpeedX(0);
+                if (key == e.getKeyCode()){
+                    key = -1;
+                }
             }
         };
     }
@@ -67,47 +67,54 @@ public class MenuScene extends Scene{
             player.setSpeedY(0); // 落到地板上，
         }
         // 設定按鈕圖片
-        buttonStart.setImageOffsetX(0);
+        buttonMode.setImageOffsetX(0);
         buttonLeader.setImageOffsetX(0);
+        buttonExit.setImageOffsetX(0);
+        if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_LEFT){
+            player.acceleration();
+        }
         player.update();
 //        player.setBoundary(); // 更新完座標後，設定邊界
         player.stay();
+
         // 按鈕碰撞換圖
-        if(buttonStart.checkCollision(player)){
-            buttonStart.setImageOffsetX(1);
-            if (countS++ == 1){ // 一個延遲後切換場景
-                hole_top.setX(350);
-                countS = 0;
-                // 切換至遊戲場景
-                //gsChangeListener.changeScene(MainPanel.GAME_SCENE);
+        // 切換至模式場景
+        if(buttonMode.checkCollision(player)){
+            buttonMode.setImageOffsetX(1);
+            if (countM++ == 40){ // 一個延遲後切換場景
+                gsChangeListener.changeScene(MainPanel.MODE_SCENE);
+                countM = 0;
             }
         }
-        if(hole_top.getX()==350&&hole.checkCollision(player)){
-            if (countS++ == 6){
-                gsChangeListener.changeScene(MainPanel.LOADING_SCENE);
-                countS = 0;
-            }
-        }
+
+        // 切換至排行榜場景
         if(buttonLeader.checkCollision(player)){
             buttonLeader.setImageOffsetX(1);
-            if (countL++ == 20){ // 一個延遲後切換場景
+            if (countL++ == 40){ // 一個延遲後切換場景
                 gsChangeListener.changeScene(MainPanel.LEADER_BOARD_SCENE);
                 countL = 0;
             }
-            // 切換至排行場景
-            // ...待補
+        }
+
+        // 結束遊戲
+        if(buttonExit.checkCollision(player)){
+            buttonExit.setImageOffsetX(1);
+            if (countE++ == 40){ // 一個延遲後切換場景
+                System.exit(1);
+                countE = 0;
+            }
         }
     }
+
 
     @Override
     public void paint(Graphics g) {
         background.paint(g);
         road.paint(g);
-        buttonStart.paint(g);
+        buttonMode.paint(g);
         buttonLeader.paint(g);
+        buttonExit.paint(g);
         logo.paint(g);
-        hole.paint(g);
-        hole_top.paint(g);
         player.paint(g);
     }
 }

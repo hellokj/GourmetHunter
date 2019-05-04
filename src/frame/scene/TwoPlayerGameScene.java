@@ -44,7 +44,7 @@ public class TwoPlayerGameScene extends Scene {
         // 場景物件
         setSceneObject();
         roof = new GameObject(0, 0, 500, 64, "background/Roof_new.png");
-        player1 = new Actor(250, 200, 32, 32, 32, 32, "actor/Actor2.png");
+        player1 = new Actor(240, 200, 32, 32, 32, 32, "actor/Actor2.png");
         player2 = new Actor(282, 200, 32, 32, 32, 32, "actor/Actor4.png");
         // 顯示板
         hungerLabel1 = new GameObject(28,8, 64, 32,64, 32, "background/HungerLabel.png");
@@ -87,13 +87,11 @@ public class TwoPlayerGameScene extends Scene {
                     case KeyEvent.VK_RIGHT:
                         if (!isPause){
                             player1.changeDir(Actor.MOVE_RIGHT);
-                            player1.setSpeedX(player1.getSpeedX()+3);
                         }
                         break;
                     case KeyEvent.VK_LEFT:
                         if (!isPause){
                             player1.changeDir(Actor.MOVE_LEFT);
-                            player1.setSpeedX(player1.getSpeedX()-3);
                         }
                         break;
                     case KeyEvent.VK_UP:
@@ -127,7 +125,6 @@ public class TwoPlayerGameScene extends Scene {
                     case KeyEvent.VK_A:
                         if (!isPause){
                             player2.changeDir(Actor.MOVE_LEFT);
-                            player2.setSpeedX(player2.getSpeedX()-3);
                         }
                         break;
                     case KeyEvent.VK_S:
@@ -142,13 +139,12 @@ public class TwoPlayerGameScene extends Scene {
                     case KeyEvent.VK_D:
                         if (!isPause){
                             player2.changeDir(Actor.MOVE_RIGHT);
-                            player2.setSpeedX(player2.getSpeedX()+3);
                         }
                         break;
                     case KeyEvent.VK_R:
-                        player1.reset();
-                        player2.reset();
-//                        reset();
+//                        player1.reset();
+//                        player2.reset();
+                        reset();
                         break;
                     case KeyEvent.VK_ESCAPE:
                         if (isPause){
@@ -177,11 +173,14 @@ public class TwoPlayerGameScene extends Scene {
                             }
                         }
                 }
+                System.out.println(player1.getSpeedX());
             }
 
             @Override
             public  void keyReleased(KeyEvent e){
-//                player1.setSpeedX(0);
+                if (key == e.getKeyCode()){
+                    key = -1;
+                }
             }
         };
     }
@@ -203,6 +202,12 @@ public class TwoPlayerGameScene extends Scene {
                 // 逆向摩擦力
                 friction(player1);
                 friction(player2);
+                if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_LEFT){
+                    player1.acceleration();
+                }
+                if (key == KeyEvent.VK_A || key == KeyEvent.VK_D){
+                    player2.acceleration();
+                }
                 if (checkTopBoundary(player1)){
                     player1.touchRoof();
                 }else {
@@ -213,6 +218,7 @@ public class TwoPlayerGameScene extends Scene {
                 }else {
                     player2.stay();
                 }
+
                 for (int i = 0; i < floors.size(); i++) {
                     player1.checkOnFloor(floors.get(i));
                     player2.checkOnFloor(floors.get(i));
@@ -240,8 +246,8 @@ public class TwoPlayerGameScene extends Scene {
                 fire_left.stay();
                 fire_right.stay();
                 // 人物飢餓
-                player1.hunger();
-                player2.hunger();
+//                player1.hunger();
+//                player2.hunger();
                 // 繪製現在飢餓值
                 hungerCount1.setDrawWidth(player1.getHunger());
                 hungerCount2.setDrawWidth(player2.getHunger());
@@ -249,39 +255,98 @@ public class TwoPlayerGameScene extends Scene {
                 for (Floor floor : floors) {
                     floor.update();
                 }
+                twoPlayerCollisionMechanism(player1, player2);
+                twoPlayerCollisionMechanism(player2, player1);
                 player1.update();
                 player2.update();
+                // 兩人碰撞機制
                 // 掉落死亡 or 餓死後落下
                 if (player1.getBottom() > GameFrame.FRAME_HEIGHT){
-//                    player1.die();
+                    player1.die();
                 }
                 if (player2.getBottom() > GameFrame.FRAME_HEIGHT){
-//                    player2.die();
+                    player2.die();
                 }
                 // 背景刷新
                 updateBackgroundImage();
             }else {
-                // 死亡跳起後落下
-                if (count1++ < 20){
-                    player1.setSpeedX(0);
-                    player1.setY(player1.getY()-5);
-                }else {
-                    player1.setSpeedX(0);
-                    player1.update();
-                    // 完全落下後切場景
-                    if (player1.getBottom() > GameFrame.FRAME_HEIGHT){
+                if (player1.isDie()){
+                    // 死亡跳起後落下
+                    if (count1++ < 20){
+                        player1.setSpeedX(0);
+                        player1.setY(player1.getY()-5);
+                    }else {
+                        player1.setSpeedX(0);
+                        player1.update();
+                        // 完全落下後切場景
+                        if (player1.getBottom() > GameFrame.FRAME_HEIGHT){
 //                        gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
+                        }
                     }
                 }
-                if (count2++ < 20){
-                    player2.setSpeedX(0);
-                    player2.setY(player2.getY()-5);
-                }else {
-                    player2.setSpeedX(0);
-                    player2.update();
-                    // 完全落下後切場景
-                    if (player2.getBottom() > GameFrame.FRAME_HEIGHT){
+                if (player2.isDie()){
+                    if (count2++ < 20){
+                        player2.setSpeedX(0);
+                        player2.setY(player2.getY()-5);
+                    }else {
+                        player2.setSpeedX(0);
+                        player2.update();
+                        // 完全落下後切場景
+                        if (player2.getBottom() > GameFrame.FRAME_HEIGHT){
 //                        gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void twoPlayerCollisionMechanism(Actor main, Actor target) {
+        int collisionDirP1 = main.checkCollisionDir(target);
+        int collisionDirP2 = target.checkCollisionDir(main);
+//        System.out.println(collisionDirP1 + "," + collisionDirP2);
+        // 兩方都確認確實有碰撞到
+        if (collisionDirP1 != -1 && collisionDirP2 != -1){
+            if (collisionDirP1 == Actor.MOVE_DOWN){
+                main.setY(target.getY() - main.getDrawHeight());
+                main.setSpeedY(-5);
+                return;
+            }
+            if (collisionDirP1 == Actor.MOVE_UP){
+                target.setY(main.getY() - target.getDrawHeight());
+                target.setSpeedY(-5);
+                return;
+            }
+            if (collisionDirP1 == Actor.MOVE_LEFT){
+                float speedDiff = (Math.abs(main.getSpeedX()) - Math.abs(target.getSpeedX()));
+                // 兩者速度差值
+                if ((main.getSpeedX() > 0 && target.getSpeedX() < 0) || (main.getSpeedX() < 0 && target.getSpeedX() > 0)){
+                    if (speedDiff > 0){ // main速率較大
+                        target.setSpeedX(main.getSpeedX());
+                    }else { // target速率較大
+                        main.setSpeedX(target.getSpeedX());
+                    }
+                    return;
+                }
+            }
+            if (collisionDirP1 == Actor.MOVE_RIGHT){
+                // 兩者速度差值
+                float speedDiff = (Math.abs(main.getSpeedX()) - Math.abs(target.getSpeedX()));
+                // 情況一：兩者方向相反，碰撞中(判斷速率大小，往大的方向推)
+                if ((main.getSpeedX() > 0 && target.getSpeedX() < 0) || (main.getSpeedX() < 0 && target.getSpeedX() > 0)){
+                    if (speedDiff > 0){ // main速率較大
+                        target.setSpeedX(main.getSpeedX());
+                    }else { // target速率較大
+                        main.setSpeedX(target.getSpeedX());
+                    }
+                    return;
+                }
+                // 情況二：兩者方向相同(判斷速率大小，速率小者設為速率大者)
+                if ((main.getSpeedX() > 0 && target.getSpeedX() > 0) || (main.getSpeedX() < 0 && target.getSpeedX() < 0)){
+                    if (speedDiff > 0){
+                        target.setSpeedX(main.getSpeedX());
+                    }else {
+                        main.setSpeedX(target.getSpeedX());
                     }
                 }
             }
@@ -308,6 +373,19 @@ public class TwoPlayerGameScene extends Scene {
 
         player1.paint(g);
         player2.paint(g);
+        // 畫出 p1, p2
+        g.setFont(TextManager.ENGLISH_FONT.deriveFont(16.0f));
+        g.setColor(Color.RED);
+        String pointer1 = "1P";
+        fm = g.getFontMetrics();
+        msgWidth = fm.stringWidth(pointer1);
+        msgAscent = fm.getAscent();
+        g.drawString(pointer1, player1.getX() - (msgWidth - player1.getDrawWidth())/ 2 ,player1.getY());
+        String pointer2 = "2P";
+        fm = g.getFontMetrics();
+        msgWidth = fm.stringWidth(pointer2);
+        msgAscent = fm.getAscent();
+        g.drawString(pointer2, player2.getX() - (msgWidth - player2.getDrawWidth())/ 2, player2.getY());
 
         // 印出吃到食物的回覆值
         g.setFont(TextManager.ENGLISH_FONT.deriveFont(15.0f));
@@ -357,6 +435,11 @@ public class TwoPlayerGameScene extends Scene {
                 layerDrawingCount = 0;
             }
         }
+        msgWidth = fm.stringWidth(msg);
+        msgAscent = fm.getAscent();
+        g.drawString(msg, 250 - msgWidth/2, 350);
+        g.setFont(chiFont.deriveFont(16.0f));
+        g.drawString("地下 " + layer + " 層", 365, 30);
 
         // 印出選單
         if (isCalled){
@@ -416,15 +499,15 @@ public class TwoPlayerGameScene extends Scene {
 
     // 重新開始遊戲
     private void reset(){
-        gsChangeListener.changeScene(MainPanel.INFINITY_GAME_SCENE);
+        gsChangeListener.changeScene(MainPanel.TWO_PLAYER_GAME_SCENE);
     }
 
     // 跳出選單
     private void menu(){
         isCalled = true;
-        button_resume = new Button(175, 150, 150, 100, "button/Button_Resume.png");
-        button_new_game = new Button(175, 300, 150, 100, "button/Button_NewGame.png");
-        button_menu = new Button(175, 450, 150, 100, "button/Button_Menu.png");
+        button_resume = new Button(175, 150, 150, 100, 150, 100, "button/Button_Resume.png");
+        button_new_game = new Button(175, 300, 150, 100, 150, 100, "button/Button_NewGame.png");
+        button_menu = new Button(175, 450, 150, 100, 150, 100, "button/Button_Menu.png");
         cursor = new GameObject(100, 150 + 25, 50, 50, 168, 140, "background/Cursor.png");
     }
 

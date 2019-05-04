@@ -7,6 +7,7 @@ import util.ResourcesManager;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 public class Actor extends AnimationGameObject{
     public static final int MOVE_DOWN = 0;
@@ -20,13 +21,13 @@ public class Actor extends AnimationGameObject{
     private BufferedImage imageFat, imageSlim = ResourcesManager.getInstance().getImage("actor/skeletona.png");
 
     // 身材速度上限
-    private static final int MAX_SPEED_FAT = 10;
-    private static final int MAX_SPEED_SLIM = 15;
+    private static final int MAX_SPEED_FAT = 8;
+    private static final int MAX_SPEED_SLIM = 12;
     // 身材持續加速度
-    private static final float ACCELERATION_FAT = 0.3f;
-    private static final float ACCELERATION_SLIM = 0.5f;
+    private static final float ACCELERATION_FAT = 1f;
+    private static final float ACCELERATION_SLIM = 2f;
     // 變換方向初速度
-    private static int CHANGE_DIRECTION_INITIAL_SPEED = 3;
+    private static int CHANGE_DIRECTION_INITIAL_SPEED = 2;
 
     // 角色現在狀態
     private boolean state; // 胖瘦狀態 true:肥 false:瘦
@@ -64,6 +65,8 @@ public class Actor extends AnimationGameObject{
         this.state = true;
         this.canJump = true;
         this.isEating = false;
+        setBoundary();
+        this.speedX = 1;
     }
 
     // getter and setter
@@ -118,7 +121,7 @@ public class Actor extends AnimationGameObject{
     }
 
     public void jump(){
-        int jumpSpeed = 14;
+        int jumpSpeed = 20;
         speedY -= jumpSpeed;
         this.canJump = false;
     }
@@ -182,18 +185,33 @@ public class Actor extends AnimationGameObject{
     }
 
     public void changeDir(int direction){
+//        switch (direction){
+//            case MOVE_RIGHT:
+//                imageOffsetY = 2;
+//                break;
+//            case MOVE_LEFT:
+//                imageOffsetY = 1;
+//                break;
+//            case MOVE_UP:
+//                imageOffsetY = 3;
+//                break;
+//            case MOVE_DOWN:
+//                imageOffsetY = 0;
+//                break;
+//        }
+//        this.direction = direction;
         // 轉向後設定速度初值
         if (this.direction != direction){
             switch (direction){
                 case MOVE_RIGHT:
                     imageOffsetY = 2;
                     speedX = CHANGE_DIRECTION_INITIAL_SPEED;
-//                    speedX = 0;
+                    speedX = 0;
                     break;
                 case MOVE_LEFT:
                     imageOffsetY = 1;
                     speedX = -CHANGE_DIRECTION_INITIAL_SPEED;
-//                    speedX = 0;
+                    speedX = 0;
                     break;
                 case MOVE_UP:
                     imageOffsetY = 3;
@@ -202,26 +220,45 @@ public class Actor extends AnimationGameObject{
                     imageOffsetY = 0;
                     break;
             }
+//             變換方向
+            this.direction = direction;
         }
-        // 變換方向
-        this.direction = direction;
+    }
+
+    public void acceleration() {
         // 持續按壓 加速度
         if (state){
-            switch (direction){
+            switch (this.direction){
                 case MOVE_RIGHT:
-                    speedX += ACCELERATION_FAT;
+                    if (speedX + ACCELERATION_FAT >= MAX_SPEED_FAT){
+                        speedX = MAX_SPEED_FAT;
+                    }else {
+                        speedX += ACCELERATION_FAT;
+                    }
                     break;
                 case MOVE_LEFT:
-                    speedX -= ACCELERATION_FAT;
+                    if (speedX - ACCELERATION_FAT <= -MAX_SPEED_FAT){
+                        speedX = -MAX_SPEED_FAT;
+                    }else {
+                        speedX -= ACCELERATION_FAT;
+                    }
                     break;
             }
         }else {
-            switch (direction){
+            switch (this.direction){
                 case MOVE_RIGHT:
-                    speedX += ACCELERATION_SLIM;
+                    if (speedX + ACCELERATION_SLIM >= MAX_SPEED_SLIM){
+                        speedX = MAX_SPEED_SLIM;
+                    }else {
+                        speedX += ACCELERATION_SLIM;
+                    }
                     break;
                 case MOVE_LEFT:
-                    speedX -= ACCELERATION_SLIM;
+                    if (speedX - ACCELERATION_SLIM <= -MAX_SPEED_SLIM){
+                        speedX = -MAX_SPEED_SLIM;
+                    }else {
+                        speedX -= ACCELERATION_SLIM;
+                    }
                     break;
             }
         }
@@ -259,6 +296,50 @@ public class Actor extends AnimationGameObject{
                 this.hunger += 20;
             }
         }
+    }
+
+    public boolean checkCollision(Actor target){
+        boolean isCollision = false;
+        int nextTop = (int) (this.getTop() - this.speedY),
+                nextBottom = (int) (this.getBottom() + this.speedY),
+                nextLeft = (int) (this.getLeft() - this.speedX),
+                nextRight = (int) (this.getRight() + this.speedX);
+        if(nextTop < target.getBottom()){
+            if(nextBottom > target.getTop()){
+                if(nextLeft < target.getRight()){
+                    if (nextRight > target.getLeft()){
+                        isCollision = true;
+                    }
+                }
+            }
+        }
+        return isCollision;
+    }
+
+    // 回傳碰撞到的方向
+    public int checkCollisionDir(Actor target){
+        int nextTop = (int) (this.getTop() - this.speedY),
+                nextBottom = (int) (this.getBottom() + this.speedY),
+                nextLeft = (int) (this.getLeft() - this.speedX),
+                nextRight = (int) (this.getRight() + this.speedX);
+
+        int collisionDir = -1;
+        if (checkCollision(target)){
+            // 回傳自己跟目標撞到的方向
+            if (nextBottom > target.y && this.y < target.y){ // 從頭上踩的情況
+                return MOVE_DOWN;
+            }
+            if (nextRight > target.x && this.x < target.x){ // 從左邊撞
+                return MOVE_RIGHT;
+            }
+            if (nextLeft < target.x + target.getDrawWidth() && this.x + this.drawWidth > target.x + target.getDrawWidth()){ // 從右邊撞
+                return MOVE_LEFT;
+            }
+            if (nextTop < target.y + target.getDrawHeight() && this.y + this.drawHeight > target.y + target.getDrawHeight()){ // 從下方撞
+                return MOVE_UP;
+            }
+        }
+        return collisionDir; // 回傳-1表示兩者沒接觸
     }
 
     public boolean checkOnObject(GameObject gameObject){

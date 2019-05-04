@@ -14,12 +14,13 @@ import java.awt.event.MouseListener;
 public class MainPanel extends javax.swing.JPanel {
     public static final int MENU_SCENE = 0;
     public static final int LOADING_SCENE = 1;
-    public static final int GAME_SCENE = 2;
-    public static final int TWO_PLAYER_GAME_SCENE = 3;
-    public static final int INFINITY_GAME_SCENE = 4;
-    public static final int END_SCENE = 5;
-    public static final int GAME_OVER_SCENE = 6;
-    public static final int LEADER_BOARD_SCENE = 7;
+    public static final int MODE_SCENE = 2;
+    public static final int GAME_SCENE = 3;
+    public static final int TWO_PLAYER_GAME_SCENE = 4;
+    public static final int INFINITY_GAME_SCENE = 5;
+    public static final int END_SCENE = 6;
+    public static final int GAME_OVER_SCENE = 7;
+    public static final int LEADER_BOARD_SCENE = 8;
 
     public interface GameStatusChangeListener{
         void changeScene(int sceneId);
@@ -38,9 +39,8 @@ public class MainPanel extends javax.swing.JPanel {
                 changeCurrentScene(genSceneById(sceneId));
             }
         };
-
         // 更改初始場景
-        changeCurrentScene(genSceneById(TWO_PLAYER_GAME_SCENE));
+        changeCurrentScene(genSceneById(MENU_SCENE));
 
         // delay 25 ms
         Timer t1 = new Timer(25, new ActionListener() {
@@ -86,6 +86,8 @@ public class MainPanel extends javax.swing.JPanel {
                 return new MenuScene(gsChangeListener);
             case LEADER_BOARD_SCENE:
                 return new LeaderBoardScene(gsChangeListener);
+            case MODE_SCENE:
+                return new ModeScene(gsChangeListener);
             case GAME_SCENE:
                 return new GameScene(gsChangeListener);
             case TWO_PLAYER_GAME_SCENE:
