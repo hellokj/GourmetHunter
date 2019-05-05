@@ -11,6 +11,7 @@ import java.awt.event.KeyListener;
 
 public class GameOverScene extends Scene {
     private GameObject background;
+    private int key;
 
     public GameOverScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
@@ -23,8 +24,9 @@ public class GameOverScene extends Scene {
 
             @Override
             public void keyPressed(KeyEvent e){
-                if (e.getKeyCode() == KeyEvent.VK_R){
-                    gsChangeListener.changeScene(MainPanel.GAME_SCENE);
+                key = e.getKeyCode();
+                if (key == KeyEvent.VK_R){
+                    gsChangeListener.changeScene(MainPanel.STORY_GAME_SCENE);
                 }
             }
         };

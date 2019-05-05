@@ -2,7 +2,6 @@ package frame;
 
 import character.GameObject;
 import frame.scene.*;
-import util.TextManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,12 +14,15 @@ public class MainPanel extends javax.swing.JPanel {
     public static final int MENU_SCENE = 0;
     public static final int LOADING_SCENE = 1;
     public static final int MODE_SCENE = 2;
-    public static final int GAME_SCENE = 3;
+    public static final int STORY_GAME_SCENE = 3;
     public static final int TWO_PLAYER_GAME_SCENE = 4;
     public static final int INFINITY_GAME_SCENE = 5;
     public static final int END_SCENE = 6;
     public static final int GAME_OVER_SCENE = 7;
     public static final int LEADER_BOARD_SCENE = 8;
+
+    public static final int DEBUGGER_SCENE = 99;
+
 
     public interface GameStatusChangeListener{
         void changeScene(int sceneId);
@@ -40,7 +42,7 @@ public class MainPanel extends javax.swing.JPanel {
             }
         };
         // 更改初始場景
-        changeCurrentScene(genSceneById(MENU_SCENE));
+        changeCurrentScene(genSceneById(MainPanel.INFINITY_GAME_SCENE));
 
         // delay 25 ms
         Timer t1 = new Timer(25, new ActionListener() {
@@ -88,8 +90,8 @@ public class MainPanel extends javax.swing.JPanel {
                 return new LeaderBoardScene(gsChangeListener);
             case MODE_SCENE:
                 return new ModeScene(gsChangeListener);
-            case GAME_SCENE:
-                return new GameScene(gsChangeListener);
+            case STORY_GAME_SCENE:
+                return new StoryGameScene(gsChangeListener);
             case TWO_PLAYER_GAME_SCENE:
                 return new TwoPlayerGameScene(gsChangeListener);
             case INFINITY_GAME_SCENE:
@@ -100,6 +102,8 @@ public class MainPanel extends javax.swing.JPanel {
                 return new EndScene(gsChangeListener);
             case GAME_OVER_SCENE:
                 return new GameOverScene(gsChangeListener);
+            case DEBUGGER_SCENE:
+                return new DebuggerScene(gsChangeListener);
         }
         return null;
     }

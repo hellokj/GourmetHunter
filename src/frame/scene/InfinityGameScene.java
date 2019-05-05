@@ -39,6 +39,8 @@ public class InfinityGameScene extends Scene {
     private FontMetrics fm;
     private int layerDrawingCount, healDrawingCount; // 文字顯示時間
 
+    private boolean up = false, down = false, left = false, right = false;
+
     public InfinityGameScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
         // 場景物件
@@ -78,20 +80,21 @@ public class InfinityGameScene extends Scene {
             @Override
             public void keyPressed(KeyEvent e){
                 key = e.getKeyCode();
-                switch (key){
+                switch (e.getKeyCode()){
+                    // p1 controller
                     case KeyEvent.VK_RIGHT:
                         if (!isPause){
-                            player.changeDir(Actor.MOVE_RIGHT);
+                            right = true;
                         }
                         break;
                     case KeyEvent.VK_LEFT:
                         if (!isPause){
-                            player.changeDir(Actor.MOVE_LEFT);
+                            left = true;
                         }
                         break;
                     case KeyEvent.VK_UP:
                         if (!isPause){
-                            player.changeDir(Actor.MOVE_UP);
+                            up = true;
                         }else {
                             if (!(cursor.getY() - 150 < button_resume.getY())){
                                 cursor.setY(cursor.getY() - 150);
@@ -100,7 +103,7 @@ public class InfinityGameScene extends Scene {
                         break;
                     case KeyEvent.VK_DOWN:
                         if (!isPause){
-                            player.changeDir(Actor.MOVE_DOWN);
+                            down = true;
                         }else {
                             if (!(cursor.getY() + 150 > button_menu.getBottom())){
                                 cursor.setY(cursor.getY() + 150);
@@ -142,8 +145,21 @@ public class InfinityGameScene extends Scene {
 
             @Override
             public  void keyReleased(KeyEvent e){
-                if (key == e.getKeyCode()){
-                    key = -1;
+                if (!isPause){
+                    switch (e.getKeyCode()){
+                        case KeyEvent.VK_RIGHT:
+                            right = false;
+                            break;
+                        case KeyEvent.VK_LEFT:
+                            left = false;
+                            break;
+                        case KeyEvent.VK_UP:
+                            up = false;
+                            break;
+                        case KeyEvent.VK_DOWN:
+                            down = false;
+                            break;
+                    }
                 }
             }
         };
@@ -154,9 +170,7 @@ public class InfinityGameScene extends Scene {
         if (!isPause){
             if (!player.isDie()){ // 還沒死亡的狀態
                 MainPanel.checkLeftRightBoundary(player);
-                if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_LEFT){
-                    player.acceleration();
-                }
+                changeDirection();
                 int floorAmount = checkSceneFloorAmount();
                 hungerValue = player.getHunger();
                 if (floorAmount < 10 && floors.size() < 15){
@@ -167,11 +181,11 @@ public class InfinityGameScene extends Scene {
                 }
                 // 逆向摩擦力
                 friction(player);
-                if (checkTopBoundary(player)){
-                    player.touchRoof();
-                }else {
-                    player.stay();
+
+                if ((right || left) && !player.isStop()){
+                    player.acceleration();
                 }
+
                 for (int i = 0; i < floors.size(); i++) {
                     player.checkOnFloor(floors.get(i));
                     // 吃食物機制
@@ -187,11 +201,17 @@ public class InfinityGameScene extends Scene {
                         floors.remove(i);
                     }
                 }
+                if (checkTopBoundary(player)){
+                    player.touchRoof();
+                }else {
+                    player.stay();
+                }
                 // 火把
                 fire_left.stay();
                 fire_right.stay();
                 // 人物飢餓
-                player.hunger();
+//                player1.hunger();
+//                player2.hunger();
                 // 繪製現在飢餓值
                 hungerCount.setDrawWidth(player.getHunger());
                 // 每次都要更新此次座標
@@ -201,7 +221,7 @@ public class InfinityGameScene extends Scene {
                 player.update();
                 // 掉落死亡 or 餓死後落下
                 if (player.getBottom() > GameFrame.FRAME_HEIGHT){
-//                    player.die();
+                    player.die();
                 }
                 // 背景刷新
                 updateBackgroundImage();
@@ -215,12 +235,11 @@ public class InfinityGameScene extends Scene {
                     player.update();
                     // 完全落下後切場景
                     if (player.getBottom() > GameFrame.FRAME_HEIGHT){
-                        gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
+//                            gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
                     }
                 }
             }
         }
-        System.out.println(player.isDie());
     }
 
     @Override
@@ -355,10 +374,18 @@ public class InfinityGameScene extends Scene {
     // 跳出選單
     private void menu(){
         isCalled = true;
-        button_resume = new Button(175, 150, 150, 100, 150, 100, "button/Button_Resume.png");
-        button_new_game = new Button(175, 300, 150, 100, 150, 100,"button/Button_NewGame.png");
-        button_menu = new Button(175, 450, 150, 100, 150, 100, "button/Button_Menu.png");
-        cursor = new GameObject(100, 150 + 25, 50, 50, 168, 140, "background/Cursor.png");
+        if (button_resume == null){
+            button_resume = new Button(175, 150, 150, 100, 150, 100, "button/Button_Resume.png");
+        }
+        if (button_new_game == null){
+            button_new_game = new Button(175, 300, 150, 100, 150, 100,"button/Button_NewGame.png");
+        }
+        if (button_menu == null){
+            button_menu = new Button(175, 450, 150, 100, 150, 100, "button/Button_Menu.png");
+        }
+        if (cursor == null){
+            cursor = new GameObject(100, 150 + 25, 50, 50, 168, 140, "background/Cursor.png");
+        }
     }
 
     private void pause(){
@@ -390,6 +417,17 @@ public class InfinityGameScene extends Scene {
         }
     }
 
+    private void changeDirection(){
+        if (!right && !left && !up && down){
+            player.changeDir(Actor.MOVE_DOWN);
+        }else if (!right && !left && up && !down){
+            player.changeDir(Actor.MOVE_UP);
+        }else if (!right && left && !up && !down){
+            player.changeDir(Actor.MOVE_LEFT);
+        }else if (right && !left && !up && !down){
+            player.changeDir(Actor.MOVE_RIGHT);
+        }
+    }
 
 }
 

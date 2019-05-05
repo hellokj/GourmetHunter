@@ -12,7 +12,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 
-public class TwoPlayerGameScene extends Scene {
+public class DebuggerScene extends Scene {
     private GameObject background_0, background_1, roof;
     private GameObject hungerCount1, hungerBack1, hungerCount2, hungerBack2;
     private int hungerValue1, hungerValue2;
@@ -38,13 +38,10 @@ public class TwoPlayerGameScene extends Scene {
     private int msgWidth, msgAscent;
     private FontMetrics fm;
     private int layerDrawingCount, healDrawingCount1, healDrawingCount2; // 文字顯示時間
-    // timer延遲調整
     private boolean up_p1 = false, down_p1 = false, left_p1 = false, right_p1 = false;
     private boolean up_p2 = false, down_p2 = false, left_p2 = false, right_p2 = false;
-    // timer test delay
-    private int delayCount;
 
-    public TwoPlayerGameScene(MainPanel.GameStatusChangeListener gsChangeListener) {
+    public DebuggerScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
         // 場景物件
         setSceneObject();
@@ -61,10 +58,18 @@ public class TwoPlayerGameScene extends Scene {
         hungerCount2 = new GameObject(296, 16, 0, 16, "background/HungerCount.png");
         // 初始10塊階梯
         floors = new ArrayList<>();
-        floors.add(new Floor(player1.getX(), 200 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立階梯
+        floors.add(new Floor(player1.getX(), 650 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立階梯
         for (int i = 0; i < 9; i++) {
             floors.add(FloorGenerator.getInstance().genFloor(floors.get(i), 0));
         }
+        floors.add(new Floor(player1.getX()-64, 650 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立階梯
+        floors.add(new Floor(player1.getX() -64-64, 650 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立階梯
+        floors.add(new Floor(player1.getX()-64-64-64, 650 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立階梯
+        floors.add(new Floor(player1.getX()+64, 650 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立階梯
+        floors.add(new Floor(player1.getX()+64+64, 650 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立階梯
+        floors.add(new Floor(player1.getX()+64+64+64, 650 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立階梯
+        floors.add(new Floor(player1.getX()-64-64-64-64, 650 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立階梯
+        floors.add(new Floor(player1.getX()+64+64+64+64, 650 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立階梯
         isCalled = false;
         isPause = false;
         showLayer = false;
@@ -234,13 +239,6 @@ public class TwoPlayerGameScene extends Scene {
                 friction(player1);
                 friction(player2);
 
-                if ((right_p1 || left_p1) && !player1.isStop()){
-                    player1.acceleration();
-                }
-                if ((right_p2 || left_p2) && !player2.isStop()){
-                    player2.acceleration();
-                }
-
                 for (int i = 0; i < floors.size(); i++) {
                     player1.checkOnFloor(floors.get(i));
                     player2.checkOnFloor(floors.get(i));
@@ -263,6 +261,12 @@ public class TwoPlayerGameScene extends Scene {
                     if (checkTopBoundary(floors.get(i))){
                         floors.remove(i);
                     }
+                }
+                if ((right_p1 || left_p1) && !player1.isStop()){
+                    player1.acceleration();
+                }
+                if ((right_p2 || left_p2) && !player2.isStop()){
+                    player2.acceleration();
                 }
                 if (checkTopBoundary(player1)){
                     player1.touchRoof();
@@ -288,9 +292,8 @@ public class TwoPlayerGameScene extends Scene {
                     floor.update();
                 }
                 // 兩人碰撞機制
-//                twoPlayer_v1();
-//                twoPlayer_v2();
-                twoPlayer_v3();
+                twoPlayerCollisionMechanism(player1, player2);
+                twoPlayerCollisionMechanism(player2, player1);
                 player1.update();
                 player2.update();
                 // 掉落死亡 or 餓死後落下
@@ -313,7 +316,7 @@ public class TwoPlayerGameScene extends Scene {
                         player1.update();
                         // 完全落下後切場景
                         if (player1.getBottom() > GameFrame.FRAME_HEIGHT){
-//                            gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
+//                        gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
                         }
                     }
                 }
@@ -326,7 +329,7 @@ public class TwoPlayerGameScene extends Scene {
                         player2.update();
                         // 完全落下後切場景
                         if (player2.getBottom() > GameFrame.FRAME_HEIGHT){
-//                            gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
+//                        gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
                         }
                     }
                 }
@@ -334,190 +337,9 @@ public class TwoPlayerGameScene extends Scene {
         }
     }
 
-    private void twoPlayer_v3() {
-        if (player1.checkCollision(player2) && player2.checkCollision(player1)){
-//                    player1.setSpeedX(0);
-//                    player2.setSpeedX(0);
-            player1.stop();
-            player2.stop();
-            System.out.println(up_p1 + " " + down_p1 + " " + left_p1 + " " + right_p1);
-            System.out.println(up_p2 + " " + down_p2 + " " + left_p2 + " " + right_p2);
-            collisionMechanism_3(player1, player2);
-//                    collisionMechanism_3(player2, player1);
-            player1.setSpeedX(0);
-            player2.setSpeedX(0);
-        }else {
-            player1.setStop(false);
-            player2.setStop(false);
-        }
-    }
-
-    private void twoPlayer_v2() {
-        collisionMechanism_2(player1, player2);
-        collisionMechanism_2(player2, player1);
-    }
-
-    private void twoPlayer_v1() {
-        collisionMechanism_1(player1, player2);
-        collisionMechanism_1(player2, player1);
-    }
-
-    private void collisionMechanism_3(Actor player1, Actor player2){
-        int collisionDirP1 = player1.checkCollisionDir(player2);
-        int collisionDirP2 = player2.checkCollisionDir(player1);
-        System.out.println(collisionDirP1 + "," + collisionDirP2);
-        int initialPosition1 = player1.getX();
-        int initialPosition2 = player2.getX();
-        if (collisionDirP1 == Actor.MOVE_DOWN){
-            player1.setY(player2.getY() - player1.getDrawHeight());
-            player1.setSpeedY(-5);
-            return;
-        }
-        if (collisionDirP1 == Actor.MOVE_UP){
-            player2.setY(player1.getY() - player2.getDrawHeight());
-            player2.setSpeedY(-5);
-            return;
-        }
-        if (collisionDirP1 == Actor.MOVE_RIGHT && collisionDirP2 == Actor.MOVE_LEFT){
-            player1.stop();
-            player2.stop();
-            player1.setX(initialPosition2 - player1.getDrawWidth());
-            player2.setX(initialPosition2);
-            System.out.println("???");
-//            return;
-        }
-        if (collisionDirP1 == Actor.MOVE_LEFT && collisionDirP2 == Actor.MOVE_RIGHT){
-            player2.stop();
-            player2.setX(initialPosition1 - player2.getDrawWidth());
-            player1.stop();
-            player1.setX(initialPosition1);
-//            return;
-        }
-    }
-
-    private void collisionMechanism_2(Actor player1, Actor player2){
-        int collisionDirP1 = player1.checkCollisionDir(player2);
-        int collisionDirP2 = player2.checkCollisionDir(player1);
-        System.out.println(collisionDirP1 + "," + collisionDirP2);
-        float speedMain = player1.getSpeedX();
-        float speedTarget = player2.getSpeedX();
-        int speedDifference = (int) (Math.abs(speedMain) - Math.abs(speedTarget));
-        if (collisionDirP1 == 0 && collisionDirP2 == 0){
-            // no way
-            return;
-        }
-        if (collisionDirP1 == 0 && collisionDirP2 == 1){
-            player1.setY(player2.getY() - player1.getDrawHeight());
-            player1.setSpeedY(-5);
-            return;
-        }
-        if (collisionDirP1 == 0 && collisionDirP2 == 2){
-            player1.setY(player2.getY() - player1.getDrawHeight());
-            player1.setSpeedY(-5);
-            return;
-        }
-        if (collisionDirP1 == 0 && collisionDirP2 == 3){
-            player1.setY(player2.getY() - player1.getDrawHeight());
-            player1.setSpeedY(-5);
-            return;
-        }
-        if (collisionDirP1 == 1 && collisionDirP2 == 0){
-            player2.setY(player1.getY() - player2.getDrawHeight());
-            player2.setSpeedY(-5);
-            return;
-        }
-        if (collisionDirP1 == 1 && collisionDirP2 == 1){
-            // no way
-            return;
-        }
-        if (collisionDirP1 == 1 && collisionDirP2 == 2){
-            // p2從下方撞
-            player1.setY(player2.getY() - player1.getDrawHeight());
-            player1.setSpeedY(-5);
-        }
-        if (collisionDirP1 == 1 && collisionDirP2 == 3){
-            if (speedDifference > 0){ // main 速率較大
-                if (speedTarget > 0){
-                    player2.setSpeedX(speedMain);
-                    return;
-                }
-                if (speedTarget < 0){
-                    player1.setSpeedX(speedDifference);
-                    player2.setSpeedX(speedDifference);
-                    return;
-                }
-            }
-            if (speedDifference < 0){ // target 速率較大
-                if (speedMain > 0){
-                    player2.setSpeedX(-speedDifference);
-                    player1.setSpeedX(-speedDifference);
-                    return;
-                }
-                if (speedMain < 0){
-                    player1.setSpeedX(speedTarget);
-                    return;
-                }
-            }
-        }
-        if (collisionDirP1 == 2 && collisionDirP2 == 0){
-            player2.setY(player1.getY() - player2.getDrawHeight());
-            player2.setSpeedY(-5);
-        }
-        if (collisionDirP1 == 2 && collisionDirP2 == 1){
-            // p1從下方撞
-            player2.setY(player1.getY() - player2.getDrawHeight());
-            player2.setSpeedY(-5);
-        }
-        if (collisionDirP1 == 2 && collisionDirP2 == 2){
-            // no way
-        }
-        if (collisionDirP1 == 2 && collisionDirP2 == 3){
-            // p1從下方撞
-            player2.setY(player1.getY() - player2.getDrawHeight());
-            player2.setSpeedY(-5);
-        }
-        if (collisionDirP1 == 3 && collisionDirP2 == 0){
-            player2.setY(player1.getY() - player2.getDrawHeight());
-            player2.setSpeedY(-5);
-        }
-        if (collisionDirP1 == 3 && collisionDirP2 == 1){
-            if (speedDifference > 0){ // main 速率較大
-                if (speedTarget < 0){
-                    player2.setSpeedX(speedMain);
-                    return;
-                }
-                if (speedTarget > 0){
-                    player1.setSpeedX(-speedDifference);
-                    player2.setSpeedX(-speedDifference);
-                    return;
-                }
-            }
-            if (speedDifference < 0){ // target 速率較大
-                if (speedMain > 0){
-                    player1.setSpeedX(speedTarget);
-                    return;
-                }
-                if (speedMain < 0){
-                    player2.setSpeedX(speedDifference);
-                    player1.setSpeedX(speedDifference);
-                    return;
-                }
-            }
-        }
-        if (collisionDirP1 == 3 && collisionDirP2 == 2){
-            // p2從下方撞
-            player1.setY(player2.getY() - player1.getDrawHeight());
-            player1.setSpeedY(-5);
-        }
-        if (collisionDirP1 == 3 && collisionDirP2 == 3){
-            // no way
-        }
-    }
-
-    private void collisionMechanism_1(Actor main, Actor target) {
+    private void twoPlayerCollisionMechanism(Actor main, Actor target) {
         int collisionDirP1 = main.checkCollisionDir(target);
         int collisionDirP2 = target.checkCollisionDir(main);
-        System.out.println(collisionDirP1 + "," + collisionDirP2);
         float speedMain = main.getSpeedX();
         float speedTarget = target.getSpeedX();
         int speedDifference = (int) (Math.abs(speedMain) - Math.abs(speedTarget));
@@ -528,7 +350,7 @@ public class TwoPlayerGameScene extends Scene {
             main.setSpeedY(-5);
             return;
         }
-        if (collisionDirP2 == Actor.MOVE_DOWN){
+        if (collisionDirP1 == Actor.MOVE_UP){
             target.setY(main.getY() - target.getDrawHeight());
             target.setSpeedY(-5);
             return;
@@ -537,13 +359,11 @@ public class TwoPlayerGameScene extends Scene {
             if (speedDifference > 0){ // main 速率較大
                 if (speedTarget < 0){
                     target.setSpeedX(speedMain);
-                    target.changeDir(Actor.MOVE_RIGHT);
                     return;
                 }
                 if (speedTarget > 0){
                     main.setSpeedX(-speedDifference);
                     target.setSpeedX(-speedDifference);
-                    target.changeDir(Actor.MOVE_LEFT);
                     return;
                 }
             }
@@ -555,7 +375,6 @@ public class TwoPlayerGameScene extends Scene {
                 if (speedMain < 0){
                     target.setSpeedX(speedDifference);
                     main.setSpeedX(speedDifference);
-                    main.changeDir(Actor.MOVE_RIGHT);
                     return;
                 }
             }
@@ -569,7 +388,6 @@ public class TwoPlayerGameScene extends Scene {
                 if (speedTarget < 0){
                     main.setSpeedX(speedDifference);
                     target.setSpeedX(speedDifference);
-                    target.changeDir(Actor.MOVE_RIGHT);
                     return;
                 }
             }
@@ -577,59 +395,6 @@ public class TwoPlayerGameScene extends Scene {
                 if (speedMain > 0){
                     target.setSpeedX(-speedDifference);
                     main.setSpeedX(-speedDifference);
-                    main.changeDir(Actor.MOVE_LEFT);
-                    return;
-                }
-                if (speedMain < 0){
-                    main.setSpeedX(speedTarget);
-                    return;
-                }
-            }
-        }
-        if (collisionDirP2 == Actor.MOVE_RIGHT){
-            if (speedDifference > 0){
-                if (speedTarget > 0){
-                    main.setSpeedX(-speedDifference);
-                    target.setSpeedX(-speedDifference);
-                    target.changeDir(Actor.MOVE_LEFT);
-                    return;
-                }
-                if (speedTarget < 0){
-                    target.setSpeedX(speedMain);
-                    return;
-                }
-            }
-            if (speedDifference < 0){
-                if (speedMain > 0){
-                    main.setSpeedX(speedTarget);
-                    return;
-                }
-                if (speedMain < 0){
-                    target.setSpeedX(speedDifference);
-                    main.setSpeedX(speedDifference);
-                    main.changeDir(Actor.MOVE_RIGHT);
-                    return;
-                }
-            }
-        }
-        if (collisionDirP2 == Actor.MOVE_LEFT){
-            if (speedDifference > 0){
-                if (speedTarget > 0){
-                    target.setSpeedX(speedMain);
-                    return;
-                }
-                if (speedTarget < 0){
-                    main.setSpeedX(speedDifference);
-                    target.setSpeedX(speedDifference);
-                    target.changeDir(Actor.MOVE_RIGHT);
-                    return;
-                }
-            }
-            if (speedDifference < 0){
-                if (speedMain > 0){
-                    target.setSpeedX(-speedDifference);
-                    main.setSpeedX(-speedDifference);
-                    main.changeDir(Actor.MOVE_LEFT);
                     return;
                 }
                 if (speedMain < 0){
@@ -785,7 +550,7 @@ public class TwoPlayerGameScene extends Scene {
 
     // 重新開始遊戲
     private void reset(){
-        gsChangeListener.changeScene(MainPanel.TWO_PLAYER_GAME_SCENE);
+        gsChangeListener.changeScene(MainPanel.DEBUGGER_SCENE);
     }
 
     // 跳出選單

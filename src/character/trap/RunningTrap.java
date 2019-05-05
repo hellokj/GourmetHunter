@@ -53,6 +53,9 @@ public class RunningTrap implements Trap {
     public void execute(Actor player, Floor floor) {
         if (floor.isTriggered()){ // 觸發
             if (rotateDirection){ // 順時針
+                if (player.getSpeedX() == 0){
+                    player.setX((int) (player.getX() + rotateSpeed));
+                }
                 if (player.getDirection() == Actor.MOVE_RIGHT){
                     if (player.getSpeedX() != player.getMaxSpeed()){
                         player.setSpeedX(player.getSpeedX() + player.getAcceleration() + rotateSpeed);
@@ -67,6 +70,9 @@ public class RunningTrap implements Trap {
                     }
                 }
             }else { // 逆時針
+                if (player.getSpeedX() == 0){
+                    player.setX((int) (player.getX() - rotateSpeed));
+                }
                 if (player.getDirection() == Actor.MOVE_RIGHT){
                     if (player.getSpeedX() != -rotateSpeed){
                         player.setSpeedX(player.getSpeedX() - (rotateSpeed - player.getAcceleration()));

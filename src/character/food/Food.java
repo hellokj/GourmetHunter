@@ -15,7 +15,7 @@ public class Food extends GameObject {
 
     public Food(Floor floor, int offset, BufferedImage image){
         super(floor.getX() + 20*offset, floor.getY() - 20, 20, 20);
-        this.offset = offset;
+        this.offset = offset; // 出現在階梯的第幾個位置上
         this.isEaten = false;
         this.floor = floor;
         this.heal = (int)(Math.random()*100);

@@ -5,24 +5,20 @@ import character.Button;
 import character.trap.TrapGenerator;
 import frame.GameFrame;
 import frame.MainPanel;
-import sun.applet.Main;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-import java.util.Collections;
 
-public class GameScene extends Scene {
+public class StoryGameScene extends Scene {
     private GameObject background_0, background_1, background_end, roof;
     private GameObject hungerCount, hungerBack;
     private int hungerValue;
     private GameObject endingFloor;
     private AnimationGameObject endingGate;
-    private AnimationGameObject fire_left0, fire_right0, fire_left1, fire_right1;
     private Actor player;
     private ArrayList<Floor> floors;
     private FloorGenerator floorGenerator;
-    private ArrayList<AnimationGameObject> fires_left, fires_right;
 
     // 選單相關
     private boolean isCalled;
@@ -43,7 +39,9 @@ public class GameScene extends Scene {
     private int key; // 鍵盤輸入值
     private int count; // 死亡跳起計數器
 
-    public GameScene(MainPanel.GameStatusChangeListener gsChangeListener) {
+    private boolean up = false, down = false, left = false, right = false;
+
+    public StoryGameScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
         floorGenerator = new FloorGenerator();
         // 場景物件
@@ -76,17 +74,6 @@ public class GameScene extends Scene {
         background_0 = new GameObject(0, -22, 500, 700, "background/EgyptBackground_0.png");
         background_1 = new GameObject(0, -22 + 700, 500, 700, "background/EgyptBackground_0.png");
         background_end = new GameObject(0, -22 + 700, 500, 700, "background/EgyptBackground_1.png");
-//        fire_left0 = new AnimationGameObject(0, 0, 30, 30, 64, 64,"background/Fire.png");
-//        fire_right0 = new AnimationGameObject(470, 300, 30, 30, 64, 64,"background/Fire.png");
-//        fire_left1 = new AnimationGameObject(0, 600, 30, 30, 64, 64,"background/Fire.png");
-//        fire_right1 = new AnimationGameObject(470, 900, 30, 30, 64, 64,"background/Fire.png");
-//
-//        fires_left = new ArrayList<>();
-//        fires_right = new ArrayList<>();
-//        fires_left.add(fire_left0);
-//        fires_right.add(fire_right0);
-//        fires_left.add(fire_left1);
-//        fires_right.add(fire_right1);
     }
 
     @Override
@@ -96,20 +83,21 @@ public class GameScene extends Scene {
             @Override
             public void keyPressed(KeyEvent e){
                 key = e.getKeyCode();
-                switch (key){
+                switch (e.getKeyCode()){
+                    // p1 controller
                     case KeyEvent.VK_RIGHT:
                         if (!isPause){
-                            player.changeDir(Actor.MOVE_RIGHT);
+                            right = true;
                         }
                         break;
                     case KeyEvent.VK_LEFT:
                         if (!isPause){
-                            player.changeDir(Actor.MOVE_LEFT);
+                            left = true;
                         }
                         break;
                     case KeyEvent.VK_UP:
                         if (!isPause){
-                            player.changeDir(Actor.MOVE_UP);
+                            up = true;
                         }else {
                             if (!(cursor.getY() - 150 < button_resume.getY())){
                                 cursor.setY(cursor.getY() - 150);
@@ -118,7 +106,7 @@ public class GameScene extends Scene {
                         break;
                     case KeyEvent.VK_DOWN:
                         if (!isPause){
-                            player.changeDir(Actor.MOVE_DOWN);
+                            down = true;
                         }else {
                             if (!(cursor.getY() + 150 > button_menu.getBottom())){
                                 cursor.setY(cursor.getY() + 150);
@@ -126,8 +114,7 @@ public class GameScene extends Scene {
                         }
                         break;
                     case KeyEvent.VK_R:
-//                        player.reset();
-//                        reset();
+                        player.reset();
                         break;
                     case KeyEvent.VK_ESCAPE:
                         if (isPause){
@@ -135,7 +122,6 @@ public class GameScene extends Scene {
                             isCalled = false;
                         }else {
                             pause();
-//                        gsChangeListener.changeScene(MainPanel.MENU_SCENE);
                             menu();
                         }
                         break;
@@ -160,9 +146,21 @@ public class GameScene extends Scene {
 
             @Override
             public  void keyReleased(KeyEvent e){
-//                player.setSpeedX(0);
-                if (key == e.getKeyCode()){
-                    key = -1;
+                if (!isPause){
+                    switch (e.getKeyCode()){
+                        case KeyEvent.VK_RIGHT:
+                            right = false;
+                            break;
+                        case KeyEvent.VK_LEFT:
+                            left = false;
+                            break;
+                        case KeyEvent.VK_UP:
+                            up = false;
+                            break;
+                        case KeyEvent.VK_DOWN:
+                            down = false;
+                            break;
+                    }
                 }
             }
         };
@@ -173,6 +171,7 @@ public class GameScene extends Scene {
         if (!isPause){
             if (!player.isDie()){ // 還沒死亡的狀態
                 MainPanel.checkLeftRightBoundary(player);
+                changeDirection();
                 int floorAmount = checkSceneFloorAmount();
                 hungerValue = player.getHunger();
                 if (floorAmount < 10 && time >= 5 && floors.size() < 15){
@@ -182,6 +181,9 @@ public class GameScene extends Scene {
                 }
                 // 逆向摩擦力
                 friction(player);
+                if ((right || left) && !player.isStop()){
+                    player.acceleration();
+                }
                 if (checkTopBoundary(player)){
                     player.touchRoof();
                 }else {
@@ -198,32 +200,6 @@ public class GameScene extends Scene {
                         floors.remove(i);
                     }
                 }
-                // 火把
-//            for (AnimationGameObject fire : fires_right) {
-//                fire.stay();
-//                if (checkTopBoundary(fire)){
-//                    fire.setY(1500);
-//                }
-//            }
-//
-//            for (int i = 0; i < fires_right.size(); i++) {
-//                if (time <= 5 && checkTopBoundary(fires_right.get(i))){
-//                    fires_right.remove(i);
-//                }
-//            }
-//
-//            for (AnimationGameObject fire : fires_left) {
-//                fire.stay();
-//                if (checkTopBoundary(fire)){
-//                    fire.setY(1200);
-//                }
-//            }
-//
-//            for (int i = 0; i < fires_left.size(); i++) {
-//                if (time <= 5 && checkTopBoundary(fires_left.get(i))){
-//                    fires_left.remove(i);
-//                }
-//            }
 
                 // 人物飢餓
 //            player.hunger();
@@ -232,9 +208,6 @@ public class GameScene extends Scene {
                 // 每次都要更新此次座標
                 for (Floor floor : floors) {
                     floor.update();
-                }
-                if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_LEFT){
-                    player.acceleration();
                 }
                 player.update();
                 // 掉落死亡 or 餓死後落下
@@ -298,14 +271,6 @@ public class GameScene extends Scene {
         for (Floor floor : floors) {
             floor.paint(g);
         }
-
-        // 火把
-//        for (AnimationGameObject fire : fires_left){
-//            fire.paint(g);
-//        }
-//        for (AnimationGameObject fire : fires_right){
-//            fire.paint(g);
-//        }
         if (isOver){
             endingFloor.paint(g);
             endingGate.paint(g);
@@ -362,16 +327,6 @@ public class GameScene extends Scene {
         if (time <= 6){
             background_end.setY(background_end.getY() - 3);
         }
-
-        // 火把
-//        for (AnimationGameObject fire : fires_left) {
-//            fire.setY(fire.getY() - 3);
-//            fire.setBoundary();
-//        }
-//        for (AnimationGameObject fire : fires_right) {
-//            fire.setY(fire.getY() - 3);
-//            fire.setBoundary();
-//        }
         background_0.setBoundary();
         background_1.setBoundary();
         background_end.setBoundary();
@@ -400,21 +355,23 @@ public class GameScene extends Scene {
 
     // 重新開始遊戲
     private void reset(){
-        gsChangeListener.changeScene(MainPanel.GAME_SCENE);
+        gsChangeListener.changeScene(MainPanel.STORY_GAME_SCENE);
     }
 
     // 跳出選單
     private void menu(){
         isCalled = true;
-        button_resume = new Button(175, 150, 150, 100, "button/Button_Resume.png");
-        button_new_game = new Button(175, 300, 150, 100, "button/Button_NewGame.png");
-        button_menu = new Button(175, 450, 150, 100, "button/Button_Menu.png");
-        cursor = new GameObject(100, 150 + 25, 50, 50, 168, 140, "background/Cursor.png");
-    }
-
-    private void chooseFunction(){
-        if (((cursor.getTop() + cursor.getBottom()) / 2) < 0) {
-            return;
+        if (button_resume == null){
+            button_resume = new Button(175, 150, 150, 100, 150, 100, "button/Button_Resume.png");
+        }
+        if (button_new_game == null){
+            button_new_game = new Button(175, 300, 150, 100, 150, 100,"button/Button_NewGame.png");
+        }
+        if (button_menu == null){
+            button_menu = new Button(175, 450, 150, 100, 150, 100, "button/Button_Menu.png");
+        }
+        if (cursor == null){
+            cursor = new GameObject(100, 150 + 25, 50, 50, 168, 140, "background/Cursor.png");
         }
     }
 
@@ -438,5 +395,17 @@ public class GameScene extends Scene {
             return button_menu;
         }
         return null;
+    }
+
+    private void changeDirection(){
+        if (!right && !left && !up && down){
+            player.changeDir(Actor.MOVE_DOWN);
+        }else if (!right && !left && up && !down){
+            player.changeDir(Actor.MOVE_UP);
+        }else if (!right && left && !up && !down){
+            player.changeDir(Actor.MOVE_LEFT);
+        }else if (right && !left && !up && !down){
+            player.changeDir(Actor.MOVE_RIGHT);
+        }
     }
 }

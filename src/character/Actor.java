@@ -1,13 +1,11 @@
 package character;
 
 import character.food.Food;
-import frame.scene.GameScene;
 import frame.scene.Scene;
 import util.ResourcesManager;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
 public class Actor extends AnimationGameObject{
     public static final int MOVE_DOWN = 0;
@@ -32,6 +30,7 @@ public class Actor extends AnimationGameObject{
     // 角色現在狀態
     private boolean state; // 胖瘦狀態 true:肥 false:瘦
     private boolean isOn; // 當前是否有在階梯上
+    private boolean isStop;
     private boolean canJump; // 可以跳
     private boolean invincible; // 無敵時間
     private int direction; // 角色方向
@@ -59,14 +58,15 @@ public class Actor extends AnimationGameObject{
 
     public Actor(int x, int y, int drawWidth, int drawHeight, int imageWidth, int imageHeight, String imageName) {
         super(x, y, drawWidth, drawHeight, imageWidth, imageHeight, imageName);
-        this.direction = MOVE_RIGHT;
+        this.direction = MOVE_DOWN;
         this.imageFat = ResourcesManager.getInstance().getImage(imageName);
         this.hunger = 0;
         this.state = true;
         this.canJump = true;
         this.isEating = false;
+        this.isStop = false;
         setBoundary();
-        this.speedX = 1;
+        this.speedX = 0;
     }
 
     // getter and setter
@@ -109,6 +109,16 @@ public class Actor extends AnimationGameObject{
     }
     public boolean isEating(){
         return isEating;
+    }
+    public boolean isStop(){
+        return this.isStop;
+    }
+    public void setStop(boolean state){
+        this.isStop = state;
+    }
+
+    public void stop(){
+        this.isStop = true;
     }
 
     public void reset(){
@@ -283,6 +293,7 @@ public class Actor extends AnimationGameObject{
     // 碰到天花板
     public void touchRoof(){
         if (!this.invincible){
+            this.isStop = false;
             this.speedX = 0;
             this.speedY = 0;
             this.direction = MOVE_DOWN;
@@ -299,11 +310,35 @@ public class Actor extends AnimationGameObject{
     }
 
     public boolean checkCollision(Actor target){
+//        int nextTop = (int) (this.getTop() - this.speedY),
+//                nextBottom = (int) (this.getBottom() + this.speedY),
+//                nextLeft = (int) (this.getLeft() - this.speedX),
+//                nextRight = (int) (this.getRight() + this.speedX);
+//
+//        return ((target.right < target.left || target.right > nextLeft) &&
+//                (target.bottom < target.top || target.bottom > nextTop) &&
+//                (nextRight < nextLeft || nextRight > target.left) &&
+//                (nextBottom < target.top || nextBottom > target.top));
+        int nextTop = this.getTop(), nextBottom = this.getBottom(), nextLeft = this.getLeft(), nextRight = this.getRight();
         boolean isCollision = false;
-        int nextTop = (int) (this.getTop() - this.speedY),
-                nextBottom = (int) (this.getBottom() + this.speedY),
-                nextLeft = (int) (this.getLeft() - this.speedX),
-                nextRight = (int) (this.getRight() + this.speedX);
+        switch (this.getDirection()){
+            case MOVE_UP:
+                nextTop = (int) (this.getTop() - this.getSpeedY());
+                nextBottom = (int) (this.getBottom() - this.getSpeedY());
+                break;
+            case MOVE_DOWN:
+                nextBottom = (int) (this.getBottom() + this.getSpeedY());
+                nextTop = (int) (this.getTop() + this.getSpeedY());
+                break;
+            case MOVE_LEFT:
+                nextLeft = (int) (this.getLeft() - this.getSpeedX());
+                nextRight = (int) (this.getRight() - this.getSpeedX());
+                break;
+            case MOVE_RIGHT:
+                nextRight = (int) (this.getRight() + this.getSpeedX());
+                nextLeft = (int) (this.getLeft() + this.getSpeedX());
+                break;
+        }
         if(nextTop < target.getBottom()){
             if(nextBottom > target.getTop()){
                 if(nextLeft < target.getRight()){
@@ -315,7 +350,7 @@ public class Actor extends AnimationGameObject{
         }
         return isCollision;
     }
-
+//
     // 回傳碰撞到的方向
     public int checkCollisionDir(Actor target){
         int nextTop = (int) (this.getTop() - this.speedY),
@@ -325,18 +360,18 @@ public class Actor extends AnimationGameObject{
 
         int collisionDir = -1;
         if (checkCollision(target)){
-            // 回傳自己跟目標撞到的方向
+//            回傳自己跟目標撞到的方向
             if (nextBottom > target.y && this.y < target.y){ // 從頭上踩的情況
                 return MOVE_DOWN;
+            }
+            if (nextTop < target.y + target.getDrawHeight() && this.y + this.drawHeight > target.y + target.getDrawHeight()){ // 從下方撞
+                return MOVE_UP;
             }
             if (nextRight > target.x && this.x < target.x){ // 從左邊撞
                 return MOVE_RIGHT;
             }
             if (nextLeft < target.x + target.getDrawWidth() && this.x + this.drawWidth > target.x + target.getDrawWidth()){ // 從右邊撞
                 return MOVE_LEFT;
-            }
-            if (nextTop < target.y + target.getDrawHeight() && this.y + this.drawHeight > target.y + target.getDrawHeight()){ // 從下方撞
-                return MOVE_UP;
             }
         }
         return collisionDir; // 回傳-1表示兩者沒接觸

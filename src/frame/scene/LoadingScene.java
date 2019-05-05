@@ -40,11 +40,11 @@ public class LoadingScene extends Scene {
                 key = e.getKeyCode();
                 switch (key){
                     case KeyEvent.VK_ESCAPE:
-                        gsChangeListener.changeScene(MainPanel.GAME_SCENE);
+                        gsChangeListener.changeScene(MainPanel.STORY_GAME_SCENE);
                         break;
                 }
                 if (isOver){
-                    gsChangeListener.changeScene(MainPanel.GAME_SCENE);
+                    gsChangeListener.changeScene(MainPanel.STORY_GAME_SCENE);
                 }
             }
         };
