@@ -6,6 +6,7 @@ import frame.MainPanel;
 import java.awt.*;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 
 public abstract class Scene {
     public static final float GRAVITY = 0.8f;
@@ -18,7 +19,7 @@ public abstract class Scene {
 
     abstract public KeyListener genKeyListener();
     abstract public void paint(Graphics g);
-    abstract public void logicEvent();
+    abstract public void logicEvent() throws IOException;
 
     // 摩擦力
     protected void friction(Actor player){

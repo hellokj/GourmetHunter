@@ -3,6 +3,7 @@ package frame.scene;
 import character.*;
 import character.Button;
 import character.food.Food;
+import character.trap.FlashTrap;
 import character.trap.TrapGenerator;
 import frame.GameFrame;
 import frame.MainPanel;
@@ -43,6 +44,8 @@ public class TwoPlayerGameScene extends Scene {
     private boolean up_p2 = false, down_p2 = false, left_p2 = false, right_p2 = false;
     // timer test delay
     private int delayCount;
+
+    private int flashCount; //閃光延遲
 
     public TwoPlayerGameScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
@@ -234,13 +237,6 @@ public class TwoPlayerGameScene extends Scene {
                 friction(player1);
                 friction(player2);
 
-                if ((right_p1 || left_p1) && !player1.isStop()){
-                    player1.acceleration();
-                }
-                if ((right_p2 || left_p2) && !player2.isStop()){
-                    player2.acceleration();
-                }
-
                 for (int i = 0; i < floors.size(); i++) {
                     player1.checkOnFloor(floors.get(i));
                     player2.checkOnFloor(floors.get(i));
@@ -286,6 +282,12 @@ public class TwoPlayerGameScene extends Scene {
                 // 每次都要更新此次座標
                 for (Floor floor : floors) {
                     floor.update();
+                }
+                if ((right_p1 || left_p1) && !player1.isStop()){
+                    player1.acceleration();
+                }
+                if ((right_p2 || left_p2) && !player2.isStop()){
+                    player2.acceleration();
                 }
                 // 兩人碰撞機制
 //                twoPlayer_v1();
@@ -335,21 +337,8 @@ public class TwoPlayerGameScene extends Scene {
     }
 
     private void twoPlayer_v3() {
-        if (player1.checkCollision(player2) && player2.checkCollision(player1)){
-//                    player1.setSpeedX(0);
-//                    player2.setSpeedX(0);
-            player1.stop();
-            player2.stop();
-            System.out.println(up_p1 + " " + down_p1 + " " + left_p1 + " " + right_p1);
-            System.out.println(up_p2 + " " + down_p2 + " " + left_p2 + " " + right_p2);
-            collisionMechanism_3(player1, player2);
-//                    collisionMechanism_3(player2, player1);
-            player1.setSpeedX(0);
-            player2.setSpeedX(0);
-        }else {
-            player1.setStop(false);
-            player2.setStop(false);
-        }
+        collisionMechanism_3(player1, player2);
+        collisionMechanism_3(player2, player1);
     }
 
     private void twoPlayer_v2() {
@@ -379,17 +368,17 @@ public class TwoPlayerGameScene extends Scene {
             return;
         }
         if (collisionDirP1 == Actor.MOVE_RIGHT && collisionDirP2 == Actor.MOVE_LEFT){
-            player1.stop();
-            player2.stop();
+//            player1.stop();
+//            player2.stop();
             player1.setX(initialPosition2 - player1.getDrawWidth());
             player2.setX(initialPosition2);
             System.out.println("???");
 //            return;
         }
         if (collisionDirP1 == Actor.MOVE_LEFT && collisionDirP2 == Actor.MOVE_RIGHT){
-            player2.stop();
+//            player2.stop();
             player2.setX(initialPosition1 - player2.getDrawWidth());
-            player1.stop();
+//            player1.stop();
             player1.setX(initialPosition1);
 //            return;
         }
@@ -726,6 +715,20 @@ public class TwoPlayerGameScene extends Scene {
         msgAscent = fm.getAscent();
         g.drawString(msg, 250 - msgWidth/2, 350);
         g.setFont(chiFont.deriveFont(16.0f));
+
+        //閃光開始
+        if(FlashTrap.getFlashState()){
+            flashCount++;
+        }//閃光持續
+        if(flashCount <15 && flashCount >0){
+            FlashTrap.getFlash().setCounter(flashCount -1);
+            //System.out.println("**"+flashCount);
+            FlashTrap.getFlash().paint(g);
+        }//閃光結束
+        else if(flashCount >=15){
+            FlashTrap.setFlashState(false);
+            flashCount = 0;
+        }
 
         // 印出選單
         if (isCalled){

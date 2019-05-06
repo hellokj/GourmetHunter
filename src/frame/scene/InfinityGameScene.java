@@ -3,6 +3,7 @@ package frame.scene;
 import character.*;
 import character.Button;
 import character.food.Food;
+import character.trap.FlashTrap;
 import character.trap.TrapGenerator;
 import frame.GameFrame;
 import frame.MainPanel;
@@ -10,6 +11,9 @@ import util.TextManager;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class InfinityGameScene extends Scene {
@@ -20,6 +24,11 @@ public class InfinityGameScene extends Scene {
     private Actor player;
     private ArrayList<Floor> floors;
 
+    // 名稱儲存
+    private char[] name; // 儲存名稱
+    private int nameCount;
+    private String string;
+
     // 選單相關
     private boolean isCalled;
     private boolean isPause;
@@ -28,16 +37,29 @@ public class InfinityGameScene extends Scene {
 
     // 顯示板
     private GameObject hungerLabel;
+    private GameObject record;
 
+    // 遊戲狀態
     private int key; // 鍵盤輸入值
     private int count; // 死亡跳起計數器
+    private boolean isOver;
     private int layer; // 地下階層
     private Food eatenFood;
+
     // 印出文字相關
     private boolean showLayer, showHeal;
     private int msgWidth, msgAscent;
     private FontMetrics fm;
     private int layerDrawingCount, healDrawingCount; // 文字顯示時間
+
+    //  排行榜
+    private static String[] leaderBoardData = MainPanel.leaderBoard;
+    private PlayerInfo[] playerInfos;
+    private boolean isOnBoard;
+    private int rank;
+    private boolean isKeyInOver;
+
+    private int flashCount; //閃光延遲
 
     private boolean up = false, down = false, left = false, right = false;
 
@@ -60,8 +82,16 @@ public class InfinityGameScene extends Scene {
         }
         isCalled = false;
         isPause = false;
+        isOver = false;
+        isKeyInOver = false;
         showLayer = false;
         layer = 0; // 從0層 開始
+        name = new char[5];
+        nameCount = 0;
+        // 讀取進來的排行榜資料
+        rank = -1; // 初始排行設定值
+        isOnBoard = false;
+        playerInfos = new PlayerInfo[5];
     }
 
     private void setSceneObject() {
@@ -83,49 +113,60 @@ public class InfinityGameScene extends Scene {
                 switch (e.getKeyCode()){
                     // p1 controller
                     case KeyEvent.VK_RIGHT:
-                        if (!isPause){
-                            right = true;
+                        if (!isOver){
+                            if (!isPause){
+                                right = true;
+                            }
                         }
                         break;
                     case KeyEvent.VK_LEFT:
-                        if (!isPause){
-                            left = true;
+                        if (!isOver){
+                            if (!isPause){
+                                left = true;
+                            }
                         }
                         break;
                     case KeyEvent.VK_UP:
-                        if (!isPause){
-                            up = true;
-                        }else {
-                            if (!(cursor.getY() - 150 < button_resume.getY())){
-                                cursor.setY(cursor.getY() - 150);
+                        if (!isOver){
+                            if (!isPause){
+                                up = true;
+                            }else {
+                                if (!(cursor.getY() - 150 < button_resume.getY())){
+                                    cursor.setY(cursor.getY() - 150);
+                                }
                             }
                         }
                         break;
                     case KeyEvent.VK_DOWN:
-                        if (!isPause){
-                            down = true;
-                        }else {
-                            if (!(cursor.getY() + 150 > button_menu.getBottom())){
-                                cursor.setY(cursor.getY() + 150);
+                        if (!isOver){
+                            if (!isPause){
+                                down = true;
+                            }else {
+                                if (!(cursor.getY() + 150 > button_menu.getBottom())){
+                                    cursor.setY(cursor.getY() + 150);
+                                }
                             }
                         }
                         break;
                     case KeyEvent.VK_R:
-                        player.reset();
+                        if (!isOver){
+                            player.reset();
+                        }
 //                        reset();
                         break;
                     case KeyEvent.VK_ESCAPE:
-                        if (isPause){
-                            resume();
-                            isCalled = false;
-                        }else {
-                            pause();
-//                        gsChangeListener.changeScene(MainPanel.MENU_SCENE);
-                            menu();
+                        if (!isOver){
+                            if (isPause){
+                                resume();
+                                isCalled = false;
+                            }else {
+                                pause();
+                                menu();
+                            }
                         }
                         break;
                     case KeyEvent.VK_SPACE:
-                        if (isPause){
+                        if (isPause && !isOver){
                             Button chooser = checkCursorPosition();
                             if (chooser == button_resume){
                                 resume();
@@ -140,6 +181,35 @@ public class InfinityGameScene extends Scene {
                                 isCalled = false;
                             }
                         }
+                        break;
+                    case 0x08:
+                        if (isOver){
+                            System.out.println("change");
+                            if (nameCount > 0){
+                                name[--nameCount] = 0;
+                            }
+                        }
+                        break;
+                    case KeyEvent.VK_ENTER:
+                        if (isOver && nameCount == 5){
+                            isKeyInOver = true;
+                            if (isKeyInOver){
+                                try {
+                                    writeBackLeaderBoard();
+                                } catch (IOException e1) {
+                                    e1.printStackTrace();
+                                }
+                            }
+                            gsChangeListener.changeScene(MainPanel.LEADER_BOARD_SCENE);
+                        }
+                }
+                if (isOver){
+                    if (nameCount != name.length){
+                        char input = (char)KeyEvent.getExtendedKeyCodeForChar(key);
+                        if ((input >= 48 && input <= 57) || (input >= 65 && input <= 90) || (input >= 97 && input <= 122)){
+                            name[nameCount++] = input;
+                        }
+                    }
                 }
             }
 
@@ -166,9 +236,9 @@ public class InfinityGameScene extends Scene {
     }
 
     @Override
-    public void logicEvent() {
-        if (!isPause){
-            if (!player.isDie()){ // 還沒死亡的狀態
+    public void logicEvent() throws IOException {
+        if (!player.isDie()){ // 還沒死亡的狀態
+            if (!isPause){
                 MainPanel.checkLeftRightBoundary(player);
                 changeDirection();
                 int floorAmount = checkSceneFloorAmount();
@@ -181,10 +251,6 @@ public class InfinityGameScene extends Scene {
                 }
                 // 逆向摩擦力
                 friction(player);
-
-                if ((right || left) && !player.isStop()){
-                    player.acceleration();
-                }
 
                 for (int i = 0; i < floors.size(); i++) {
                     player.checkOnFloor(floors.get(i));
@@ -210,13 +276,15 @@ public class InfinityGameScene extends Scene {
                 fire_left.stay();
                 fire_right.stay();
                 // 人物飢餓
-//                player1.hunger();
-//                player2.hunger();
+//                player.hunger();
                 // 繪製現在飢餓值
                 hungerCount.setDrawWidth(player.getHunger());
                 // 每次都要更新此次座標
                 for (Floor floor : floors) {
                     floor.update();
+                }
+                if ((right || left) && !player.isStop()){
+                    player.acceleration();
                 }
                 player.update();
                 // 掉落死亡 or 餓死後落下
@@ -225,7 +293,9 @@ public class InfinityGameScene extends Scene {
                 }
                 // 背景刷新
                 updateBackgroundImage();
-            }else {
+            }
+        }else {
+            if (!isPause){
                 // 死亡跳起後落下
                 if (count++ < 20){
                     player.setSpeedX(0);
@@ -235,11 +305,18 @@ public class InfinityGameScene extends Scene {
                     player.update();
                     // 完全落下後切場景
                     if (player.getBottom() > GameFrame.FRAME_HEIGHT){
-//                            gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
+                        isOver = true;
+                        isOnBoard = checkCurrentScoreOnBoard();
+                        if (isOnBoard){
+                            playerInfos[rank] = new PlayerInfo(String.valueOf(name), player.getScore());
+                        }else {
+                            gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
+                        }
                     }
                 }
             }
         }
+
     }
 
     @Override
@@ -293,6 +370,20 @@ public class InfinityGameScene extends Scene {
         g.setFont(chiFont);
         fm = g.getFontMetrics();
 
+        //閃光開始
+        if(FlashTrap.getFlashState()){
+            flashCount++;
+        }//閃光持續
+        if(flashCount <15 && flashCount >0){
+            FlashTrap.getFlash().setCounter(flashCount -1);
+            //System.out.println("**"+flashCount);
+            FlashTrap.getFlash().paint(g);
+        }//閃光結束
+        else if(flashCount >=15){
+            FlashTrap.setFlashState(false);
+            flashCount = 0;
+        }
+
         // 印出地下層數
         String msg = "";
         if (showLayer){
@@ -316,6 +407,19 @@ public class InfinityGameScene extends Scene {
             button_resume.paint(g);
             button_new_game.paint(g);
             cursor.paint(g);
+        }
+        if (isOver && isOnBoard){
+            int drawWidth = 300, drawHeight = 200;
+            if (record == null){
+                record = new GameObject(GameFrame.FRAME_WIDTH/2 - drawWidth/2, 200, drawWidth, drawHeight, 300, 200, "background/Record.png");
+            }
+            record.paint(g);
+            g.setFont(chiFont.deriveFont(25.0f));
+            msg = String.valueOf(name);
+            int msgWidth = fm.stringWidth(msg);
+            System.out.println(msgWidth);
+            g.setColor(Color.BLACK);
+            g.drawString(msg, GameFrame.FRAME_WIDTH/2 - 45, 350);
         }
     }
 
@@ -429,5 +533,36 @@ public class InfinityGameScene extends Scene {
         }
     }
 
+    // 確認當次成績是否上榜
+    private boolean checkCurrentScoreOnBoard(){
+        // 讀資料，加入至每筆上榜玩家資訊
+        for (int i = 0; i < leaderBoardData.length; i++) {
+            String[] eachRow = leaderBoardData[i].split(",");
+            playerInfos[i] = new PlayerInfo(eachRow[0], Integer.parseInt(eachRow[1]));
+        }
+        for (int i = playerInfos.length - 1; i >= 0; i--) {
+            if (playerInfos[i].getScore() < this.player.getScore()){
+                rank = i;
+            }
+        }
+        if (rank == -1){
+            return false;
+        }else {
+            for (int i = playerInfos.length - 1; i > rank; i--) {
+                PlayerInfo tmp = playerInfos[i-1];
+                playerInfos[i] = new PlayerInfo(tmp.getName(), tmp.getScore());
+            }
+            return true;
+        }
+    }
+
+    private void writeBackLeaderBoard() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new FileWriter(MainPanel.LEADER_BOARD_FILE_PATH));
+        for (int i = 0; i < 5; i++) {
+            String result = playerInfos[i].toString();
+            bw.write(result + "\n");
+        }
+        bw.close();
+    }
 }
 

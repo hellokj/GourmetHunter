@@ -1,5 +1,6 @@
 package frame;
 
+import character.Actor;
 import character.GameObject;
 import frame.scene.*;
 
@@ -9,6 +10,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class MainPanel extends javax.swing.JPanel {
     public static final int MENU_SCENE = 0;
@@ -23,6 +28,13 @@ public class MainPanel extends javax.swing.JPanel {
 
     public static final int DEBUGGER_SCENE = 99;
 
+    public static final String LEADER_BOARD_FILE_PATH = "leader_board.txt";
+    public static String[] leaderBoard;
+
+    public static Actor
+            player1 = new Actor(250, 700, 32, 32, 32, 32, "actor/Actor1.png"),
+            player2 = new Actor(250, 700, 32, 32, 32, 32, "actor/Actor1.png");
+
 
     public interface GameStatusChangeListener{
         void changeScene(int sceneId);
@@ -34,7 +46,11 @@ public class MainPanel extends javax.swing.JPanel {
     private Scene currentScene;
     private GameStatusChangeListener gsChangeListener;
 
-    public MainPanel(){
+    public MainPanel() throws IOException {
+        // 讀取排行
+        if (leaderBoard == null){
+            leaderBoard = readLeaderBoard(LEADER_BOARD_FILE_PATH);
+        }
         gsChangeListener = new GameStatusChangeListener() {
             @Override
             public void changeScene(int sceneId) {
@@ -49,7 +65,11 @@ public class MainPanel extends javax.swing.JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (currentScene != null){
-                    currentScene.logicEvent();
+                    try {
+                        currentScene.logicEvent();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
                 }
             }
         });
@@ -108,4 +128,15 @@ public class MainPanel extends javax.swing.JPanel {
         return null;
     }
 
+    private String[] readLeaderBoard(String path) throws IOException {
+        String[] data = new String[5];
+        BufferedReader br = new BufferedReader(new FileReader(path));
+        int i = 0;
+        while (br.ready() && i < 5){
+            data[i] = br.readLine();
+            i++;
+        }
+        br.close();
+        return data;
+    }
 }

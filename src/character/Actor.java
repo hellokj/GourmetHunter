@@ -86,6 +86,11 @@ public class Actor extends AnimationGameObject{
         this.direction = MOVE_DOWN;
         this.dieState = true;
     }
+
+    public void setImageFat(BufferedImage imageFat) {
+        this.imageFat = imageFat;
+    }
+
     public boolean canJump() {
         return canJump;
     }

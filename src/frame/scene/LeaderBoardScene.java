@@ -21,9 +21,8 @@ public class LeaderBoardScene extends Scene {
     private Actor player;
     private Button buttonBack;
     private int count;
-    private ArrayList<String> serials, names, hungers; // 編號、名稱、飢餓值 (用來比較)
+    private ArrayList<String> names, hungers; // 編號、名稱、飢餓值 (用來比較)
     private ArrayList<String> ranks; // 每列資料
-    private int rank; // 排行
     private int key;
     
     public LeaderBoardScene(MainPanel.GameStatusChangeListener gsChangeListener) {
@@ -33,11 +32,9 @@ public class LeaderBoardScene extends Scene {
         this.paper = new GameObject(50,100,350,450, "background/Paper.png");
         this.buttonBack = new Button(300,475, 150, 100, 150, 100, "button/Button_Back.png");
         this.player = new Actor(250, 622, 32, 32, 32, 32, "actor/Actor1.png");
-        this.serials = new ArrayList<>();
         this.names = new ArrayList<>();
         this.hungers = new ArrayList<>();
         this.ranks = new ArrayList<>();
-        this.rank = 0;
         dealWithData(readLeaderBoard());
     }
 
@@ -135,12 +132,11 @@ public class LeaderBoardScene extends Scene {
     private void dealWithData(ArrayList<String> data){
         for (int i = 0; i < data.size(); i++) {
             String[] eachRow = data.get(i).split(",");
-            serials.add(eachRow[0]);
-            names.add(eachRow[1]);
-            hungers.add(eachRow[2]);
+            names.add(eachRow[0]);
+            hungers.add(eachRow[1]);
         }
         for (int i = 0; i < data.size(); i++) {
-            String result = serials.get(i) + "    " + names.get(i) + "    " + hungers.get(i);
+            String result = (i+1) + "    " + names.get(i) + "    " + hungers.get(i);
             ranks.add(result);
         }
     }

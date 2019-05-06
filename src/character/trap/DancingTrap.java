@@ -52,8 +52,8 @@ public class DancingTrap implements Trap {
         // 將角色設為不能移動
         // 輸入完成後再回復原始狀態
         float initialSpeedX = player.getSpeedX();
-//        player.stop();
-        player.setSpeedX(0);
+        player.stop();
+//        player.setSpeedX(0);
 //        player.setX(player.getX());
         for (int i = 0; i < directions.size(); i++) {
             if (player.dance() == directions.get(0)){

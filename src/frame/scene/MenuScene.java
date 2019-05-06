@@ -26,7 +26,7 @@ public class MenuScene extends Scene{
         this.buttonMode = new Button(60,400, 100, 75, 150, 100, "button/Button_Mode.png");
         this.buttonLeader = new Button(190,400,100, 75, 150, 100,"button/Button_LB.png");
         this.buttonExit = new Button(320,400,100, 75, 150, 100,"button/Button_Exit.png");
-        this.player = new Actor(250, 700, 32, 32, 32, 32, "actor/Actor1.png");
+        this.player = MainPanel.player1;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class MenuScene extends Scene{
                     case KeyEvent.VK_LEFT:
                         player.changeDir(Actor.MOVE_LEFT);
                         break;
-                    case KeyEvent.VK_SPACE:
+                    case KeyEvent.VK_UP:
                         if (player.canJump()){
                             player.jump();
                         }

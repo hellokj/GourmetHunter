@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ResourcesManager {
-    // 圖片、字型、音效資源
+    // 圖片、字型、音效、資源
     //    private BufferedImage[] images;
 //    private String[] paths;
     private Map<String, BufferedImage> images;

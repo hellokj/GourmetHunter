@@ -3,12 +3,13 @@ package frame;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 public class GameFrame{
     public static final int FRAME_WIDTH = 500;
     public static final int FRAME_HEIGHT = 700;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         final JFrame mainFrame = new JFrame();
         MainPanel mp = new MainPanel();
         mainFrame.setTitle("Gourmet Hunter");

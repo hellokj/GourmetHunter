@@ -2,6 +2,7 @@ package frame.scene;
 
 import character.*;
 import character.Button;
+import character.trap.FlashTrap;
 import character.trap.TrapGenerator;
 import frame.GameFrame;
 import frame.MainPanel;
@@ -38,6 +39,8 @@ public class StoryGameScene extends Scene {
 
     private int key; // 鍵盤輸入值
     private int count; // 死亡跳起計數器
+
+    private int flashCount; //閃光延遲
 
     private boolean up = false, down = false, left = false, right = false;
 
@@ -282,6 +285,20 @@ public class StoryGameScene extends Scene {
             button_resume.paint(g);
             button_new_game.paint(g);
             cursor.paint(g);
+        }
+
+        //閃光開始
+        if(FlashTrap.getFlashState()){
+            flashCount++;
+        }//閃光持續
+        if(flashCount <15 && flashCount >0){
+            FlashTrap.getFlash().setCounter(flashCount -1);
+            //System.out.println("**"+flashCount);
+            FlashTrap.getFlash().paint(g);
+        }//閃光結束
+        else if(flashCount >=15){
+            FlashTrap.setFlashState(false);
+            flashCount = 0;
         }
 
         // 印出時間
