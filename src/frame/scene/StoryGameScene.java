@@ -246,6 +246,10 @@ public class StoryGameScene extends Scene {
             }
             if (background_end.getBottom() > GameFrame.FRAME_HEIGHT){
                 updateBackgroundImage();
+            }else {
+                for (int i = 0; i < floors.size(); i++) {
+                    floors.get(i).setSpeedY(0);
+                }
             }
             if (endingGate != null){
                 endingGate.setBoundary();
