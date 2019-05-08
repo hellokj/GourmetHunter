@@ -30,8 +30,7 @@ public class NormalTrap implements Trap {
         // 生成食物機率
         int genFoodRate = 80;
         if (random < genFoodRate){
-            BufferedImage image = ResourcesManager.getInstance().getImage("food/farm_product"+ ((int)(Math.random()*32)+1) +".png");
-            food = new Food(floor, ((int)(Math.random()*100)%3), image);
+            food = new Food(floor, ((int)(Math.random()*100)%3), "food/farm_product"+ ((int)(Math.random()*32)+1) +".png");
         }
 //        food = new Food(((int)((Math.random())*33)), floor);
         if (food != null){

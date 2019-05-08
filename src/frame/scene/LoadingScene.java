@@ -2,7 +2,6 @@ package frame.scene;
 
 import frame.MainPanel;
 import util.ResourcesManager;
-import util.TextManager;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -20,9 +19,10 @@ public class LoadingScene extends Scene {
     private int key;
     private static ArrayList<String> messages = loadMsg();
     private boolean isOver;
-    private int showMsgDelayCount, showMsgDelay = 120;
+    private int showMsgDelayCount, showMsgDelay = 20;
     private int index;
     private String msg;
+    private String message; // 整篇文章
 
     public LoadingScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
@@ -30,6 +30,7 @@ public class LoadingScene extends Scene {
         this.isOver = false;
         this.index = 0;
         this.msg = messages.get(0);
+        this.message = "";
     }
 
     @Override
@@ -51,15 +52,15 @@ public class LoadingScene extends Scene {
     }
 
     @Override
-    public void paint(Graphics g) {
-        Font font = TextManager.CHINESE_FONT.deriveFont(24.0f);
+    public void paint(Graphics g, MainPanel mainPanel) {
+        Font font = MainPanel.CHINESE_FONT.deriveFont(24.0f*MainPanel.ratio);
         g.setFont(font);
         g.setColor(Color.WHITE);
         FontMetrics fm = g.getFontMetrics();
         int msgWidth = fm.stringWidth(String.valueOf(msg));
         int msgAscent = fm.getAscent();
-        g.drawImage(background, 0, 0, 500, 700, null);
-        g.drawString(msg, 250 - msgWidth/2, 300);
+        g.drawImage(background, 0, 0, MainPanel.window.width, MainPanel.window.height, null);
+        g.drawString(msg, MainPanel.window.width/2 - msgWidth/2, MainPanel.window.height / 3);
     }
 
     @Override
@@ -70,9 +71,11 @@ public class LoadingScene extends Scene {
     // 更新文字內容
     private void showMsg(){
         if (!isOver){
-            msg = messages.get(index);
             if (showMsgDelayCount++ == showMsgDelay){
+                msg = messages.get(index);
                 index++;
+                message += msg;
+                System.out.println(msg);
                 showMsgDelayCount = 0;
             }
         }

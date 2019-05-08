@@ -1,11 +1,13 @@
 package frame;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class GameFrame{
+    public static final int W = 5, H = 7;
     public static final int FRAME_WIDTH = 500;
     public static final int FRAME_HEIGHT = 700;
 
@@ -24,6 +26,8 @@ public class GameFrame{
         Timer t1 = new Timer(20, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                Rectangle b = mainFrame.getBounds();
+                mainFrame.setBounds(b.x, b.y, b.width, b.width*H/W);
                 mainFrame.repaint();
             }
         });

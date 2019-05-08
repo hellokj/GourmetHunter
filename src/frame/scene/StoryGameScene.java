@@ -49,16 +49,16 @@ public class StoryGameScene extends Scene {
         floorGenerator = new FloorGenerator();
         // 場景物件
         setSceneObject();
-        roof = new GameObject(0, 0, 500, 64, "background/Roof_new.png");
-        endingFloor = new GameObject(0, 1200+20, 500, 32, "floor/EndingFloor.png");
+        roof = new GameObject(0, 0, 500, 64, 500, 64,"background/Roof_new.png");
+        endingFloor = new GameObject(0, 1200, 500, 32, 500, 32,"floor/EndingFloor.png");
         endingGate = new AnimationGameObject(300, endingFloor.getTop() - 64, 64, 64, 64, 64, "background/Door.png");
         player = new Actor(250, 200, 32, 32, 32, 32, "actor/Actor1.png");
         // 顯示板
         hungerLabel = new GameObject(28,8, 64, 32,64, 32, "background/HungerLabel.png");
         timeLabel = new GameObject(300 ,8,64, 32,64, 32, "background/TimeLabel.png");
         // 飢餓值
-        hungerBack = new GameObject(96, 16, 100, 16, "background/Hunger.png");
-        hungerCount = new GameObject(96, 16, 0, 16, "background/HungerCount.png");
+        hungerBack = new GameObject(96, 16, 100, 16, 5, 5, "background/Hunger.png");
+        hungerCount = new GameObject(96, 16, 0, 16,5, 5, "background/HungerCount.png");
         // 時間相關
         time = 20;
         colon = " : ";
@@ -74,9 +74,9 @@ public class StoryGameScene extends Scene {
     }
 
     private void setSceneObject() {
-        background_0 = new GameObject(0, -22, 500, 700, "background/EgyptBackground_0.png");
-        background_1 = new GameObject(0, -22 + 700, 500, 700, "background/EgyptBackground_0.png");
-        background_end = new GameObject(0, -22 + 700, 500, 700, "background/EgyptBackground_1.png");
+        background_0 = new GameObject(0, -22, 500, 700, 1417, 1984,"background/EgyptBackground_0.png");
+        background_1 = new GameObject(0, -22 + 700, 500, 700, 1417, 1984,"background/EgyptBackground_0.png");
+        background_end = new GameObject(0, -22 + 700, 500, 700, 1417, 1984, "background/EgyptBackground_1.png");
     }
 
     @Override
@@ -111,7 +111,7 @@ public class StoryGameScene extends Scene {
                         if (!isPause){
                             down = true;
                         }else {
-                            if (!(cursor.getY() + 150 > button_menu.getBottom())){
+                            if (!(cursor.getY() + 150 > button_menu.getY() + button_menu.getDrawHeight())){
                                 cursor.setY(cursor.getY() + 150);
                             }
                         }
@@ -205,7 +205,7 @@ public class StoryGameScene extends Scene {
                 }
 
                 // 人物飢餓
-//            player.hunger();
+//                player.hunger();
                 // 繪製現在飢餓值
                 hungerCount.setDrawWidth(player.getHunger());
                 // 每次都要更新此次座標
@@ -214,7 +214,7 @@ public class StoryGameScene extends Scene {
                 }
                 player.update();
                 // 掉落死亡 or 餓死後落下
-                if (player.getBottom() > GameFrame.FRAME_HEIGHT){
+                if (player.getModY() + player.getDrawHeight()*MainPanel.ratio > MainPanel.window.getHeight()){
                     player.die();
                 }
                 // 時間刷新
@@ -239,12 +239,12 @@ public class StoryGameScene extends Scene {
                     player.setSpeedX(0);
                     player.update();
                     // 完全落下後切場景
-                    if (player.getBottom() > GameFrame.FRAME_HEIGHT){
+                    if (player.getModY() + player.getDrawHeight()*MainPanel.ratio > MainPanel.window.getHeight()){
                         gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
                     }
                 }
             }
-            if (background_end.getBottom() > GameFrame.FRAME_HEIGHT){
+            if (background_end.getModY() + background_end.getDrawHeight() * MainPanel.ratio > MainPanel.window.getHeight()){
                 updateBackgroundImage();
             }else {
                 for (int i = 0; i < floors.size(); i++) {
@@ -265,62 +265,62 @@ public class StoryGameScene extends Scene {
     }
 
     @Override
-    public void paint(Graphics g) {
+    public void paint(Graphics g, MainPanel mainPanel) {
         Graphics2D g2d = (Graphics2D)g;
-        background_0.paint(g);
-        background_1.paint(g);
-        background_end.paint(g);
-        roof.paint(g);
-        hungerLabel.paint(g);
-        timeLabel.paint(g);
-        hungerBack.paint(g);
-        hungerCount.paint(g);
+        background_0.paint(g, mainPanel);
+        background_1.paint(g, mainPanel);
+        background_end.paint(g, mainPanel);
+        roof.paint(g, mainPanel);
+        hungerLabel.paint(g, mainPanel);
+        timeLabel.paint(g, mainPanel);
+        hungerBack.paint(g, mainPanel);
+        hungerCount.paint(g, mainPanel);
         for (Floor floor : floors) {
-            floor.paint(g);
+            floor.paint(g, mainPanel);
         }
         if (isOver){
-            endingFloor.paint(g);
-            endingGate.paint(g);
+            endingFloor.paint(g, mainPanel);
+            endingGate.paint(g, mainPanel);
         }
-        player.paint(g);
+        player.paint(g, mainPanel);
 
         if (isCalled){
-            button_menu.paint(g);
-            button_resume.paint(g);
-            button_new_game.paint(g);
-            cursor.paint(g);
+            button_menu.paint(g, mainPanel);
+            button_resume.paint(g, mainPanel);
+            button_new_game.paint(g, mainPanel);
+            cursor.paint(g, mainPanel);
         }
 
         //閃光開始
         if(FlashTrap.getFlashState()){
             flashCount++;
         }//閃光持續
-        if(flashCount <15 && flashCount >0){
-            FlashTrap.getFlash().setCounter(flashCount -1);
+        if(flashCount < 15 && flashCount > 0){
+            FlashTrap.getFlash().setCounter(flashCount - 1);
             //System.out.println("**"+flashCount);
-            FlashTrap.getFlash().paint(g);
+            FlashTrap.getFlash().paint(g, mainPanel);
         }//閃光結束
-        else if(flashCount >=15){
+        else if(flashCount >= 15){
             FlashTrap.setFlashState(false);
             flashCount = 0;
         }
 
         // 印出時間
-        Font font = g.getFont().deriveFont(16.0f);
+        Font font = g.getFont().deriveFont(16.0f * MainPanel.ratio);
         g.setFont(font);
         g.setColor(Color.RED);
         FontMetrics fm = g.getFontMetrics();
         int msgWidth = fm.stringWidth(String.valueOf(minute));
         int msgAscent = fm.getAscent();
-        g.drawString(String.valueOf(minute), 384, 30);
-        g.drawString(colon, 384 + msgWidth, 30);
-        g.drawString(String.valueOf(second), 384 + 2*msgWidth, 30);
-        g.drawString(String.valueOf(hungerValue), 96 + 112 + 10, 30);
+        g.drawString(String.valueOf(minute), (int) (384*MainPanel.ratio), (int) (30*MainPanel.ratio));
+        g.drawString(colon, (int) (384*MainPanel.ratio + msgWidth*MainPanel.ratio), (int) (30*MainPanel.ratio));
+        g.drawString(String.valueOf(second), (int) (384*MainPanel.ratio + 2*msgWidth*MainPanel.ratio), (int) (30*MainPanel.ratio));
+        g.drawString(String.valueOf(hungerValue), (int) (MainPanel.ratio*(96 + 112 + 10)), (int) (30*MainPanel.ratio));
     }
 
     // 比天花板高就消失
     private boolean checkTopBoundary(GameObject gameObject){
-        return gameObject.getTop() <= this.roof.getBottom();
+        return gameObject.getTop() <= this.roof.getModY() + this.roof.getDrawHeight()*MainPanel.ratio;
     }
 
     // 確認畫面中階梯數量
@@ -328,7 +328,7 @@ public class StoryGameScene extends Scene {
         int count = 0;
         for (int i = 0; i < floors.size(); i++) {
             Floor current = floors.get(i);
-            if (current.getTop() > 0 && current.getBottom() < GameFrame.FRAME_HEIGHT){
+            if (current.getModY() > 0 && current.getModY() + current.getDrawHeight() * MainPanel.ratio < MainPanel.window.height){
                 count++;
             }
         }
@@ -337,11 +337,11 @@ public class StoryGameScene extends Scene {
 
     // 更新背景圖
     private void updateBackgroundImage(){
-        if (background_0.getBottom() < 0){
-            background_0 = new GameObject(0, 678, 500, 700, "background/EgyptBackground_0.png");
+        if (background_0.getModY() + background_0.getDrawHeight() * MainPanel.ratio < 0){
+            background_0 = new GameObject(0, 678, 500, 700, 1417, 1984,"background/EgyptBackground_0.png");
         }
-        if (background_1.getBottom() < 0){
-            background_1 = new GameObject(0, 678, 500, 700, "background/EgyptBackground_0.png");
+        if (background_1.getModY() + background_1.getDrawHeight() * MainPanel.ratio < 0){
+            background_1 = new GameObject(0, 678, 500, 700, 1417, 1984,"background/EgyptBackground_0.png");
         }
         background_0.setY(background_0.getY() - 3);
         background_1.setY(background_1.getY() - 3);
@@ -406,13 +406,13 @@ public class StoryGameScene extends Scene {
 
     private Button checkCursorPosition(){
         Point cursorCenterPoint = cursor.getCenterPoint();
-        if (cursorCenterPoint.y < button_resume.getBottom() && cursorCenterPoint.y > button_resume.getTop()){
+        if (cursorCenterPoint.y < button_resume.getModY() + button_resume.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_resume.getModY()){
             return button_resume;
         }
-        if (cursorCenterPoint.y < button_new_game.getBottom() && cursorCenterPoint.y > button_new_game.getTop()){
+        if (cursorCenterPoint.y < button_new_game.getModY() + button_new_game.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_new_game.getModY()){
             return button_new_game;
         }
-        if (cursorCenterPoint.y < button_menu.getBottom() && cursorCenterPoint.y > button_menu.getTop()){
+        if (cursorCenterPoint.y < button_menu.getModY() + button_menu.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_menu.getModY()){
             return button_menu;
         }
         return null;

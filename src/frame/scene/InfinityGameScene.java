@@ -7,7 +7,7 @@ import character.trap.FlashTrap;
 import character.trap.TrapGenerator;
 import frame.GameFrame;
 import frame.MainPanel;
-import util.TextManager;
+import util.PainterManager;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -25,9 +25,7 @@ public class InfinityGameScene extends Scene {
     private ArrayList<Floor> floors;
 
     // 名稱儲存
-    private char[] name; // 儲存名稱
-    private int nameCount;
-    private String string;
+    private String name; // 儲存名稱
 
     // 選單相關
     private boolean isCalled;
@@ -57,37 +55,35 @@ public class InfinityGameScene extends Scene {
     private PlayerInfo[] playerInfos;
     private boolean isOnBoard;
     private int rank;
-    private boolean isKeyInOver;
 
     private int flashCount; //閃光延遲
 
+    // 人物操控
     private boolean up = false, down = false, left = false, right = false;
 
     public InfinityGameScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
         // 場景物件
         setSceneObject();
-        roof = new GameObject(0, 0, 500, 64, "background/Roof_new.png");
+        roof = new GameObject(0, 0, 500, 64, 500, 64,"background/Roof_new.png");
         player = new Actor(250, 200, 32, 32, 32, 32, "actor/Actor2.png");
         // 顯示板
         hungerLabel = new GameObject(28,8, 64, 32,64, 32, "background/HungerLabel.png");
         // 飢餓值
-        hungerBack = new GameObject(96, 16, 100, 16, "background/Hunger.png");
-        hungerCount = new GameObject(96, 16, 0, 16, "background/HungerCount.png");
+        hungerBack = new GameObject(96, 16, 100, 16,5, 5, "background/Hunger.png");
+        hungerCount = new GameObject(96, 16, 0, 16, 5, 5, "background/HungerCount.png");
         // 初始10塊階梯
         floors = new ArrayList<>();
-        floors.add(new Floor(player.getX() - (64 - 32), 200 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立
+        floors.add(new Floor(player.getModX() - (64 - 32), 200 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立
         for (int i = 0; i < 9; i++) {
             floors.add(FloorGenerator.getInstance().genFloor(floors.get(i), 0));
         }
         isCalled = false;
         isPause = false;
         isOver = false;
-        isKeyInOver = false;
         showLayer = false;
         layer = 0; // 從0層 開始
-        name = new char[5];
-        nameCount = 0;
+        name = "";
         // 讀取進來的排行榜資料
         rank = -1; // 初始排行設定值
         isOnBoard = false;
@@ -95,12 +91,12 @@ public class InfinityGameScene extends Scene {
     }
 
     private void setSceneObject() {
-        background_0 = new GameObject(0, -22, 500, 700, "background/EndBackground.png");
-        background_1 = new GameObject(0, -22 + 700, 500, 700, "background/EndBackground.png");
+        background_0 = new GameObject(0, -22, 500, 700, 1024, 768,"background/EndBackground.png");
+        background_1 = new GameObject(0, -22 + 700, 500, 700, 1024, 768,"background/EndBackground.png");
         background_0.setBoundary();
         background_1.setBoundary();
-        fire_left = new AnimationGameObject(0, background_0.getBottom()/2, 30, 30, 64, 64,"background/Fire.png");
-        fire_right = new AnimationGameObject(470, background_0.getBottom(), 30, 30, 64, 64,"background/Fire.png");
+        fire_left = new AnimationGameObject(0, (int) (background_0.getModY() + background_0.getDrawHeight()*MainPanel.ratio/2), 30, 30, 64, 64,"background/Fire.png");
+        fire_right = new AnimationGameObject(470, (int) (background_0.getModY() + background_0.getDrawHeight()*MainPanel.ratio/2), 30, 30, 64, 64,"background/Fire.png");
     }
 
     @Override
@@ -131,7 +127,7 @@ public class InfinityGameScene extends Scene {
                             if (!isPause){
                                 up = true;
                             }else {
-                                if (!(cursor.getY() - 150 < button_resume.getY())){
+                                if (!(cursor.getY() - 150*MainPanel.ratio < button_resume.getY())){
                                     cursor.setY(cursor.getY() - 150);
                                 }
                             }
@@ -142,7 +138,7 @@ public class InfinityGameScene extends Scene {
                             if (!isPause){
                                 down = true;
                             }else {
-                                if (!(cursor.getY() + 150 > button_menu.getBottom())){
+                                if (!(cursor.getY() + 150*MainPanel.ratio > button_menu.getY() + button_menu.getDrawHeight())){
                                     cursor.setY(cursor.getY() + 150);
                                 }
                             }
@@ -185,29 +181,29 @@ public class InfinityGameScene extends Scene {
                     case 0x08:
                         if (isOver){
                             System.out.println("change");
-                            if (nameCount > 0){
-                                name[--nameCount] = 0;
+                            if (name.length() > 0){
+//                                name[--nameCount] = 0;
+                                name = name.substring(0, name.length() - 1);
                             }
                         }
                         break;
                     case KeyEvent.VK_ENTER:
-                        if (isOver && nameCount == 5){
-                            isKeyInOver = true;
-                            if (isKeyInOver){
-                                try {
-                                    writeBackLeaderBoard();
-                                } catch (IOException e1) {
-                                    e1.printStackTrace();
-                                }
+                        if (isOver && name.length() > 0){
+                            try {
+                                writeBackLeaderBoard();
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
                             }
                             gsChangeListener.changeScene(MainPanel.LEADER_BOARD_SCENE);
                         }
                 }
                 if (isOver){
-                    if (nameCount != name.length){
+                    if (name.length() < 8){
                         char input = (char)KeyEvent.getExtendedKeyCodeForChar(key);
                         if ((input >= 48 && input <= 57) || (input >= 65 && input <= 90) || (input >= 97 && input <= 122)){
-                            name[nameCount++] = input;
+//                            name[nameCount++] = input;
+                            System.out.println(input);
+                            name += String.valueOf(input);
                         }
                     }
                 }
@@ -288,7 +284,7 @@ public class InfinityGameScene extends Scene {
                 }
                 player.update();
                 // 掉落死亡 or 餓死後落下
-                if (player.getBottom() > GameFrame.FRAME_HEIGHT){
+                if (player.getModY() + player.getDrawHeight() * MainPanel.ratio > MainPanel.window.height){
                     player.die();
                 }
                 // 背景刷新
@@ -304,7 +300,7 @@ public class InfinityGameScene extends Scene {
                     player.setSpeedX(0);
                     player.update();
                     // 完全落下後切場景
-                    if (player.getBottom() > GameFrame.FRAME_HEIGHT){
+                    if (player.getModY() + player.getDrawHeight() * MainPanel.ratio > MainPanel.window.height){
                         isOver = true;
                         isOnBoard = checkCurrentScoreOnBoard();
                         if (isOnBoard){
@@ -320,25 +316,25 @@ public class InfinityGameScene extends Scene {
     }
 
     @Override
-    public void paint(Graphics g) {
-        Graphics2D g2d = (Graphics2D)g;
-        background_0.paint(g);
-        background_1.paint(g);
-        fire_left.paint(g);
-        fire_right.paint(g);
-        roof.paint(g);
-        hungerLabel.paint(g);
-        hungerBack.paint(g);
-        hungerCount.paint(g);
+    public void paint(Graphics g, MainPanel mainPanel) {
+        Graphics2D g2d = PainterManager.g2d(g);
+        background_0.paint(g, mainPanel);
+        background_1.paint(g, mainPanel);
+        fire_left.paint(g, mainPanel);
+        fire_right.paint(g, mainPanel);
+        roof.paint(g, mainPanel);
+        hungerLabel.paint(g, mainPanel);
+        hungerBack.paint(g, mainPanel);
+        hungerCount.paint(g, mainPanel);
         for (Floor floor : floors) {
-            floor.paint(g);
+            floor.paint(g, mainPanel);
         }
 
-        player.paint(g);
+        player.paint(g, mainPanel);
 
         // 印出吃到食物的回覆值
-        g.setFont(TextManager.ENGLISH_FONT.deriveFont(15.0f));
-        g.setColor(Color.GREEN);
+        g2d.setFont(MainPanel.ENGLISH_FONT.deriveFont(15.0f*MainPanel.ratio));
+        g2d.setColor(Color.GREEN);
         String healMsg = "";
         if (showHeal){
             if (++healDrawingCount <= 50){
@@ -348,27 +344,27 @@ public class InfinityGameScene extends Scene {
                 healDrawingCount = 0;
             }
         }
-        fm = g.getFontMetrics();
+        fm = g2d.getFontMetrics();
         msgWidth = fm.stringWidth(healMsg);
         msgAscent = fm.getAscent();
-        g.drawString(healMsg, player.getX() - (msgWidth - player.getDrawWidth())/ 2, player.getY());
+        g2d.drawString(healMsg, player.getModX() - (msgWidth*MainPanel.ratio - player.getDrawWidth()*MainPanel.ratio)/ 2, player.getModY());
 
         // 印出現在總體成績
-        g.setFont(TextManager.ENGLISH_FONT.deriveFont(20.0f));
-        g.setColor(Color.WHITE);
+        g2d.setFont(MainPanel.ENGLISH_FONT.deriveFont(20.0f*MainPanel.ratio));
+        g2d.setColor(Color.WHITE);
         String scoreMsg = "Score : " + player.getScore();
         msgWidth = fm.stringWidth(scoreMsg);
         msgAscent = fm.getAscent();
-        g.drawString(scoreMsg, 220 + msgWidth/3, 30);
+        g2d.drawString(scoreMsg, 220*MainPanel.ratio + msgWidth/3, 30*MainPanel.ratio);
 
         // 印出飢餓值
-        Font engFont = TextManager.ENGLISH_FONT.deriveFont(16.0f);
-        Font chiFont = TextManager.CHINESE_FONT.deriveFont(36.0f);
-        g.setFont(engFont);
-        g.setColor(Color.WHITE);
-        g.drawString(String.valueOf(hungerValue), 96 + 112, 30);
-        g.setFont(chiFont);
-        fm = g.getFontMetrics();
+        Font engFont = MainPanel.ENGLISH_FONT.deriveFont(16.0f*MainPanel.ratio);
+        Font chiFont = MainPanel.CHINESE_FONT.deriveFont(36.0f*MainPanel.ratio);
+        g2d.setFont(engFont);
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(String.valueOf(hungerValue), (96 + 112)*MainPanel.ratio, 30*MainPanel.ratio);
+        g2d.setFont(chiFont);
+        fm = g2d.getFontMetrics();
 
         //閃光開始
         if(FlashTrap.getFlashState()){
@@ -377,7 +373,7 @@ public class InfinityGameScene extends Scene {
         if(flashCount <15 && flashCount >0){
             FlashTrap.getFlash().setCounter(flashCount -1);
             //System.out.println("**"+flashCount);
-            FlashTrap.getFlash().paint(g);
+            FlashTrap.getFlash().paint(g, mainPanel);
         }//閃光結束
         else if(flashCount >=15){
             FlashTrap.setFlashState(false);
@@ -397,35 +393,38 @@ public class InfinityGameScene extends Scene {
         }
         msgWidth = fm.stringWidth(msg);
         msgAscent = fm.getAscent();
-        g.drawString(msg, 250 - msgWidth/2, 350);
-        g.setFont(chiFont.deriveFont(16.0f));
-        g.drawString("地下 " + layer + " 層", 365, 30);
+        g2d.drawString(msg, 250*MainPanel.ratio - msgWidth/2, 350*MainPanel.ratio);
+        g2d.setFont(chiFont.deriveFont(16.0f*MainPanel.ratio));
+        g2d.drawString("地下 " + layer + " 層", 365*MainPanel.ratio, 30*MainPanel.ratio);
 
         // 印出選單
         if (isCalled){
-            button_menu.paint(g);
-            button_resume.paint(g);
-            button_new_game.paint(g);
-            cursor.paint(g);
+            button_menu.paint(g, mainPanel);
+            button_resume.paint(g, mainPanel);
+            button_new_game.paint(g, mainPanel);
+            cursor.paint(g, mainPanel);
         }
+        // 彈出輸入名字視窗
         if (isOver && isOnBoard){
             int drawWidth = 300, drawHeight = 200;
             if (record == null){
-                record = new GameObject(GameFrame.FRAME_WIDTH/2 - drawWidth/2, 200, drawWidth, drawHeight, 300, 200, "background/Record.png");
+                record = new GameObject((int) (MainPanel.window.width/2 - drawWidth*MainPanel.ratio/2), (int) (MainPanel.window.height/2*MainPanel.ratio - drawHeight*MainPanel.ratio/2), (int) (drawWidth*MainPanel.ratio), (int) (drawHeight*MainPanel.ratio), 300, 200, "background/Record.png");
             }
-            record.paint(g);
-            g.setFont(chiFont.deriveFont(25.0f));
+            // 印出名字視窗中的字
+            record.paint(g, mainPanel);
+            g2d.setFont(chiFont.deriveFont(25.0f*MainPanel.ratio));
             msg = String.valueOf(name);
             int msgWidth = fm.stringWidth(msg);
             System.out.println(msgWidth);
-            g.setColor(Color.BLACK);
-            g.drawString(msg, GameFrame.FRAME_WIDTH/2 - 45, 350);
+            g2d.setColor(Color.BLACK);
+//            g2d.drawString(msg, (int)(MainPanel.window.width/2 - msgWidth*MainPanel.ratio/2), (int)(MainPanel.window.height/2*MainPanel.ratio));
+            g2d.drawString(msg, MainPanel.window.width/2 - msgWidth / 2 + 18*MainPanel.ratio, record.getModY() + 150*MainPanel.ratio);
         }
     }
 
     // 比天花板高就消失
     private boolean checkTopBoundary(GameObject gameObject){
-        return gameObject.getTop() <= this.roof.getBottom();
+        return gameObject.getTop() <= this.roof.getModY() + this.roof.getDrawHeight()*MainPanel.ratio;
     }
 
     // 確認畫面中階梯數量
@@ -433,7 +432,7 @@ public class InfinityGameScene extends Scene {
         int count = 0;
         for (int i = 0; i < floors.size(); i++) {
             Floor current = floors.get(i);
-            if (current.getTop() > 0 && current.getBottom() < GameFrame.FRAME_HEIGHT){
+            if (current.getModY() > 0 && current.getModY() + current.getDrawHeight() * MainPanel.ratio < MainPanel.window.height){
                 count++;
             }
         }
@@ -443,13 +442,13 @@ public class InfinityGameScene extends Scene {
     // 更新背景圖
     private void updateBackgroundImage(){
         int background_rising_speed = 5;
-        if (background_0.getBottom() < 0){
-            background_0 = new GameObject(0, 678, 500, 700, "background/EndBackground.png");
+        if (background_0.getModY() + background_0.getDrawHeight() * MainPanel.ratio < 0){
+            background_0 = new GameObject(0, 678, 500, 700, 1024, 768,"background/EndBackground.png");
             layer++;
             showLayer = true;
         }
-        if (background_1.getBottom() < 0){
-            background_1 = new GameObject(0, 678, 500, 700, "background/EndBackground.png");
+        if (background_1.getModY() + background_1.getDrawHeight() * MainPanel.ratio < 0){
+            background_1 = new GameObject(0, 678, 500, 700, 1024, 768,"background/EndBackground.png");
         }
         background_0.setY(background_0.getY() - background_rising_speed);
         background_1.setY(background_1.getY() - background_rising_speed);
@@ -502,13 +501,13 @@ public class InfinityGameScene extends Scene {
 
     private Button checkCursorPosition(){
         Point cursorCenterPoint = cursor.getCenterPoint();
-        if (cursorCenterPoint.y < button_resume.getBottom() && cursorCenterPoint.y > button_resume.getTop()){
+        if (cursorCenterPoint.y < button_resume.getModY() + button_resume.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_resume.getModY()){
             return button_resume;
         }
-        if (cursorCenterPoint.y < button_new_game.getBottom() && cursorCenterPoint.y > button_new_game.getTop()){
+        if (cursorCenterPoint.y < button_new_game.getModY() + button_new_game.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_new_game.getModY()){
             return button_new_game;
         }
-        if (cursorCenterPoint.y < button_menu.getBottom() && cursorCenterPoint.y > button_menu.getTop()){
+        if (cursorCenterPoint.y < button_menu.getModY() + button_menu.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_menu.getModY()){
             return button_menu;
         }
         return null;
@@ -516,7 +515,7 @@ public class InfinityGameScene extends Scene {
 
     // 火把持續生成
     private void continueGeneration(GameObject gameObject){
-        if (gameObject.getBottom() < 0){
+        if (gameObject.getModY() + gameObject.getDrawHeight() * MainPanel.ratio < 0){
             gameObject.setY(GameFrame.FRAME_HEIGHT);
         }
     }

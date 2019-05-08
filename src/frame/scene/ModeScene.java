@@ -5,7 +5,6 @@ import character.Button;
 import character.GameObject;
 import frame.MainPanel;
 import util.ResourcesManager;
-import util.TextManager;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -23,22 +22,29 @@ public class ModeScene extends Scene{
     private int countM,countI,count2;
     private GameObject picker, picker1, picker2; // 選擇人物
     private boolean isPicked_1, isPicked_2; // 確認已選擇
+
+    // 模式選擇
+    private boolean game_story, game_2p, game_infinity;
+
+    // timer延遲調整
+    private boolean up_p1 = false, down_p1 = false, left_p1 = false, right_p1 = false;
+    private boolean up_p2 = false, down_p2 = false, left_p2 = false, right_p2 = false;
     
     public ModeScene(MainPanel.GameStatusChangeListener gsChangeListener){
         super(gsChangeListener);
-        this.background = new GameObject(0,-22,500, 700, "background/MenuBackground.png");
-        this.choosingFrame = new GameObject(29,110,400,200,"background/ChooseFrame.png");
-        this.frame = new GameObject(45,195,74,74,"background/Frame.png");
+        this.background = new GameObject(0,-22,500, 700, 600, 840,"background/MenuBackground.png");
+        this.choosingFrame = new GameObject(29,110,400,200,400, 200,"background/ChooseFrame.png");
+        this.frame = new GameObject(45,195,74,74, 74, 74,"background/Frame.png");
         this.picker = new GameObject(57 ,145, 50, 50, 100, 120, "background/Picker.png");
         this.picker1 = new GameObject(picker.getX() ,145, 50, 50, 100, 120, "background/Picker1.png");
         this.picker2 = new GameObject(160 ,145, 50, 50, 100, 120, "background/Picker2.png");
-        this.character_1 = new GameObject(50,200,64,64,"actor/Actor_1.png");
-        this.character_2 = new GameObject(150,200,64,64,"actor/Actor_2.png");
-        this.character_3 = new GameObject(250,200,64,64,"actor/Actor_3.png");
-        this.character_4 = new GameObject(350,200,64,64,"actor/Actor_4.png");
-        this.road = new GameObject(0, 644, 600, 44, "background/Road.png");
-        this.hole_top = new GameObject(400,630,64,32,"background/hole_top.png");
-        this.hole = new GameObject(400,630,64,32,"background/hole.png");
+        this.character_1 = new GameObject(50,200,64,64, 64, 64,"actor/Actor_1.png");
+        this.character_2 = new GameObject(150,200,64,64,64, 64,"actor/Actor_2.png");
+        this.character_3 = new GameObject(250,200,64,64,64, 64,"actor/Actor_3.png");
+        this.character_4 = new GameObject(350,200,64,64,64, 64,"actor/Actor_4.png");
+        this.road = new GameObject(0, 644, 600, 44, 600, 44,"background/Road.png");
+        this.hole_top = new GameObject(400,630,64,32, 64, 32,"background/hole_top.png");
+        this.hole = new GameObject(400,630,64,32, 64, 32,"background/hole.png");
         this.buttonStory = new Button(60,400, 100, 75, 150, 100, "button/Button_Story.png");
         this.buttonInfinity = new Button(190,400,100, 75, 150, 100,"button/Button_Infinity.png");
         this.button2P = new Button(320,400,100, 75, 150, 100,"button/Button_2P.png");
@@ -46,6 +52,7 @@ public class ModeScene extends Scene{
         MainPanel.player1.setY(700);
         this.player1 = MainPanel.player1;
         isPicked_1 = isPicked_2 = false;
+        game_story = game_infinity = game_2p = false;
     }
      @Override
     public KeyListener genKeyListener() {
@@ -55,10 +62,10 @@ public class ModeScene extends Scene{
                 key = e.getKeyCode();
                 switch (key){
                     case KeyEvent.VK_RIGHT:
-                        player1.changeDir(Actor.MOVE_RIGHT);
+                        right_p1 = true;
                         break;
                     case KeyEvent.VK_LEFT:
-                        player1.changeDir(Actor.MOVE_LEFT);
+                        left_p1 = true;
                         break;
                     case KeyEvent.VK_UP:
                         if (player1.canJump()){
@@ -66,17 +73,17 @@ public class ModeScene extends Scene{
                         }
                         break;
                     case KeyEvent.VK_A:
-                        if (hole_top.getX() == 452){
-                            player2.changeDir(Actor.MOVE_LEFT);
+                        if (game_2p){
+                            left_p2 = true;
                             break;
                         }
                     case KeyEvent.VK_D:
-                        if (hole_top.getX() == 452){
-                            player2.changeDir(Actor.MOVE_RIGHT);
+                        if (game_2p){
+                            right_p2 = true;
                             break;
                         }
                     case KeyEvent.VK_W:
-                        if (hole_top.getX() == 452){
+                        if (game_2p){
                             if (player2.canJump()){
                                 player2.jump();
                             }
@@ -88,7 +95,7 @@ public class ModeScene extends Scene{
                             picker1.setX(57);
                             player1.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor1.png"));
                         }
-                        if (hole_top.getX() == 452) {
+                        if (game_2p) {
                             if (isPicked_1 && !isPicked_2) {
                                 picker2.setX(57);
                                 player2.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor1.png"));
@@ -102,7 +109,7 @@ public class ModeScene extends Scene{
                             picker1.setX(160);
                             player1.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor2.png"));
                         }
-                        if (hole_top.getX() == 452){
+                        if (game_2p){
                             if (isPicked_1 && !isPicked_2){
                                 picker2.setX(160);
                                 player2.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor2.png"));
@@ -116,7 +123,7 @@ public class ModeScene extends Scene{
                             picker1.setX(257);
                             player1.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor3.png"));
                         }
-                        if (hole_top.getX() == 452) {
+                        if (game_2p) {
                             if (isPicked_1 && !isPicked_2) {
                                 picker2.setX(257);
                                 player2.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor3.png"));
@@ -130,7 +137,7 @@ public class ModeScene extends Scene{
                             picker1.setX(357);
                             player1.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor4.png"));
                         }
-                        if (hole_top.getX() == 452) {
+                        if (game_2p) {
                             if (isPicked_1 && !isPicked_2) {
                                 picker2.setX(357);
                                 player2.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor4.png"));
@@ -149,8 +156,33 @@ public class ModeScene extends Scene{
             }
             @Override
             public void keyReleased(KeyEvent e){
-                if (key == e.getKeyCode()){
-                    key = -1;
+                switch (e.getKeyCode()){
+                    // p1 controller
+                    case KeyEvent.VK_RIGHT:
+                        right_p1 = false;
+                        break;
+                    case KeyEvent.VK_LEFT:
+                        left_p1 = false;
+                        break;
+                    case KeyEvent.VK_UP:
+                        up_p1 = false;
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        down_p1 = false;
+                        break;
+                    // p2 controller
+                    case KeyEvent.VK_W:
+                        up_p2 = false;
+                        break;
+                    case KeyEvent.VK_A:
+                        left_p2 = false;
+                        break;
+                    case KeyEvent.VK_S:
+                        down_p2 = false;
+                        break;
+                    case KeyEvent.VK_D:
+                        right_p2 = false;
+                        break;
                 }
             }
         };
@@ -158,8 +190,12 @@ public class ModeScene extends Scene{
 
     @Override
     public void logicEvent() {
+        changeDirection();
         MainPanel.checkLeftRightBoundary(player1);
         friction(player1);
+        if (player2 != null){
+            friction(player2);
+        }
         if (player1.checkOnObject(road)){
             player1.setCanJump(true); // 將可以跳躍設回true
             player1.setSpeedY(0); // 落到地板上，
@@ -169,21 +205,22 @@ public class ModeScene extends Scene{
         buttonInfinity.setImageOffsetX(0);
         button2P.setImageOffsetX(0);
 
-        if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_RIGHT){
+        if ((right_p1 || left_p1) && !player1.isStop()){
             player1.acceleration();
         }
+
         player1.update();
 //        player1.setBoundary(); // 更新完座標後，設定邊界
         player1.stay();
 
-        if (hole_top.getX() == 452){
+        if (game_2p){
             MainPanel.checkLeftRightBoundary(player2);
             friction(player2);
             if (player2.checkOnObject(road)){
                 player2.setCanJump(true); // 將可以跳躍設回true
-                player2.setSpeedY(0); // 落到地板上，
+                player2.setSpeedY(0); // 落到地板上
             }
-            if (key == KeyEvent.VK_A || key == KeyEvent.VK_D){
+            if ((right_p2 || left_p2) && !player2.isStop()){
                 player2.acceleration();
             }
             player2.update();
@@ -192,6 +229,8 @@ public class ModeScene extends Scene{
 
         // 按鈕碰撞，打開故事模式的水溝蓋
         if(buttonStory.checkCollision(player1)){
+            game_story = true;
+            game_2p = game_infinity = false;
             this.isPicked_1 = this.isPicked_2 = false;
             buttonStory.setImageOffsetX(1);
             if (countM++ == 1){
@@ -200,7 +239,7 @@ public class ModeScene extends Scene{
             }
         }
         // 進入故事模式
-        if(hole_top.getX()==450&&hole.checkCollision(player1)){
+        if(game_story && hole.checkCollision(player1)){
             if (countM++ == 6){
                 gsChangeListener.changeScene(MainPanel.LOADING_SCENE);
                 countM = 0;
@@ -209,15 +248,17 @@ public class ModeScene extends Scene{
 
         // 按鈕碰撞，打開無限模式的水溝蓋
         if(buttonInfinity.checkCollision(player1)){
+            game_infinity = true;
+            game_story = game_2p = false;
             this.isPicked_1 = this.isPicked_2 = false;
             buttonInfinity.setImageOffsetX(1);
             if (countM++ == 1){
-                hole_top.setX(451);
+                hole_top.setX(450);
                 countM = 0;
                 }
             }
         // 進入無限模式
-        if(hole_top.getX()==451&&hole.checkCollision(player1)){
+        if(game_infinity && hole.checkCollision(player1)){
             if (countM++ == 6){
                 gsChangeListener.changeScene(MainPanel.INFINITY_GAME_SCENE);
                 countM = 0;
@@ -226,16 +267,18 @@ public class ModeScene extends Scene{
 
         // 按鈕碰撞，打開2p模式的水溝蓋
         if(button2P.checkCollision(player1)){
+            game_2p = true;
+            game_story = game_infinity = false;
             this.isPicked_1 = this.isPicked_2 = false;
             MainPanel.player2.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor2.png"));
             player2 = MainPanel.player2;
             button2P.setImageOffsetX(1);
             if (countM++ == 1){
-                hole_top.setX(452);
+                hole_top.setX(450);
                 countM = 0;
             }
         }
-        if(hole_top.getX()==452&&hole.checkCollision(player1)){
+        if(game_2p && hole.checkCollision(player1) && hole.checkCollision(player2)){
             if (countM++ == 6){
                 gsChangeListener.changeScene(MainPanel.TWO_PLAYER_GAME_SCENE);
                 countM = 0;
@@ -246,50 +289,67 @@ public class ModeScene extends Scene{
 
 
     @Override
-    public void paint(Graphics g) {
-        background.paint(g);
-        choosingFrame.paint(g);
+    public void paint(Graphics g, MainPanel mainPanel) {
+        background.paint(g, mainPanel);
+        choosingFrame.paint(g, mainPanel);
         if (!isPicked_1 || !isPicked_2){
-            frame.paint(g);
+            frame.paint(g, mainPanel);
         }
-        character_1.paint(g);
-        character_2.paint(g);
-        character_3.paint(g);
-        character_4.paint(g);
-        road.paint(g);
-        buttonStory.paint(g);
-        buttonInfinity.paint(g);
-        button2P.paint(g);
-        hole.paint(g);
-        hole_top.paint(g);
-        if (hole_top.getX() != 452){
-            picker.paint(g);
+        character_1.paint(g, mainPanel);
+        character_2.paint(g, mainPanel);
+        character_3.paint(g, mainPanel);
+        character_4.paint(g, mainPanel);
+        road.paint(g, mainPanel);
+        buttonStory.paint(g, mainPanel);
+        buttonInfinity.paint(g, mainPanel);
+        button2P.paint(g, mainPanel);
+        hole.paint(g, mainPanel);
+        hole_top.paint(g, mainPanel);
+        if (!game_2p){
+            picker.paint(g, mainPanel);
         }
-        if (hole_top.getX() == 452){
-            picker1.paint(g);
-            picker2.paint(g);
-            player2.paint(g);
+        if (game_2p){
+            picker1.paint(g, mainPanel);
+            picker2.paint(g, mainPanel);
+            player2.paint(g, mainPanel);
             String msg = "2P";
-            g.setFont(TextManager.ENGLISH_FONT.deriveFont(36.0f));
+            g.setFont(MainPanel.ENGLISH_FONT.deriveFont(36.0f*MainPanel.ratio));
             g.setColor(Color.RED);
             FontMetrics fm = g.getFontMetrics();
             int msgWidth = fm.stringWidth(msg);
             int msgAscent = fm.getAscent();
-            g.drawString(msg, player2.getX() + player2.getDrawWidth()/2 - msgWidth/2, player2.getY());
+            g.drawString(msg, (int) (player2.getModX() + player2.getDrawWidth()*MainPanel.ratio/2 - msgWidth/2), player2.getModY());
         }
-        player1.paint(g);
-        if (hole_top.getX() == 452){
+        player1.paint(g, mainPanel);
+        if (game_2p){
             String msg = "1P";
-            g.setFont(TextManager.ENGLISH_FONT.deriveFont(36.0f));
+            g.setFont(MainPanel.ENGLISH_FONT.deriveFont(36.0f*MainPanel.ratio));
             g.setColor(Color.RED);
             FontMetrics fm = g.getFontMetrics();
             int msgWidth = fm.stringWidth(msg);
             int msgAscent = fm.getAscent();
-            g.drawString(msg, player1.getX() + player1.getDrawWidth()/2 - msgWidth/2, player1.getY());
+            g.drawString(msg, (int) (player1.getModX() + player1.getDrawWidth()*MainPanel.ratio/2 - msgWidth/2), player1.getModY());
         }
     }
 
-    private void checkPicker(){
-
+    private void changeDirection(){
+        if (!right_p1 && !left_p1 && !up_p1 && down_p1){
+            player1.changeDir(Actor.MOVE_DOWN);
+        }else if (!right_p1 && !left_p1 && up_p1 && !down_p1){
+            player1.changeDir(Actor.MOVE_UP);
+        }else if (!right_p1 && left_p1 && !up_p1 && !down_p1){
+            player1.changeDir(Actor.MOVE_LEFT);
+        }else if (right_p1 && !left_p1 && !up_p1 && !down_p1){
+            player1.changeDir(Actor.MOVE_RIGHT);
+        }
+        if (!right_p2 && !left_p2 && !up_p2 && down_p2){
+            player2.changeDir(Actor.MOVE_DOWN);
+        }else if (!right_p2 && !left_p2 && up_p2 && !down_p2){
+            player2.changeDir(Actor.MOVE_UP);
+        }else if (!right_p2 && left_p2 && !up_p2 && !down_p2){
+            player2.changeDir(Actor.MOVE_LEFT);
+        }else if (right_p2 && !left_p2 && !up_p2 && !down_p2){
+            player2.changeDir(Actor.MOVE_RIGHT);
+        }
     }
 }

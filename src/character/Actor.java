@@ -1,7 +1,9 @@
 package character;
 
 import character.food.Food;
+import frame.MainPanel;
 import frame.scene.Scene;
+import util.PainterManager;
 import util.ResourcesManager;
 
 import java.awt.*;
@@ -136,7 +138,7 @@ public class Actor extends AnimationGameObject{
     }
 
     public void jump(){
-        int jumpSpeed = 20;
+        int jumpSpeed = 18;
         speedY -= jumpSpeed;
         this.canJump = false;
     }
@@ -384,8 +386,8 @@ public class Actor extends AnimationGameObject{
 
     public boolean checkOnObject(GameObject gameObject){
         // 於物體上
-        if(this.bottom + speedY > gameObject.top){
-            y = gameObject.top - drawHeight;
+        if(this.y + (int)(drawHeight*MainPanel.ratio) + speedY > gameObject.top){
+            y = gameObject.y - drawHeight;
             speedY = gameObject.speedY;
             isOn = true;
             return true;
@@ -397,13 +399,15 @@ public class Actor extends AnimationGameObject{
     public boolean checkOnFloor(Floor floor){
         // 確認已完全低於此階梯
         // 確認完全走出階梯範圍
-        if(this.left > floor.right || this.right < floor.left || this.bottom > floor.bottom){
+        if(this.modX > floor.modX + floor.drawWidth * MainPanel.ratio ||
+                this.modX + this.drawWidth * MainPanel.ratio < floor.modX ||
+                this.modY + this.drawHeight * MainPanel.ratio > floor.modY + floor.drawHeight * MainPanel.ratio){
             isOn = false;
             return false;
         }
         // 於階梯上
-        if(this.bottom + speedY > floor.top && this.speedY >= 0){
-            y = floor.top - drawHeight; // 需修改
+        if(this.modY + this.drawHeight * MainPanel.ratio + speedY > floor.modY && this.speedY >= 0){
+            y = floor.y - drawHeight; // 需修改
             speedY = floor.speedY;
             isOn = true;
             // 人物去碰觸地板，將地板狀態設為被接觸，並由地板觸發機關
@@ -438,26 +442,29 @@ public class Actor extends AnimationGameObject{
 
 
     @Override
-    public void paint(Graphics g){
+    public void paint(Graphics g, MainPanel mainPanel){
+        Graphics2D g2d = PainterManager.g2d(g);
+        modX = (int) (x * MainPanel.ratio);
+        modY = (int) (y * MainPanel.ratio);
         // 人物飢餓值達到一定程度
         // 切換角色圖、速度上升等
         if (state){ // 小胖狀態
             this.drawWidth = this.drawHeight = 32;
-            g.drawImage(image, x, y, x + drawWidth, y + drawHeight,
-                    direction*4* drawWidth + drawWidth*imageOffsetX, imageOffsetY,
-                    direction*4* drawWidth + drawWidth*imageOffsetX + drawWidth, imageOffsetY + drawHeight, null);
-            g.setColor(Color.WHITE);
-            g.drawRect(x-1, y-1, drawWidth + 1, drawHeight +1);
+            g2d.drawImage(image, modX, modY, modX + (int)(drawWidth*MainPanel.ratio), modY + (int)(drawHeight*MainPanel.ratio),
+                    direction*4* imageWidth + imageWidth*imageOffsetX, imageOffsetY,
+                    direction*4* imageWidth + imageWidth*imageOffsetX + imageWidth,imageOffsetY + imageHeight, null);
+            g2d.setColor(Color.WHITE);
+            g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
         }else { // 骷髏狀態
             this.drawWidth = 32;
             this.drawHeight = 64;
             int actualWidth = 24, actualHeight = 48;
-            g.drawImage(image, x, y, x + drawWidth, y + drawHeight,
-                    drawWidth*imageOffsetX,imageOffsetY*drawHeight, drawWidth*imageOffsetX + drawWidth, imageOffsetY*drawHeight + drawHeight, null);
-            g.setColor(Color.WHITE);
-            g.drawRect(x-1, y-1, drawWidth + 1, drawHeight +1);
-            g.setColor(Color.RED);
-            g.drawRect(x + 4 - 1, y + 16 - 1, actualWidth, actualHeight);
+            g2d.drawImage(image, modX, modY, modX + (int)(drawWidth*MainPanel.ratio), modY + (int)(drawHeight*MainPanel.ratio),
+                    (imageWidth*imageOffsetX),imageOffsetY*imageHeight, imageWidth*imageOffsetX + imageWidth, imageOffsetY*imageHeight + imageHeight, null);
+            g2d.setColor(Color.WHITE);
+            g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
+            g2d.setColor(Color.RED);
+            g2d.drawRect(modX + 4 - 1, modY + 16 - 1, actualWidth, actualHeight);
         }
     }
 }

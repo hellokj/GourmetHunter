@@ -4,29 +4,38 @@ import character.Actor;
 import character.Button;
 import character.GameObject;
 import frame.MainPanel;
+import sun.audio.AudioStream;
+import util.ResourcesManager;
 
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MenuScene extends Scene{
-    private GameObject background, logo, road;
+    private GameObject background, logo, road, introduction;
     private Button buttonMode, buttonLeader, buttonExit;
     private Actor player;
     private int countM,countL,countE; // 碰觸按鈕延遲
     private int key;
 
+    // 人物操控
+    private boolean up = false, down = false, left = false, right = false;
+
     public MenuScene(MainPanel.GameStatusChangeListener gsChangeListener){
         super(gsChangeListener);
-        this.background = new GameObject(0,-22,500, 700, "background/MenuBackground.png");
-        this.logo = new GameObject(50,60,400,200,"background/Logo.png");
-        this.road = new GameObject(0, 644, 600, 44, "background/Road.png");
+        this.background = new GameObject(0,-22,500, 700,600, 840, "background/MenuBackground.png");
+        this.logo = new GameObject(50,60,400,200,300, 100,"background/Logo.png");
+        this.road = new GameObject(0, 644, 600, 44, 600, 44, "background/Road.png");
         this.buttonMode = new Button(60,400, 100, 75, 150, 100, "button/Button_Mode.png");
         this.buttonLeader = new Button(190,400,100, 75, 150, 100,"button/Button_LB.png");
         this.buttonExit = new Button(320,400,100, 75, 150, 100,"button/Button_Exit.png");
         this.player = MainPanel.player1;
+        this.introduction = new GameObject(this.player.getX(), this.player.getY() - 144, 162, 144,225, 200, "background/MenuGuide.png");
     }
 
     @Override
@@ -37,22 +46,34 @@ public class MenuScene extends Scene{
                 key = e.getKeyCode();
                 switch (key){
                     case KeyEvent.VK_RIGHT:
-                        player.changeDir(Actor.MOVE_RIGHT);
+                        right = true;
                         break;
                     case KeyEvent.VK_LEFT:
-                        player.changeDir(Actor.MOVE_LEFT);
+                        left = true;
                         break;
                     case KeyEvent.VK_UP:
                         if (player.canJump()){
                             player.jump();
+                            ResourcesManager.getInstance().getSound("sound/jump.au").play();
                         }
                         break;
                 }
             }
             @Override
             public void keyReleased(KeyEvent e){
-                if (key == e.getKeyCode()){
-                    key = -1;
+                switch (e.getKeyCode()){
+                    case KeyEvent.VK_RIGHT:
+                        right = false;
+                        break;
+                    case KeyEvent.VK_LEFT:
+                        left = false;
+                        break;
+                    case KeyEvent.VK_UP:
+                        up = false;
+                        break;
+                    case KeyEvent.VK_DOWN:
+                        down = false;
+                        break;
                 }
             }
         };
@@ -61,19 +82,23 @@ public class MenuScene extends Scene{
     @Override
     public void logicEvent() {
         MainPanel.checkLeftRightBoundary(player);
+        changeDirection();
         friction(player);
-        if (player.checkOnObject(road)){
-            player.setCanJump(true); // 將可以跳躍設回true
-            player.setSpeedY(0); // 落到地板上，
-        }
         // 設定按鈕圖片
         buttonMode.setImageOffsetX(0);
         buttonLeader.setImageOffsetX(0);
         buttonExit.setImageOffsetX(0);
-        if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_LEFT){
+        if ((right || left) && !player.isStop()){
             player.acceleration();
         }
+        if (player.checkOnObject(road)){
+            player.setCanJump(true); // 將可以跳躍設回true
+            player.setSpeedY(0); // 落到地板上
+        }
         player.update();
+
+        introduction.setX(player.getX());
+        introduction.setY(player.getY() - (int)(160*MainPanel.ratio));
 //        player.setBoundary(); // 更新完座標後，設定邊界
         player.stay();
 
@@ -81,7 +106,7 @@ public class MenuScene extends Scene{
         // 切換至模式場景
         if(buttonMode.checkCollision(player)){
             buttonMode.setImageOffsetX(1);
-            if (countM++ == 40){ // 一個延遲後切換場景
+            if (countM++ == 20){ // 一個延遲後切換場景
                 gsChangeListener.changeScene(MainPanel.MODE_SCENE);
                 countM = 0;
             }
@@ -90,7 +115,7 @@ public class MenuScene extends Scene{
         // 切換至排行榜場景
         if(buttonLeader.checkCollision(player)){
             buttonLeader.setImageOffsetX(1);
-            if (countL++ == 40){ // 一個延遲後切換場景
+            if (countL++ == 20){ // 一個延遲後切換場景
                 gsChangeListener.changeScene(MainPanel.LEADER_BOARD_SCENE);
                 countL = 0;
             }
@@ -100,7 +125,7 @@ public class MenuScene extends Scene{
         if(buttonExit.checkCollision(player)){
             buttonExit.setImageOffsetX(1);
             if (countE++ == 40){ // 一個延遲後切換場景
-                System.exit(1);
+//                System.exit(1);
                 countE = 0;
             }
         }
@@ -108,13 +133,26 @@ public class MenuScene extends Scene{
 
 
     @Override
-    public void paint(Graphics g) {
-        background.paint(g);
-        road.paint(g);
-        buttonMode.paint(g);
-        buttonLeader.paint(g);
-        buttonExit.paint(g);
-        logo.paint(g);
-        player.paint(g);
+    public void paint(Graphics g, MainPanel mainPanel) {
+        background.paint(g, mainPanel);
+        road.paint(g, mainPanel);
+        buttonMode.paint(g, mainPanel);
+        buttonLeader.paint(g, mainPanel);
+        buttonExit.paint(g, mainPanel);
+        logo.paint(g, mainPanel);
+        player.paint(g, mainPanel);
+        introduction.paint(g, mainPanel);
+    }
+
+    private void changeDirection(){
+        if (!right && !left && !up && down){
+            player.changeDir(Actor.MOVE_DOWN);
+        }else if (!right && !left && up && !down){
+            player.changeDir(Actor.MOVE_UP);
+        }else if (!right && left && !up && !down){
+            player.changeDir(Actor.MOVE_LEFT);
+        }else if (right && !left && !up && !down){
+            player.changeDir(Actor.MOVE_RIGHT);
+        }
     }
 }

@@ -3,8 +3,12 @@ package frame;
 import character.Actor;
 import character.GameObject;
 import frame.scene.*;
+import util.PainterManager;
+import util.ResourcesManager;
 
 import javax.swing.*;
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,7 +17,6 @@ import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class MainPanel extends javax.swing.JPanel {
     public static final int MENU_SCENE = 0;
@@ -26,14 +29,26 @@ public class MainPanel extends javax.swing.JPanel {
     public static final int GAME_OVER_SCENE = 7;
     public static final int LEADER_BOARD_SCENE = 8;
 
-    public static final int DEBUGGER_SCENE = 99;
+    // 載入遊戲中字體
+    public static final Font ENGLISH_FONT = ResourcesManager.getInstance().getFont("Britannic Bold Regular.ttf");
+    public static final Font CHINESE_FONT = ResourcesManager.getInstance().getFont("setofont.ttf");
 
+    // 載入排行榜資訊
     public static final String LEADER_BOARD_FILE_PATH = "leader_board.txt";
     public static String[] leaderBoard;
+
+    // 調整螢幕大小
+    public static Dimension window;
+    public static float ratio;
 
     public static Actor
             player1 = new Actor(250, 700, 32, 32, 32, 32, "actor/Actor1.png"),
             player2 = new Actor(250, 700, 32, 32, 32, 32, "actor/Actor1.png");
+
+    // fade in / fade out
+    private float alpha;
+    private int fadeDelayCount;
+    private boolean isFadedOut;
 
 
     public interface GameStatusChangeListener{
@@ -47,6 +62,11 @@ public class MainPanel extends javax.swing.JPanel {
     private GameStatusChangeListener gsChangeListener;
 
     public MainPanel() throws IOException {
+        // 作為調整大小的基準
+        setPreferredSize(new Dimension(500, 700));
+        // 透明度調整
+        alpha = 0f;
+        isFadedOut = false;
         // 讀取排行
         if (leaderBoard == null){
             leaderBoard = readLeaderBoard(LEADER_BOARD_FILE_PATH);
@@ -58,12 +78,20 @@ public class MainPanel extends javax.swing.JPanel {
             }
         };
         // 更改初始場景
-        changeCurrentScene(genSceneById(MainPanel.INFINITY_GAME_SCENE));
+        changeCurrentScene(genSceneById(MainPanel.MENU_SCENE));
 
         // delay 25 ms
         Timer t1 = new Timer(25, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // 每次更新此時視窗大小資訊
+                window = MainPanel.this.getSize();
+                ratio =  ((float)window.getSize().width / (float)getPreferredSize().width);
+
+//                if (++fadeDelayCount % 40 == 0){
+//                    fadeDelayCount = 0;
+//                    alphaStep();
+//                }
                 if (currentScene != null){
                     try {
                         currentScene.logicEvent();
@@ -78,7 +106,9 @@ public class MainPanel extends javax.swing.JPanel {
 
     @Override
     public void paintComponent(Graphics g){
-        currentScene.paint(g);
+        Graphics2D g2d = PainterManager.g2d(g);
+        g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+        currentScene.paint(g, this);
     }
 
     private void changeCurrentScene(Scene scene) {
@@ -122,9 +152,8 @@ public class MainPanel extends javax.swing.JPanel {
                 return new EndScene(gsChangeListener);
             case GAME_OVER_SCENE:
                 return new GameOverScene(gsChangeListener);
-            case DEBUGGER_SCENE:
-                return new DebuggerScene(gsChangeListener);
         }
+        isFadedOut = false;
         return null;
     }
 
@@ -138,5 +167,13 @@ public class MainPanel extends javax.swing.JPanel {
         }
         br.close();
         return data;
+    }
+
+    private void alphaStep(){
+        alpha += 0.1f;
+        if (alpha >= 1){
+            alpha = 1;
+            isFadedOut = true;
+        }
     }
 }

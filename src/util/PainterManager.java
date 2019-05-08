@@ -5,20 +5,9 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class PainterManager {
-    // 處理繪製圖片相關
-    private Graphics g;
-
-    private static PainterManager painterManager;
-
-    public static PainterManager getInstance(Graphics g){
-        if (painterManager == null){
-            painterManager = new PainterManager(g);
-        }
-        return painterManager;
-    }
-
-    public PainterManager(Graphics g){
-        this.g = g;
+    // 繪製透明度、調整螢幕大小與圖片相對位置
+    public static Graphics2D g2d(Graphics g){
+        return (Graphics2D)g.create();
     }
 
     // 將傳入圖合併成一張回傳

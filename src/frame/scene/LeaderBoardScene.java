@@ -4,7 +4,6 @@ import character.Actor;
 import character.Button;
 import character.GameObject;
 import frame.MainPanel;
-import util.TextManager;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -27,9 +26,9 @@ public class LeaderBoardScene extends Scene {
     
     public LeaderBoardScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
-        this.background = new GameObject(0,-22,500, 700, "background/MenuBackground.png");
-        this.road = new GameObject(0, 644, 600, 44, "background/Road.png");
-        this.paper = new GameObject(50,100,350,450, "background/Paper.png");
+        this.background = new GameObject(0,-22,500, 700,600, 840, "background/MenuBackground.png");
+        this.road = new GameObject(0, 644, 600, 44, 600, 44,"background/Road.png");
+        this.paper = new GameObject(50,100,350,450, 300, 450, "background/Paper.png");
         this.buttonBack = new Button(300,475, 150, 100, 150, 100, "button/Button_Back.png");
         this.player = new Actor(250, 622, 32, 32, 32, 32, "actor/Actor1.png");
         this.names = new ArrayList<>();
@@ -51,7 +50,7 @@ public class LeaderBoardScene extends Scene {
                     case KeyEvent.VK_LEFT:
                         player.changeDir(Actor.MOVE_LEFT);
                         break;
-                    case KeyEvent.VK_SPACE:
+                    case KeyEvent.VK_UP:
                         if (player.canJump()){
                             player.jump();
                         }
@@ -91,24 +90,24 @@ public class LeaderBoardScene extends Scene {
     }
     
     @Override
-    public void paint(Graphics g) {
-        background.paint(g);
-        road.paint(g);
-        paper.paint(g);
-        buttonBack.paint(g);
+    public void paint(Graphics g, MainPanel mainPanel) {
+        background.paint(g, mainPanel);
+        road.paint(g, mainPanel);
+        paper.paint(g, mainPanel);
+        buttonBack.paint(g, mainPanel);
 
         // 印出排行榜
-        Font font = TextManager.ENGLISH_FONT.deriveFont(36.0f);
+        Font font = MainPanel.ENGLISH_FONT.deriveFont(36.0f*MainPanel.ratio);
         g.setFont(font);
         g.setColor(Color.BLACK);
         FontMetrics fm = g.getFontMetrics();
         int msgWidth = fm.stringWidth(String.valueOf(ranks.get(0)));
         int msgAscent = fm.getAscent();
         for (int i = 0; i < ranks.size(); i++) {
-            g.drawString(ranks.get(i), 80, 160 + 75 * i);
+            g.drawString(ranks.get(i), (int)(80*MainPanel.ratio), (int)(160*MainPanel.ratio + 75*MainPanel.ratio * i));
         }
 
-        player.paint(g);
+        player.paint(g, mainPanel);
     }
 
     private ArrayList<String> readLeaderBoard(){

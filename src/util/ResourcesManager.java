@@ -1,7 +1,11 @@
 package util;
 
+import sun.applet.AppletAudioClip;
+
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -9,11 +13,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ResourcesManager {
+public class ResourcesManager{
     // 圖片、字型、音效、資源
-    //    private BufferedImage[] images;
-//    private String[] paths;
+
     private Map<String, BufferedImage> images;
+    private Map<String, AudioClip> sounds;
     private Map<String, Font> fonts;
 
     private static ResourcesManager resourcesManager;
@@ -29,13 +33,11 @@ public class ResourcesManager {
     private ResourcesManager(){
         images = new HashMap<>();
         fonts = new HashMap<>();
-//        for (int i = 1; i <= 33; i++) {
-//            addImage("food/farm_product"+ i +".png");
-//        }
+        sounds = new HashMap<>();
     }
 
     public BufferedImage getImage(String path){
-        if (!findExist(path)){
+        if (!findImageExist(path)){
             return addImage(path);
         }
         return images.get(path);
@@ -56,7 +58,58 @@ public class ResourcesManager {
         return null;
     }
 
-    private boolean findExist(String path){
+    private boolean findImageExist(String path){
         return images.containsKey(path);
+    }
+
+    public AudioClip getSound(String path){
+        if (!findSoundExist(path)){
+            return addSound(path);
+        }
+        return sounds.get(path);
+    }
+
+    private AudioClip addSound(String path){
+        AudioClip ac = Applet.newAudioClip(getClass().getResource("/resource/" + path));
+        sounds.put(path, ac);
+        return ac;
+    }
+
+    private boolean findSoundExist(String path){
+        return sounds.containsKey(path);
+    }
+
+    public Font getFont(String path){
+        if (!findFontExist(path)){
+            return addFont(path);
+        }
+        return fonts.get(path);
+    }
+
+    private Font addFont(String path){
+        Font font = null;
+        try {
+            font = Font.createFont(Font.TRUETYPE_FONT, new File("src/resource/font/" + path));
+            fonts.put(path, font);
+        }catch (Exception e){
+            System.out.println("something wrong");
+        }
+        return font;
+    }
+
+    private boolean findFontExist(String path){
+        return fonts.containsKey(path);
+    }
+
+    private class TextManager{
+        private Font loadFont(String fontName){
+            Font font = null;
+            try {
+                font = Font.createFont(Font.TRUETYPE_FONT, new File("src/resource/font/" + fontName));
+            }catch (Exception e){
+                System.out.println("something wrong");
+            }
+            return font;
+        }
     }
 }

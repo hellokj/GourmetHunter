@@ -18,7 +18,7 @@ public abstract class Scene {
     }
 
     abstract public KeyListener genKeyListener();
-    abstract public void paint(Graphics g);
+    abstract public void paint(Graphics g, MainPanel mainPanel);
     abstract public void logicEvent() throws IOException;
 
     // 摩擦力

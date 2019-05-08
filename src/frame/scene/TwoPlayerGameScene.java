@@ -7,7 +7,7 @@ import character.trap.FlashTrap;
 import character.trap.TrapGenerator;
 import frame.GameFrame;
 import frame.MainPanel;
-import util.TextManager;
+import util.PainterManager;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -51,17 +51,17 @@ public class TwoPlayerGameScene extends Scene {
         super(gsChangeListener);
         // 場景物件
         setSceneObject();
-        roof = new GameObject(0, 0, 500, 64, "background/Roof_new.png");
+        roof = new GameObject(0, 0, 500, 64, 500, 64, "background/Roof_new.png");
         player1 = new Actor(240, 200, 32, 32, 32, 32, "actor/Actor2.png");
         player2 = new Actor(282, 200, 32, 32, 32, 32, "actor/Actor4.png");
         // 顯示板
         hungerLabel1 = new GameObject(28,8, 64, 32,64, 32, "background/HungerLabel.png");
-        hungerLabel2 = new GameObject(28,8, 64, 32,64, 32, "background/HungerLabel.png");
+        hungerLabel2 = new GameObject(228,8, 64, 32,64, 32, "background/HungerLabel.png");
         // 飢餓值
-        hungerBack1 = new GameObject(96, 16, 100, 16, "background/Hunger.png");
-        hungerCount1 = new GameObject(96, 16, 0, 16, "background/HungerCount.png");
-        hungerBack2 = new GameObject(296, 16, 100, 16, "background/Hunger.png");
-        hungerCount2 = new GameObject(296, 16, 0, 16, "background/HungerCount.png");
+        hungerBack1 = new GameObject(96, 16, 100, 16,5, 5, "background/Hunger.png");
+        hungerCount1 = new GameObject(96, 16, 0, 16, 5, 5, "background/HungerCount.png");
+        hungerBack2 = new GameObject(296, 16, 100, 16, 5, 5, "background/Hunger.png");
+        hungerCount2 = new GameObject(296, 16, 0, 16, 5, 5, "background/HungerCount.png");
         // 初始10塊階梯
         floors = new ArrayList<>();
         floors.add(new Floor(player1.getX(), 200 + 32, TrapGenerator.getInstance().genSpecificTrap(0))); // 初始站立階梯
@@ -75,12 +75,12 @@ public class TwoPlayerGameScene extends Scene {
     }
 
     private void setSceneObject() {
-        background_0 = new GameObject(0, -22, 500, 700, "background/EndBackground.png");
-        background_1 = new GameObject(0, -22 + 700, 500, 700, "background/EndBackground.png");
+        background_0 = new GameObject(0, -22, 500, 700, 1024, 768, "background/EndBackground.png");
+        background_1 = new GameObject(0, -22 + 700, 500, 700, 1024, 768, "background/EndBackground.png");
         background_0.setBoundary();
         background_1.setBoundary();
-        fire_left = new AnimationGameObject(0, background_0.getBottom()/2, 30, 30, 64, 64,"background/Fire.png");
-        fire_right = new AnimationGameObject(470, background_0.getBottom(), 30, 30, 64, 64,"background/Fire.png");
+        fire_left = new AnimationGameObject(0, (int) (background_0.getModY() + background_0.getDrawHeight()*MainPanel.ratio/2), 30, 30, 64, 64,"background/Fire.png");
+        fire_right = new AnimationGameObject(470, (int) (background_0.getModY() + background_0.getDrawHeight()*MainPanel.ratio/2), 30, 30, 64, 64,"background/Fire.png");
     }
 
     @Override
@@ -115,7 +115,7 @@ public class TwoPlayerGameScene extends Scene {
                         if (!isPause){
                             down_p1 = true;
                         }else {
-                            if (!(cursor.getY() + 150 > button_menu.getBottom())){
+                            if (!(cursor.getY() + 150 > button_menu.getY() + button_menu.getDrawHeight())){
                                 cursor.setY(cursor.getY() + 150);
                             }
                         }
@@ -139,7 +139,7 @@ public class TwoPlayerGameScene extends Scene {
                         if (!isPause){
                             down_p2 = true;
                         }else {
-                            if (!(cursor.getY() + 150 > button_menu.getBottom())){
+                            if (!(cursor.getY() + 150 > button_menu.getY() + button_menu.getDrawHeight())){
                                 cursor.setY(cursor.getY() + 150);
                             }
                         }
@@ -296,10 +296,10 @@ public class TwoPlayerGameScene extends Scene {
                 player1.update();
                 player2.update();
                 // 掉落死亡 or 餓死後落下
-                if (player1.getBottom() > GameFrame.FRAME_HEIGHT){
+                if (player1.getModY() + player1.getDrawHeight() * MainPanel.ratio > MainPanel.window.height){
                     player1.die();
                 }
-                if (player2.getBottom() > GameFrame.FRAME_HEIGHT){
+                if (player2.getModY() + player2.getDrawHeight() * MainPanel.ratio > MainPanel.window.height){
                     player2.die();
                 }
                 // 背景刷新
@@ -314,7 +314,7 @@ public class TwoPlayerGameScene extends Scene {
                         player1.setSpeedX(0);
                         player1.update();
                         // 完全落下後切場景
-                        if (player1.getBottom() > GameFrame.FRAME_HEIGHT){
+                        if (player1.getModY() + player1.getDrawHeight()*MainPanel.ratio > MainPanel.window.height){
 //                            gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
                         }
                     }
@@ -327,7 +327,7 @@ public class TwoPlayerGameScene extends Scene {
                         player2.setSpeedX(0);
                         player2.update();
                         // 完全落下後切場景
-                        if (player2.getBottom() > GameFrame.FRAME_HEIGHT){
+                        if (player2.getModY() + player2.getDrawHeight() * MainPanel.ratio > MainPanel.window.height){
 //                            gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
                         }
                     }
@@ -630,42 +630,42 @@ public class TwoPlayerGameScene extends Scene {
     }
 
     @Override
-    public void paint(Graphics g) {
-        Graphics2D g2d = (Graphics2D)g;
-        background_0.paint(g);
-        background_1.paint(g);
-        fire_left.paint(g);
-        fire_right.paint(g);
-        roof.paint(g);
-        hungerLabel1.paint(g);
-        hungerBack1.paint(g);
-        hungerCount1.paint(g);
-        hungerLabel2.paint(g);
-        hungerBack2.paint(g);
-        hungerCount2.paint(g);
+    public void paint(Graphics g, MainPanel mainPanel) {
+        Graphics2D g2d = PainterManager.g2d(g);
+        background_0.paint(g, mainPanel);
+        background_1.paint(g, mainPanel);
+        fire_left.paint(g, mainPanel);
+        fire_right.paint(g, mainPanel);
+        roof.paint(g, mainPanel);
+        hungerLabel1.paint(g, mainPanel);
+        hungerBack1.paint(g, mainPanel);
+        hungerCount1.paint(g, mainPanel);
+        hungerLabel2.paint(g, mainPanel);
+        hungerBack2.paint(g, mainPanel);
+        hungerCount2.paint(g, mainPanel);
         for (Floor floor : floors) {
-            floor.paint(g);
+            floor.paint(g, mainPanel);
         }
 
-        player1.paint(g);
-        player2.paint(g);
+        player1.paint(g, mainPanel);
+        player2.paint(g, mainPanel);
         // 畫出 p1, p2
-        g.setFont(TextManager.ENGLISH_FONT.deriveFont(16.0f));
-        g.setColor(Color.RED);
+        g2d.setFont(MainPanel.ENGLISH_FONT.deriveFont(16.0f*MainPanel.ratio));
+        g2d.setColor(Color.RED);
         String pointer1 = "1P";
-        fm = g.getFontMetrics();
+        fm = g2d.getFontMetrics();
         msgWidth = fm.stringWidth(pointer1);
         msgAscent = fm.getAscent();
-        g.drawString(pointer1, player1.getX() - (msgWidth - player1.getDrawWidth())/ 2 ,player1.getY());
+        g2d.drawString(pointer1, player1.getModX() - (msgWidth - player1.getDrawWidth()*MainPanel.ratio)/ 2 ,player1.getModY());
         String pointer2 = "2P";
-        fm = g.getFontMetrics();
+        fm = g2d.getFontMetrics();
         msgWidth = fm.stringWidth(pointer2);
         msgAscent = fm.getAscent();
-        g.drawString(pointer2, player2.getX() - (msgWidth - player2.getDrawWidth())/ 2, player2.getY());
+        g2d.drawString(pointer2, player2.getModX() - (msgWidth - player2.getDrawWidth()*MainPanel.ratio)/ 2, player2.getModY());
 
         // 印出吃到食物的回覆值
-        g.setFont(TextManager.ENGLISH_FONT.deriveFont(15.0f));
-        g.setColor(Color.GREEN);
+        g2d.setFont(MainPanel.ENGLISH_FONT.deriveFont(15.0f*MainPanel.ratio));
+        g2d.setColor(Color.GREEN);
         String healMsg1 = "";
         String healMsg2 = "";
         if (showHeal1){
@@ -684,21 +684,20 @@ public class TwoPlayerGameScene extends Scene {
                 healDrawingCount2 = 0;
             }
         }
-        fm = g.getFontMetrics();
+        fm = g2d.getFontMetrics();
         msgWidth = fm.stringWidth(healMsg1);
         msgAscent = fm.getAscent();
-        g.drawString(healMsg1, player1.getX() - (msgWidth - player1.getDrawWidth())/ 2, player1.getY());
-        g.drawString(healMsg2, player2.getX() - (msgWidth - player2.getDrawWidth())/ 2, player2.getY());
+        g2d.drawString(healMsg1, player1.getModX() - (msgWidth*MainPanel.ratio - player1.getDrawWidth()*MainPanel.ratio)/ 2, player1.getModY());
+        g2d.drawString(healMsg2, player2.getModX() - (msgWidth*MainPanel.ratio - player2.getDrawWidth()*MainPanel.ratio)/ 2, player2.getModY());
 
         // 印出飢餓值
-        Font engFont = TextManager.ENGLISH_FONT.deriveFont(16.0f);
-        Font chiFont = TextManager.CHINESE_FONT.deriveFont(36.0f);
-        g.setFont(engFont);
-        g.setColor(Color.WHITE);
-        g.drawString(String.valueOf(hungerValue1), 96 + 112, 30);
-        g.drawString(String.valueOf(hungerValue2), 96 + 112 + 200, 30);
-        g.setFont(chiFont);
-        fm = g.getFontMetrics();
+        Font engFont = MainPanel.ENGLISH_FONT.deriveFont(16.0f*MainPanel.ratio);
+        Font chiFont = MainPanel.CHINESE_FONT.deriveFont(36.0f*MainPanel.ratio);
+        g2d.setFont(engFont);
+        g2d.setColor(Color.WHITE);
+        g2d.drawString(String.valueOf(hungerValue1), (96 + 112)*MainPanel.ratio, 30*MainPanel.ratio);
+        g2d.drawString(String.valueOf(hungerValue2), (96 + 112 + 200)*MainPanel.ratio, 30*MainPanel.ratio);
+        g2d.setFont(chiFont);
 
         // 印出地下層數
         String msg = "";
@@ -713,8 +712,9 @@ public class TwoPlayerGameScene extends Scene {
         }
         msgWidth = fm.stringWidth(msg);
         msgAscent = fm.getAscent();
-        g.drawString(msg, 250 - msgWidth/2, 350);
-        g.setFont(chiFont.deriveFont(16.0f));
+//        g2d.drawString(msg, 250*MainPanel.ratio - msgWidth/2, 350*MainPanel.ratio);
+//        g2d.setFont(chiFont.deriveFont(16.0f*MainPanel.ratio));
+//        g2d.drawString("地下 " + layer + " 層", 365*MainPanel.ratio, 30*MainPanel.ratio);
 
         //閃光開始
         if(FlashTrap.getFlashState()){
@@ -723,7 +723,7 @@ public class TwoPlayerGameScene extends Scene {
         if(flashCount <15 && flashCount >0){
             FlashTrap.getFlash().setCounter(flashCount -1);
             //System.out.println("**"+flashCount);
-            FlashTrap.getFlash().paint(g);
+            FlashTrap.getFlash().paint(g, mainPanel);
         }//閃光結束
         else if(flashCount >=15){
             FlashTrap.setFlashState(false);
@@ -732,16 +732,16 @@ public class TwoPlayerGameScene extends Scene {
 
         // 印出選單
         if (isCalled){
-            button_menu.paint(g);
-            button_resume.paint(g);
-            button_new_game.paint(g);
-            cursor.paint(g);
+            button_menu.paint(g, mainPanel);
+            button_resume.paint(g, mainPanel);
+            button_new_game.paint(g, mainPanel);
+            cursor.paint(g, mainPanel);
         }
     }
 
     // 比天花板高就消失
     private boolean checkTopBoundary(GameObject gameObject){
-        return gameObject.getTop() <= this.roof.getBottom();
+        return gameObject.getTop() <= this.roof.getModY() + this.roof.getDrawHeight()*MainPanel.ratio;
     }
 
     // 確認畫面中階梯數量
@@ -749,7 +749,7 @@ public class TwoPlayerGameScene extends Scene {
         int count = 0;
         for (int i = 0; i < floors.size(); i++) {
             Floor current = floors.get(i);
-            if (current.getTop() > 0 && current.getBottom() < GameFrame.FRAME_HEIGHT){
+            if (current.getModY() > 0 && current.getModY() + current.getDrawHeight() * MainPanel.ratio < MainPanel.window.height){
                 count++;
             }
         }
@@ -759,13 +759,13 @@ public class TwoPlayerGameScene extends Scene {
     // 更新背景圖
     private void updateBackgroundImage(){
         int background_rising_speed = 5;
-        if (background_0.getBottom() < 0){
-            background_0 = new GameObject(0, 678, 500, 700, "background/EndBackground.png");
+        if (background_0.getModY() + background_0.getDrawHeight()*MainPanel.ratio < 0){
+            background_0 = new GameObject(0, 678, 500, 700, 1024, 768, "background/EndBackground.png");
             layer++;
             showLayer = true;
         }
-        if (background_1.getBottom() < 0){
-            background_1 = new GameObject(0, 678, 500, 700, "background/EndBackground.png");
+        if (background_1.getModY() + background_1.getDrawHeight()*MainPanel.ratio < 0){
+            background_1 = new GameObject(0, 678, 500, 700, 1024, 768, "background/EndBackground.png");
         }
         background_0.setY(background_0.getY() - background_rising_speed);
         background_1.setY(background_1.getY() - background_rising_speed);
@@ -818,13 +818,13 @@ public class TwoPlayerGameScene extends Scene {
 
     private Button checkCursorPosition(){
         Point cursorCenterPoint = cursor.getCenterPoint();
-        if (cursorCenterPoint.y < button_resume.getBottom() && cursorCenterPoint.y > button_resume.getTop()){
+        if (cursorCenterPoint.y < button_resume.getModY() + button_resume.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_resume.getModY()){
             return button_resume;
         }
-        if (cursorCenterPoint.y < button_new_game.getBottom() && cursorCenterPoint.y > button_new_game.getTop()){
+        if (cursorCenterPoint.y < button_new_game.getModY() + button_new_game.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_new_game.getModY()){
             return button_new_game;
         }
-        if (cursorCenterPoint.y < button_menu.getBottom() && cursorCenterPoint.y > button_menu.getTop()){
+        if (cursorCenterPoint.y < button_menu.getModY() + button_menu.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_menu.getModY()){
             return button_menu;
         }
         return null;
@@ -832,7 +832,7 @@ public class TwoPlayerGameScene extends Scene {
 
     // 火把持續生成
     private void continueGeneration(GameObject gameObject){
-        if (gameObject.getBottom() < 0){
+        if (gameObject.getModY() + gameObject.getDrawHeight() * MainPanel.ratio < 0){
             gameObject.setY(GameFrame.FRAME_HEIGHT);
         }
     }

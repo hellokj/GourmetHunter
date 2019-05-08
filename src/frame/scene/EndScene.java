@@ -3,6 +3,7 @@ package frame.scene;
 import character.Button;
 import character.GameObject;
 import frame.MainPanel;
+import util.PainterManager;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -38,12 +39,12 @@ public class EndScene extends Scene {
             foodTxts.add("food/foodTxt"+(i+1)+".png");
         }
         int r = (int)(Math.random()* foodKind);
-        this.background = new GameObject(0,0,500,700,"background/EndBackground.png");
-        this.light1 = new GameObject(55,105,375,375,"background/light1.png");
-        this.light2 = new GameObject(55,105,375,375,"background/light2.png");
-        this.food = new GameObject(150,200,200,200, foods.get(r));
-        this.foodTxt = new GameObject(100,70,300,100,foodTxts.get(r));
-        this.player = new GameObject(-200,450,175,200,"actor/ActorBack.png");
+        this.background = new GameObject(0,0,500,700,1024, 768,"background/EndBackground.png");
+        this.light1 = new GameObject(55,105,375,375,300, 300,"background/light1.png");
+        this.light2 = new GameObject(55,105,375,375,300, 300, "background/light2.png");
+        this.food = new GameObject(150,200,200,200,100, 100, foods.get(r));
+        this.foodTxt = new GameObject(100,70,300,100,300, 100, foodTxts.get(r));
+        this.player = new GameObject(-200,450,175,200, 146, 200,"actor/ActorBack.png");
         this.buttonMenu = new Button(300, 525, 150, 100,150, 100, "button/Button_Menu_R.png");
         
     }
@@ -76,26 +77,26 @@ public class EndScene extends Scene {
     }
 
     @Override
-    public void paint(Graphics g) {
-        background.paint(g);
-        buttonMenu.paint(g);
-        light1.paint(g);
-        light2.paint(g);
+    public void paint(Graphics g, MainPanel mainPanel) {
+        background.paint(g, mainPanel);
+        buttonMenu.paint(g, mainPanel);
+        light1.paint(g, mainPanel);
+        light2.paint(g, mainPanel);
         lightCount++;
         if(lightCount<6){
             light2.setImageOffsetX(1);
             light1.setImageOffsetX(0);
         }
-        else if(lightCount>=6){
+        else {
             light2.setImageOffsetX(0);
             light1.setImageOffsetX(1);
             if(lightCount==12){
                 lightCount = 0;
             }
         }
-        food.paint(g);
-        foodTxt.paint(g);
-        player.paint(g);
+        food.paint(g, mainPanel);
+        foodTxt.paint(g, mainPanel);
+        player.paint(g, mainPanel);
         player.setX(player.getX()+8);
         if(player.getX()>0){
             player.setX(0);

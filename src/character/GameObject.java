@@ -1,12 +1,15 @@
 package character;
 
+import frame.MainPanel;
+import util.PainterManager;
 import util.ResourcesManager;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class GameObject implements Cloneable{
-    protected int x, y; // 圖片座標
+    protected int x, y; // 初始座標
+    protected int modX, modY; // 畫面調整後的座標
     protected int top, bottom, left, right; // 圖片本身邊界
     // 適用於 不同圖
     protected int drawWidth, drawHeight; // 畫出來的長寬
@@ -24,8 +27,8 @@ public class GameObject implements Cloneable{
     }
 
     public GameObject(int x, int y){
-        this.x = x;
-        this.y= y;
+        this.modX = this.x = x;
+        this.modY = this.y = y;
     }
 
     public GameObject(int x, int y, int drawWidth, int drawHeight){
@@ -53,27 +56,27 @@ public class GameObject implements Cloneable{
 
     public void setBoundary(){
         this.top = y;
-        this.bottom = y + drawHeight;
+        this.bottom =  y + drawHeight;
         this.left = x;
         this.right = x + drawWidth;
     }
 
     public Point getCenterPoint(){
-        return new Point(this.x + drawWidth / 2, this.y + drawHeight / 2);
+        return new Point(this.modX + drawWidth / 2, this.modY + drawHeight / 2);
     }
 
     // 碰撞檢測
     public boolean checkCollision(GameObject gameobject){
-        if(this.left > gameobject.right){
+        if(this.modX > gameobject.modX + gameobject.getDrawWidth()*MainPanel.ratio){
             return false;
         }
-        if(this.right < gameobject.left){
+        if(this.modX + this.drawWidth*MainPanel.ratio < gameobject.modX){
             return false;
         }
-        if(this.bottom < gameobject.top){
+        if(this.modY + this.drawHeight*MainPanel.ratio < gameobject.modY){
             return false;
         }
-        if(this.top > gameobject.bottom){
+        if(this.modY > gameobject.modY + gameobject.drawHeight*MainPanel.ratio){
             return false;
         }
         return true;
@@ -140,6 +143,12 @@ public class GameObject implements Cloneable{
     public void setY(int y) {
         this.y = y;
     }
+    public int getModX() {
+        return modX;
+    }
+    public int getModY() {
+        return modY;
+    }
     public BufferedImage getImage(){
         return this.image;
     }
@@ -159,8 +168,13 @@ public class GameObject implements Cloneable{
         this.imageOffsetY = imageOffsetY;
     }
 
-    public void paint(Graphics g){
-        g.setPaintMode();
-        g.drawImage(image, x, y, x + drawWidth, y + drawHeight, imageOffsetX*image.getWidth(), 0,image.getWidth(), image.getHeight(), null);
+    public void paint(Graphics g, MainPanel mainPanel){
+        Graphics2D g2d = PainterManager.g2d(g);
+        modX = (int) (x * MainPanel.ratio);
+        modY = (int) (y * MainPanel.ratio);
+//        g2d.drawImage(image, x, y, x + mainPanel.windowWidth/6 , y + mainPanel.windowHeight/10, 0 ,0 , 150, 100, null);
+        g2d.drawImage(image, modX, modY,  modX + (int)(drawWidth*MainPanel.ratio),  modY + (int)(drawHeight*MainPanel.ratio), imageOffsetX*imageWidth, 0,imageWidth, imageHeight, null);
+        g2d.setColor(Color.BLACK);
+        g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
     }
 }
