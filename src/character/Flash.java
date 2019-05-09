@@ -34,6 +34,7 @@ public class Flash extends GameObject{
     public void setCounter(int count){
         this.choosingImagesCounter = count;
     }
+
     @Override
     public void paint(Graphics g, MainPanel mainPanel){
         Graphics2D g2d = PainterManager.g2d(g);

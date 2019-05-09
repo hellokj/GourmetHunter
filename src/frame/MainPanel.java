@@ -29,6 +29,10 @@ public class MainPanel extends javax.swing.JPanel {
     public static final int GAME_OVER_SCENE = 7;
     public static final int LEADER_BOARD_SCENE = 8;
 
+    public static final int GUIDE_SCENE_1 = 11;
+
+    public static final int DEBUGGER_SCENE = 99;
+
     // 載入遊戲中字體
     public static final Font ENGLISH_FONT = ResourcesManager.getInstance().getFont("Britannic Bold Regular.ttf");
     public static final Font CHINESE_FONT = ResourcesManager.getInstance().getFont("setofont.ttf");
@@ -63,7 +67,9 @@ public class MainPanel extends javax.swing.JPanel {
 
     public MainPanel() throws IOException {
         // 作為調整大小的基準
+        window = this.getSize();
         setPreferredSize(new Dimension(500, 700));
+        ratio = 1.0f;
         // 透明度調整
         alpha = 0f;
         isFadedOut = false;
@@ -78,7 +84,7 @@ public class MainPanel extends javax.swing.JPanel {
             }
         };
         // 更改初始場景
-        changeCurrentScene(genSceneById(MainPanel.MENU_SCENE));
+        changeCurrentScene(genSceneById(MainPanel.DEBUGGER_SCENE));
 
         // delay 25 ms
         Timer t1 = new Timer(25, new ActionListener() {
@@ -152,6 +158,10 @@ public class MainPanel extends javax.swing.JPanel {
                 return new EndScene(gsChangeListener);
             case GAME_OVER_SCENE:
                 return new GameOverScene(gsChangeListener);
+            case DEBUGGER_SCENE:
+                return new DebuggerScene(gsChangeListener);
+            case GUIDE_SCENE_1:
+                return new GuideScene_1(gsChangeListener);
         }
         isFadedOut = false;
         return null;

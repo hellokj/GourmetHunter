@@ -2,13 +2,14 @@ package character.trap;
 
 import character.Actor;
 import character.Floor;
+import frame.scene.Scene;
 import util.ResourcesManager;
 
 public class StoneTrap implements Trap {
 //    private static final String[] imagePaths = {"floor/StoneFloor_0.png", "floor/StoneFloor_1.png"};
     private static final String[] imagePaths = {"floor/StoneFloor.png"};
 //    private static final int[] choosingImagesMode = {0, 1};
-    private static final int[] choosingImagesMode = {0};
+    private static final int[] choosingImagesMode = {0 ,0};
 
     @Override
     public void setFloorState(Floor floor) {
@@ -27,7 +28,7 @@ public class StoneTrap implements Trap {
 
     private int executeDelayCount, executeDelay = 50;
     @Override
-    public void execute(Actor player, Floor floor) {
+    public void execute(Actor player, Floor floor, Scene scene) {
         if (++executeDelayCount % executeDelay == 0){
             // 扣血機制
             player.setHunger(player.getHunger() + 3);

@@ -2,6 +2,7 @@ package character.trap;
 
 import character.Actor;
 import character.Floor;
+import frame.scene.Scene;
 import util.ResourcesManager;
 
 public class RunningTrap implements Trap {
@@ -50,7 +51,7 @@ public class RunningTrap implements Trap {
     }
 
     @Override
-    public void execute(Actor player, Floor floor) {
+    public void execute(Actor player, Floor floor, Scene scene) {
         if (floor.isTriggered()){ // 觸發
             System.out.println(player.getSpeedX());
             if (rotateDirection){ // 順時針

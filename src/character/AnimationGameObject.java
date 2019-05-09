@@ -7,7 +7,7 @@ import java.awt.*;
 
 public class AnimationGameObject extends GameObject implements Cloneable{
     private int stayDelayCount, stayDelay;
-    private int[] MOVING_PATTERN = {0, 1, 2, 3};
+    private int[] movingPattern = {0, 1, 2, 3};
     private int state;
 
     public AnimationGameObject(int x, int y, int drawWidth, int drawHeight, int imageWidth, int imageHeight, String imageName){
@@ -20,19 +20,35 @@ public class AnimationGameObject extends GameObject implements Cloneable{
         this.state = 0;
     }
 
+    public void setMovingPattern(int[] movingPattern) {
+        this.movingPattern = movingPattern;
+    }
+
+    public void setStayDelay(int stayDelay) {
+        this.stayDelay = stayDelay;
+    }
+
+    public int getStayDelay() {
+        return stayDelay;
+    }
+
+    public int getStayDelayCount() {
+        return stayDelayCount;
+    }
+
     // 原地踏步
     public void stay(){
         stayDelay = 8; // 設定原地踏步延遲機制
         if(stayDelayCount++ % stayDelay == 0){
-            this.imageOffsetX = MOVING_PATTERN[choosingImagesCounter % MOVING_PATTERN.length];
-            this.choosingImagesCounter = choosingImagesCounter % MOVING_PATTERN.length;
+            this.imageOffsetX = movingPattern[choosingImagesCounter % movingPattern.length];
+            this.choosingImagesCounter = choosingImagesCounter % movingPattern.length;
             this.choosingImagesCounter++;
         }
     }
 
     public void playAnimation(){
-        if (state < MOVING_PATTERN.length){
-            imageOffsetX = MOVING_PATTERN[state++];
+        if (state < movingPattern.length){
+            imageOffsetX = movingPattern[state++];
         }else {
             imageOffsetX = 3;
         }

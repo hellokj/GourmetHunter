@@ -4,6 +4,7 @@ package character.trap;
 import character.Actor;
 import character.Floor;
 import character.Flash;
+import frame.scene.Scene;
 import util.ResourcesManager;
 
 public class FlashTrap implements Trap{
@@ -28,7 +29,7 @@ public class FlashTrap implements Trap{
         // 繪製動畫延遲
         floor.setDrawingDelay(20);
     }
-    public void execute(Actor player, Floor floor){
+    public void execute(Actor player, Floor floor, Scene scene){
         flash = new Flash(floor.getX()-220,floor.getY()-250,500,500);
         if (floor.isTriggered()){
             flashstate = true;

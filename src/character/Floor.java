@@ -30,7 +30,7 @@ public class Floor extends GameObject {
 
     public Floor(int x, int y, Trap trapFunction){
         super(x, y);
-        this.speedY = -1f;
+        this.speedY = -0f;
 //        this.speedY = -(float)(Math.random()*10);
         this.trapFunction = trapFunction;
         this.floorImages = new ArrayList<>();
@@ -129,12 +129,12 @@ public class Floor extends GameObject {
             }
         }
         g2d.setColor(Color.YELLOW);
-        g2d.drawRect(modX-1, modY-1, (int)(drawWidth* MainPanel.ratio + 1), (int)(drawHeight* MainPanel.ratio +1));
+//        g2d.drawRect(modX-1, modY-1, (int)(drawWidth* MainPanel.ratio + 1), (int)(drawHeight* MainPanel.ratio +1));
         try {
             //  有機會畫到還未重設的畫圖模式 會報錯
-            g2d.drawImage(floorImages.get(choosingImagesMode[choosingImagesCounter-1]), modX, (int)(modY - floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getHeight()* MainPanel.ratio + drawHeight* MainPanel.ratio), (int)(modX + drawWidth* MainPanel.ratio), (int)(modY + drawHeight* MainPanel.ratio), 0, 0, floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getWidth(), floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getHeight(), null);
+            g2d.drawImage(floorImages.get(choosingImagesMode[choosingImagesCounter-1]), modX, (int)(modY - floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getHeight()* MainPanel.ratio + drawHeight* MainPanel.ratio), (int)(modX + drawWidth* MainPanel.ratio), modY + (int)(drawHeight* MainPanel.ratio), 0, 0, floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getWidth(), floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getHeight(), null);
         }catch (ArrayIndexOutOfBoundsException e){
-            g2d.drawImage(floorImages.get(choosingImagesMode[0]), modX, modY - (int)(floorImages.get(choosingImagesMode[0]).getHeight()* MainPanel.ratio + drawHeight* MainPanel.ratio), (int)(modX + drawWidth* MainPanel.ratio), (int)(modY + drawHeight* MainPanel.ratio), 0, 0, floorImages.get(choosingImagesMode[0]).getWidth(), floorImages.get(choosingImagesMode[0]).getHeight(), null);
+            g2d.drawImage(floorImages.get(choosingImagesMode[0]), modX, (int)(modY - (floorImages.get(choosingImagesMode[0]).getHeight()* MainPanel.ratio + drawHeight* MainPanel.ratio)), (int)(modX + drawWidth* MainPanel.ratio), (int)(modY + drawHeight* MainPanel.ratio), 0, 0, floorImages.get(choosingImagesMode[0]).getWidth(), floorImages.get(choosingImagesMode[0]).getHeight(), null);
         }
     }
 

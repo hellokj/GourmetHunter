@@ -4,6 +4,7 @@ import character.Actor;
 import character.Floor;
 import character.GameObject;
 import character.food.Food;
+import frame.scene.Scene;
 import util.ResourcesManager;
 
 import java.awt.image.BufferedImage;
@@ -39,7 +40,7 @@ public class NormalTrap implements Trap {
     }
 
     @Override
-    public void execute(Actor player, Floor floor) {
+    public void execute(Actor player, Floor floor, Scene scene) {
         // do nothing
     }
 }

@@ -67,6 +67,7 @@ public class Actor extends AnimationGameObject{
         this.canJump = true;
         this.isEating = false;
         this.isStop = false;
+        this.dieState = false;
         setBoundary();
         this.speedX = 0;
     }

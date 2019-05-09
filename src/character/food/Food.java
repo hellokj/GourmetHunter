@@ -45,7 +45,6 @@ public class Food extends GameObject {
 
     @Override
     public void paint(Graphics g, MainPanel mainPanel){
-        System.out.println("paint food");
         Graphics2D g2d = PainterManager.g2d(g);
         modX = (int) (x * MainPanel.ratio);
         modY = (int) (y * MainPanel.ratio);

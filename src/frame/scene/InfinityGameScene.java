@@ -96,7 +96,7 @@ public class InfinityGameScene extends Scene {
         background_0.setBoundary();
         background_1.setBoundary();
         fire_left = new AnimationGameObject(0, (int) (background_0.getModY() + background_0.getDrawHeight()*MainPanel.ratio/2), 30, 30, 64, 64,"background/Fire.png");
-        fire_right = new AnimationGameObject(470, (int) (background_0.getModY() + background_0.getDrawHeight()*MainPanel.ratio/2), 30, 30, 64, 64,"background/Fire.png");
+        fire_right = new AnimationGameObject(470, (int) (background_1.getModY() + background_1.getDrawHeight()*MainPanel.ratio/2), 30, 30, 64, 64,"background/Fire.png");
     }
 
     @Override
@@ -127,7 +127,7 @@ public class InfinityGameScene extends Scene {
                             if (!isPause){
                                 up = true;
                             }else {
-                                if (!(cursor.getY() - 150*MainPanel.ratio < button_resume.getY())){
+                                if (!(cursor.getY() - 150 < button_resume.getY())){
                                     cursor.setY(cursor.getY() - 150);
                                 }
                             }
@@ -138,7 +138,7 @@ public class InfinityGameScene extends Scene {
                             if (!isPause){
                                 down = true;
                             }else {
-                                if (!(cursor.getY() + 150*MainPanel.ratio > button_menu.getY() + button_menu.getDrawHeight())){
+                                if (!(cursor.getY() + 150 > button_menu.getY() + button_menu.getDrawHeight())){
                                     cursor.setY(cursor.getY() + 150);
                                 }
                             }
@@ -202,7 +202,6 @@ public class InfinityGameScene extends Scene {
                         char input = (char)KeyEvent.getExtendedKeyCodeForChar(key);
                         if ((input >= 48 && input <= 57) || (input >= 65 && input <= 90) || (input >= 97 && input <= 122)){
 //                            name[nameCount++] = input;
-                            System.out.println(input);
                             name += String.valueOf(input);
                         }
                     }
@@ -516,7 +515,7 @@ public class InfinityGameScene extends Scene {
     // 火把持續生成
     private void continueGeneration(GameObject gameObject){
         if (gameObject.getModY() + gameObject.getDrawHeight() * MainPanel.ratio < 0){
-            gameObject.setY(GameFrame.FRAME_HEIGHT);
+            gameObject.setY(MainPanel.window.height);
         }
     }
 

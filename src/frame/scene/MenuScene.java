@@ -4,7 +4,6 @@ import character.Actor;
 import character.Button;
 import character.GameObject;
 import frame.MainPanel;
-import sun.audio.AudioStream;
 import util.ResourcesManager;
 
 
@@ -12,13 +11,10 @@ import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class MenuScene extends Scene{
     private GameObject background, logo, road, introduction;
-    private Button buttonMode, buttonLeader, buttonExit;
+    private Button buttonMode, buttonLeader, buttonGuide;
     private Actor player;
     private int countM,countL,countE; // 碰觸按鈕延遲
     private int key;
@@ -33,7 +29,7 @@ public class MenuScene extends Scene{
         this.road = new GameObject(0, 644, 600, 44, 600, 44, "background/Road.png");
         this.buttonMode = new Button(60,400, 100, 75, 150, 100, "button/Button_Mode.png");
         this.buttonLeader = new Button(190,400,100, 75, 150, 100,"button/Button_LB.png");
-        this.buttonExit = new Button(320,400,100, 75, 150, 100,"button/Button_Exit.png");
+        this.buttonGuide = new Button(320,400,100, 75, 150, 100,"button/Button_Guide.png");
         this.player = MainPanel.player1;
         this.introduction = new GameObject(this.player.getX(), this.player.getY() - 144, 162, 144,225, 200, "background/MenuGuide.png");
     }
@@ -87,7 +83,7 @@ public class MenuScene extends Scene{
         // 設定按鈕圖片
         buttonMode.setImageOffsetX(0);
         buttonLeader.setImageOffsetX(0);
-        buttonExit.setImageOffsetX(0);
+        buttonGuide.setImageOffsetX(0);
         if ((right || left) && !player.isStop()){
             player.acceleration();
         }
@@ -122,10 +118,11 @@ public class MenuScene extends Scene{
         }
 
         // 結束遊戲
-        if(buttonExit.checkCollision(player)){
-            buttonExit.setImageOffsetX(1);
+        if(buttonGuide.checkCollision(player)){
+            buttonGuide.setImageOffsetX(1);
             if (countE++ == 40){ // 一個延遲後切換場景
 //                System.exit(1);
+                gsChangeListener.changeScene(MainPanel.GUIDE_SCENE_1);
                 countE = 0;
             }
         }
@@ -138,7 +135,7 @@ public class MenuScene extends Scene{
         road.paint(g, mainPanel);
         buttonMode.paint(g, mainPanel);
         buttonLeader.paint(g, mainPanel);
-        buttonExit.paint(g, mainPanel);
+        buttonGuide.paint(g, mainPanel);
         logo.paint(g, mainPanel);
         player.paint(g, mainPanel);
         introduction.paint(g, mainPanel);

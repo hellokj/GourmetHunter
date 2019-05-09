@@ -148,8 +148,10 @@ public class ModeScene extends Scene{
                         if (!isPicked_1){
                             isPicked_1 = true;
                         }else {
-                            if (!isPicked_2){
-                                isPicked_2 = true;
+                            if (game_2p){
+                                if (!isPicked_2){
+                                    isPicked_2 = true;
+                                }
                             }
                         }
                 }

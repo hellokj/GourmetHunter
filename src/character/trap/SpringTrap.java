@@ -2,6 +2,7 @@ package character.trap;
 
 import character.Actor;
 import character.Floor;
+import frame.scene.Scene;
 import util.ResourcesManager;
 
 public class SpringTrap implements Trap {
@@ -28,7 +29,7 @@ public class SpringTrap implements Trap {
     }
 
     @Override
-    public void execute(Actor player, Floor floor) {
+    public void execute(Actor player, Floor floor, Scene scene) {
         // 彈飛初速度
         int bounceSpeed = -15;
         if (floor.isTriggered()){
