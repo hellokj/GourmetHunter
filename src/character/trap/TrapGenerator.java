@@ -7,12 +7,12 @@ public class TrapGenerator {
     public static final int TRAP_DANCING = 2;
     public static final int TRAP_STONE = 3;
     public static final int TRAP_SPRING = 4;
-//    private static final int TRAP_FRAGMENT = 5;
-    public static final int TRAP_FLASH = 5;
-    public static final int TRAP_FLIPPING = 6;
-    public static final int TRAP_DARKNESS = 7;
+//    public static final int TRAP_FRAGMENT = 5;
+    public static final int TRAP_FLASH = 6;
+    public static final int TRAP_FLIPPING = 7;
+    public static final int TRAP_DARKNESS = 5;
     private static final int[] TRAP = {TRAP_NORMAL, TRAP_RUNNING,
-                    TRAP_DANCING, TRAP_STONE,
+                    TRAP_DANCING, TRAP_STONE, // 破碎地板移除
                     TRAP_SPRING, TRAP_FLASH, TRAP_FLIPPING, TRAP_DARKNESS};
 
     // 陷阱生成機率
@@ -33,7 +33,7 @@ public class TrapGenerator {
         genRate_DancingTrap = 50;
         genRate_SpringTrap = 25;
         genRate_StoneTrap = 60;
-        genRate_FragmentTrap = 30;
+//        genRate_FragmentTrap = 30;
         genRate_FlashTrap = 50;
         genRate_FlippingTrap = 60;
         genRate_DarknessTrap = 70;
@@ -82,7 +82,7 @@ public class TrapGenerator {
         switch (random){
             case TRAP_RUNNING:
                 if(rate < genRate_RunningTrap){
-                    return new RunningTrap(1);
+                    return new RunningTrap(2);
                 }
                 break;
             case TRAP_DANCING:
@@ -101,10 +101,9 @@ public class TrapGenerator {
                 }
                 break;
 //            case TRAP_FRAGMENT:
-//                if(rate > FragmentTrap.generationRate){
+//                if(rate > genRate_FragmentTrap){
 //                    return new FragmentTrap();
 //                }
-//                break;
             case TRAP_FLASH:
                 if(rate < genRate_FlashTrap){
                     return new FlashTrap();
@@ -129,20 +128,23 @@ public class TrapGenerator {
     // 陷阱生成機率更新器，傳入層數調整機率
     private void generationUpdater(int layer){
         if (layer <= 5){
-            genRate_RunningTrap = 20;
-            genRate_DancingTrap = 50;
+            genRate_RunningTrap = 30;
+            genRate_DancingTrap = 20;
             genRate_SpringTrap = 25;
-            genRate_StoneTrap = 60;
-            genRate_FragmentTrap = 30;
-            genRate_FlashTrap = 100;
-
+            genRate_StoneTrap = 40;
+            genRate_FlashTrap = 20;
+            genRate_FlippingTrap = 40;
+            genRate_DarknessTrap = 20;
         }
-        if (layer > 5 && layer <= 20){
-            genRate_RunningTrap = 0;
-            genRate_DancingTrap = 0;
-            genRate_SpringTrap = 100;
-            genRate_StoneTrap = 0;
-            genRate_FragmentTrap = 0;
+        if (layer > 5){
+            System.out.println("layer > 5");
+            genRate_RunningTrap = 30 + 5 * layer/5;
+            genRate_DancingTrap = 20 + 5 * layer/5;
+            genRate_SpringTrap = 25 + 5 * layer/5;
+            genRate_StoneTrap = 40 + 5 * layer/5;
+            genRate_FlashTrap = 20 + 5 * layer/5;
+            genRate_FlippingTrap = 40 + 5 * layer/5;
+            genRate_DarknessTrap = 20 + 5 * layer/5;
         }
     }
 }

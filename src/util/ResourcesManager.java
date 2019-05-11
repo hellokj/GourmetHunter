@@ -14,8 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ResourcesManager{
-    // 圖片、字型、音效、資源
-
+    // 圖片、字型、音效資源
     private Map<String, BufferedImage> images;
     private Map<String, AudioClip> sounds;
     private Map<String, Font> fonts;

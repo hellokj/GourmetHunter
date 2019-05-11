@@ -17,6 +17,7 @@ public class FlashTrap implements Trap{
     
     
     public void setFloorState(Floor floor){
+        floor.setImage(ResourcesManager.getInstance().getImage("floor/FlashFloor.png"));
         for (int i = 0; i < imagePaths.length; i++) {
             floor.getFloorImages().add(ResourcesManager.getInstance().getImage(imagePaths[i]));
         }
@@ -32,6 +33,7 @@ public class FlashTrap implements Trap{
     public void execute(Actor player, Floor floor, Scene scene){
         flash = new Flash(floor.getX()-220,floor.getY()-250,500,500);
         if (floor.isTriggered()){
+
             flashstate = true;
         }
         

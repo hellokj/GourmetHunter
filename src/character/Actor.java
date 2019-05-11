@@ -3,7 +3,6 @@ package character;
 import character.food.Food;
 import frame.MainPanel;
 import frame.scene.Scene;
-import util.PainterManager;
 import util.ResourcesManager;
 
 import java.awt.*;
@@ -17,7 +16,7 @@ public class Actor extends AnimationGameObject{
     private static final int[] MOVING_PATTERN = {0, 1, 2, 3, 2, 1}; // 走路模式
 
     // 胖瘦圖片
-    private static final int HUNGER_LIMIT = 80;
+    private static final int HUNGER_LIMIT = 70;
     private BufferedImage imageFat, imageSlim = ResourcesManager.getInstance().getImage("actor/skeletona.png");
 
     // 身材速度上限
@@ -40,7 +39,7 @@ public class Actor extends AnimationGameObject{
     private boolean isEating; // 吃到東西
 
     // 每經過100次刷新，讓飢餓值上升
-    private int hungerDelayCount, hungerDelay = 20;
+    private int hungerDelayCount, hungerDelay = 200;
     private int hunger; // 飢餓程度
     private int score; // 統計總共吃了多少食物
 
@@ -86,6 +85,7 @@ public class Actor extends AnimationGameObject{
         return this.dieState;
     }
     public void die(){
+        Scene.DIE.play();
         this.direction = MOVE_DOWN;
         this.dieState = true;
     }
@@ -125,6 +125,14 @@ public class Actor extends AnimationGameObject{
         this.isStop = state;
     }
 
+    public boolean isOn() {
+        return isOn;
+    }
+
+    public void setOn(boolean on) {
+        isOn = on;
+    }
+
     public void stop(){
         this.isStop = true;
     }
@@ -139,6 +147,7 @@ public class Actor extends AnimationGameObject{
     }
 
     public void jump(){
+        Scene.JUMP.play();
         int jumpSpeed = 18;
         speedY -= jumpSpeed;
         this.canJump = false;
@@ -150,14 +159,16 @@ public class Actor extends AnimationGameObject{
         if (!isOn){
             speedY += Scene.GRAVITY;
         }
-        checkMaxSpeed();
-        x += speedX;
-        y += speedY;
-        checkHunger();
-        setBoundary();
-        if (invincibleDelayCount++ == invicibleDelay){
-            invincibleDelayCount = 0;
-            invincible = false;
+        if (!isStop){
+            checkMaxSpeed();
+            x += speedX;
+            y += speedY;
+            checkHunger();
+            setBoundary();
+            if (invincibleDelayCount++ == invicibleDelay){
+                invincibleDelayCount = 0;
+                invincible = false;
+            }
         }
     }
 
@@ -181,6 +192,7 @@ public class Actor extends AnimationGameObject{
     }
 
     public void hunger() {
+        // 每3秒飢餓 + 5
         if (hungerDelayCount++ == hungerDelay){
             if (this.hunger + 5 >= 100){
                 this.hunger = 100;
@@ -308,11 +320,11 @@ public class Actor extends AnimationGameObject{
             this.invincible = true;
             this.y += 30;
             this.setBoundary();
-            if (this.hunger + 20 >= 100){
+            if (this.hunger + 10 >= 100){
                 this.hunger = 100;
 //                this.die();
             }else {
-                this.hunger += 20;
+                this.hunger += 10;
             }
         }
     }
@@ -387,8 +399,8 @@ public class Actor extends AnimationGameObject{
 
     public boolean checkOnObject(GameObject gameObject){
         // 於物體上
-        if(this.y + (int)(drawHeight*MainPanel.ratio) + speedY > gameObject.top){
-            y = gameObject.y - drawHeight;
+        if(this.y + (int)(drawHeight*MainPanel.ratio) + speedY > gameObject.y){
+            y = gameObject.y - drawHeight + 1;
             speedY = gameObject.speedY;
             isOn = true;
             return true;
@@ -397,7 +409,7 @@ public class Actor extends AnimationGameObject{
         return false;
     }
 
-    public boolean checkOnFloor(Floor floor){
+    public boolean checkOnFloor(Floor floor, Scene scene){
         // 確認已完全低於此階梯
         // 確認完全走出階梯範圍
         if(this.modX > floor.modX + floor.drawWidth * MainPanel.ratio ||
@@ -408,11 +420,10 @@ public class Actor extends AnimationGameObject{
         }
         // 於階梯上
         if(this.modY + this.drawHeight * MainPanel.ratio + speedY > floor.modY && this.speedY >= 0){
-            y = floor.y - drawHeight; // 需修改
+            y = floor.y - drawHeight + 1; // 需修改
             speedY = floor.speedY;
-            isOn = true;
             // 人物去碰觸地板，將地板狀態設為被接觸，並由地板觸發機關
-            floor.isBeenTouched(this);
+            floor.isBeenTouched(this, scene);
             return true;
         }
         isOn = false;
@@ -428,8 +439,9 @@ public class Actor extends AnimationGameObject{
                 }else {
                     this.hunger -= food.getHeal();
                 }
-                score += food.getHeal();
+                score += food.getHeal() * 10;
                 food.eaten(); // 狀態設置為被吃掉
+                Scene.HEAL.play();
                 return true;
             }
         }
@@ -444,28 +456,30 @@ public class Actor extends AnimationGameObject{
 
     @Override
     public void paint(Graphics g, MainPanel mainPanel){
-        Graphics2D g2d = PainterManager.g2d(g);
         modX = (int) (x * MainPanel.ratio);
         modY = (int) (y * MainPanel.ratio);
         // 人物飢餓值達到一定程度
         // 切換角色圖、速度上升等
         if (state){ // 小胖狀態
             this.drawWidth = this.drawHeight = 32;
-            g2d.drawImage(image, modX, modY, modX + (int)(drawWidth*MainPanel.ratio), modY + (int)(drawHeight*MainPanel.ratio),
+            this.imageWidth = this.imageHeight = 32;
+            g.drawImage(image, modX, modY, modX + (int)(drawWidth*MainPanel.ratio), modY + (int)(drawHeight*MainPanel.ratio),
                     direction*4* imageWidth + imageWidth*imageOffsetX, imageOffsetY,
                     direction*4* imageWidth + imageWidth*imageOffsetX + imageWidth,imageOffsetY + imageHeight, null);
-            g2d.setColor(Color.WHITE);
-            g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
+//            g2d.setColor(Color.WHITE);
+//            g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
         }else { // 骷髏狀態
             this.drawWidth = 32;
             this.drawHeight = 64;
+            this.imageWidth = 32;
+            this.imageHeight = 64;
             int actualWidth = 24, actualHeight = 48;
-            g2d.drawImage(image, modX, modY, modX + (int)(drawWidth*MainPanel.ratio), modY + (int)(drawHeight*MainPanel.ratio),
+            g.drawImage(image, modX, modY, modX + (int)(drawWidth*MainPanel.ratio), modY + (int)(drawHeight*MainPanel.ratio),
                     (imageWidth*imageOffsetX),imageOffsetY*imageHeight, imageWidth*imageOffsetX + imageWidth, imageOffsetY*imageHeight + imageHeight, null);
-            g2d.setColor(Color.WHITE);
-            g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
-            g2d.setColor(Color.RED);
-            g2d.drawRect(modX + 4 - 1, modY + 16 - 1, actualWidth, actualHeight);
+//            g2d.setColor(Color.WHITE);
+//            g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
+//            g2d.setColor(Color.RED);
+//            g2d.drawRect(modX + 4 - 1, modY + 16 - 1, actualWidth, actualHeight);
         }
     }
 }

@@ -25,7 +25,7 @@ public class Button extends AnimationGameObject {
         g2d.drawImage(image, modX, modY, (int)(modX+drawWidth* MainPanel.ratio), (int)(modY+drawHeight* MainPanel.ratio),
                 imageOffsetX*imageWidth, 0, imageOffsetX*imageWidth + imageWidth, imageHeight
                 ,null);
-        g2d.setColor(Color.BLACK);
-        g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
+//        g2d.setColor(Color.BLACK);
+//        g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
     }
 }

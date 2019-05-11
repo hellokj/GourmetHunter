@@ -21,7 +21,7 @@ public class Food extends GameObject {
         this.offset = offset; // 出現在階梯的第幾個位置上
         this.isEaten = false;
         this.floor = floor;
-        this.heal = (int)(Math.random()*100);
+        this.heal = (int)(Math.random()*9+1);
     }
 
     @Override

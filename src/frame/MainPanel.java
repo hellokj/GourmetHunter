@@ -1,14 +1,11 @@
 package frame;
 
-import character.Actor;
 import character.GameObject;
 import frame.scene.*;
 import util.PainterManager;
 import util.ResourcesManager;
 
 import javax.swing.*;
-import java.applet.Applet;
-import java.applet.AudioClip;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -30,6 +27,7 @@ public class MainPanel extends javax.swing.JPanel {
     public static final int LEADER_BOARD_SCENE = 8;
 
     public static final int GUIDE_SCENE_1 = 11;
+    public static final int GUIDE_SCENE_2 = 12;
 
     public static final int DEBUGGER_SCENE = 99;
 
@@ -42,18 +40,17 @@ public class MainPanel extends javax.swing.JPanel {
     public static String[] leaderBoard;
 
     // 調整螢幕大小
+    public static final Dimension BASIC_WINDOW = new Dimension(500, 700);
     public static Dimension window;
     public static float ratio;
 
-    public static Actor
-            player1 = new Actor(250, 700, 32, 32, 32, 32, "actor/Actor1.png"),
-            player2 = new Actor(250, 700, 32, 32, 32, 32, "actor/Actor1.png");
+//    public static Actor
+//            player1 = new Actor(250, 700, 32, 32, 32, 32, "actor/Actor1.png"),
+//            player2 = new Actor(250, 700, 32, 32, 32, 32, "actor/Actor1.png");
+    public static String player1 = "actor/Actor1.png", player2 = "actor/Actor1.png";
 
     // fade in / fade out
     private float alpha;
-    private int fadeDelayCount;
-    private boolean isFadedOut;
-
 
     public interface GameStatusChangeListener{
         void changeScene(int sceneId);
@@ -68,11 +65,10 @@ public class MainPanel extends javax.swing.JPanel {
     public MainPanel() throws IOException {
         // 作為調整大小的基準
         window = this.getSize();
-        setPreferredSize(new Dimension(500, 700));
+        setPreferredSize(BASIC_WINDOW);
         ratio = 1.0f;
         // 透明度調整
         alpha = 0f;
-        isFadedOut = false;
         // 讀取排行
         if (leaderBoard == null){
             leaderBoard = readLeaderBoard(LEADER_BOARD_FILE_PATH);
@@ -84,7 +80,8 @@ public class MainPanel extends javax.swing.JPanel {
             }
         };
         // 更改初始場景
-        changeCurrentScene(genSceneById(MainPanel.DEBUGGER_SCENE));
+//        changeCurrentScene(genSceneById(MainPanel.DEBUGGER_SCENE));
+        changeCurrentScene(genSceneById(MainPanel.GUIDE_SCENE_2));
 
         // delay 25 ms
         Timer t1 = new Timer(25, new ActionListener() {
@@ -94,10 +91,7 @@ public class MainPanel extends javax.swing.JPanel {
                 window = MainPanel.this.getSize();
                 ratio =  ((float)window.getSize().width / (float)getPreferredSize().width);
 
-//                if (++fadeDelayCount % 40 == 0){
-//                    fadeDelayCount = 0;
-//                    alphaStep();
-//                }
+                alphaStep_fadeIn();
                 if (currentScene != null){
                     try {
                         currentScene.logicEvent();
@@ -112,9 +106,9 @@ public class MainPanel extends javax.swing.JPanel {
 
     @Override
     public void paintComponent(Graphics g){
-        Graphics2D g2d = PainterManager.g2d(g);
+        Graphics2D g2d = (Graphics2D)g;
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-        currentScene.paint(g, this);
+        currentScene.paint(g2d, this);
     }
 
     private void changeCurrentScene(Scene scene) {
@@ -139,6 +133,7 @@ public class MainPanel extends javax.swing.JPanel {
     }
 
     private frame.scene.Scene genSceneById(int id) {
+        alpha = 0;
         switch (id){
             case MENU_SCENE:
                 return new MenuScene(gsChangeListener);
@@ -162,8 +157,9 @@ public class MainPanel extends javax.swing.JPanel {
                 return new DebuggerScene(gsChangeListener);
             case GUIDE_SCENE_1:
                 return new GuideScene_1(gsChangeListener);
+            case GUIDE_SCENE_2:
+                return new GuideScene_2(gsChangeListener);
         }
-        isFadedOut = false;
         return null;
     }
 
@@ -179,11 +175,17 @@ public class MainPanel extends javax.swing.JPanel {
         return data;
     }
 
-    private void alphaStep(){
-        alpha += 0.1f;
+    private void alphaStep_fadeIn(){
+        alpha += 0.033f;
         if (alpha >= 1){
             alpha = 1;
-            isFadedOut = true;
+        }
+    }
+
+    private void alphaStep_fadeOut(){
+        alpha -= 0.1f;
+        if (alpha <= 0){
+            alpha = 0;
         }
     }
 }

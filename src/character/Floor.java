@@ -2,9 +2,11 @@ package character;
 
 
 import character.food.Food;
+import character.trap.FlippingTrap;
 import character.trap.SpringTrap;
 import character.trap.Trap;
 import frame.MainPanel;
+import frame.scene.Scene;
 import util.PainterManager;
 
 import java.awt.*;
@@ -30,8 +32,8 @@ public class Floor extends GameObject {
 
     public Floor(int x, int y, Trap trapFunction){
         super(x, y);
-        this.speedY = -0f;
-//        this.speedY = -(float)(Math.random()*10);
+        this.speedY = -1f;
+//        this.speedY = -(float)(Math.random()*3);
         this.trapFunction = trapFunction;
         this.floorImages = new ArrayList<>();
         // 傳入陷阱類型，設定自己的狀態
@@ -64,10 +66,15 @@ public class Floor extends GameObject {
     // 某些地板被觸發才播動畫，可能不適用此方法
     public void stay(){
         if (drawingDelayCount++ == drawingDelay){
-            // 超爛做法(只針對彈簧畫圖模式更動)
+            // 超爛做法(只針對特定畫圖模式更動)
             if (this.trapFunction instanceof SpringTrap){
                 if(choosingImagesCounter == 6){
                     this.choosingImagesMode = SpringTrap.CHOOSING_IMAGES_MODE_BASE;
+                }
+            }
+            if (this.trapFunction instanceof FlippingTrap){
+                if (choosingImagesCounter == 2){
+                    this.choosingImagesMode = FlippingTrap.CHOOSING_IMAGES_MODE_BASE;
                 }
             }
             this.choosingImagesCounter = choosingImagesCounter % choosingImagesMode.length;
@@ -76,9 +83,9 @@ public class Floor extends GameObject {
         }
     }
 
-    public void isBeenTouched(Actor player){
+    public void isBeenTouched(Actor player, Scene scene){
         setTriggered(true);
-        executeTrap(player);
+        executeTrap(player, scene);
     }
 
     public boolean isTriggered(){
@@ -88,10 +95,11 @@ public class Floor extends GameObject {
         this.isTriggered = state;
     }
 
+
     // 發動機關
-    public void executeTrap(Actor player){
+    public void executeTrap(Actor player, Scene scene){
         if (isTriggered){
-            this.trapFunction.execute(player, this);
+            this.trapFunction.execute(player, this, scene);
             // 觸發狀態設回未觸發
             isTriggered = false;
         }
@@ -115,26 +123,25 @@ public class Floor extends GameObject {
 
     @Override
     public void paint(Graphics g, MainPanel mainPanel){
-        Graphics2D g2d = PainterManager.g2d(g);
         modX = (int) (x * MainPanel.ratio);
         modY = (int) (y * MainPanel.ratio);
         // 加入不同地板動畫後，畫圖模式(測試)
         if (food != null){
             try {
                 food.paint(g, mainPanel);
-                g2d.setColor(Color.GREEN);
-                g2d.drawRect(food.modX-1, food.modY-1, (int)(food.drawWidth* MainPanel.ratio + 1), (int)(food.drawHeight* MainPanel.ratio +1));
+//                g2d.setColor(Color.GREEN);
+//                g2d.drawRect(food.modX-1, food.modY-1, (int)(food.drawWidth* MainPanel.ratio + 1), (int)(food.drawHeight* MainPanel.ratio +1));
             }catch (NullPointerException e){
 
             }
         }
-        g2d.setColor(Color.YELLOW);
+//        g2d.setColor(Color.YELLOW);
 //        g2d.drawRect(modX-1, modY-1, (int)(drawWidth* MainPanel.ratio + 1), (int)(drawHeight* MainPanel.ratio +1));
         try {
             //  有機會畫到還未重設的畫圖模式 會報錯
-            g2d.drawImage(floorImages.get(choosingImagesMode[choosingImagesCounter-1]), modX, (int)(modY - floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getHeight()* MainPanel.ratio + drawHeight* MainPanel.ratio), (int)(modX + drawWidth* MainPanel.ratio), modY + (int)(drawHeight* MainPanel.ratio), 0, 0, floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getWidth(), floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getHeight(), null);
+            g.drawImage(floorImages.get(choosingImagesMode[choosingImagesCounter-1]), modX, (int)(modY - floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getHeight()* MainPanel.ratio + drawHeight* MainPanel.ratio), (int)(modX + drawWidth* MainPanel.ratio), modY + (int)(drawHeight* MainPanel.ratio), 0, 0, floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getWidth(), floorImages.get(choosingImagesMode[choosingImagesCounter-1]).getHeight(), null);
         }catch (ArrayIndexOutOfBoundsException e){
-            g2d.drawImage(floorImages.get(choosingImagesMode[0]), modX, (int)(modY - (floorImages.get(choosingImagesMode[0]).getHeight()* MainPanel.ratio + drawHeight* MainPanel.ratio)), (int)(modX + drawWidth* MainPanel.ratio), (int)(modY + drawHeight* MainPanel.ratio), 0, 0, floorImages.get(choosingImagesMode[0]).getWidth(), floorImages.get(choosingImagesMode[0]).getHeight(), null);
+//            g.drawImage(floorImages.get(choosingImagesMode[0]), modX, (int)(modY - (floorImages.get(choosingImagesMode[0]).getHeight()* MainPanel.ratio + drawHeight* MainPanel.ratio)), (int)(modX + drawWidth* MainPanel.ratio), (int)(modY + drawHeight* MainPanel.ratio), 0, 0, floorImages.get(choosingImagesMode[0]).getWidth(), floorImages.get(choosingImagesMode[0]).getHeight(), null);
         }
     }
 

@@ -4,10 +4,9 @@ import character.*;
 import character.Button;
 import character.food.Food;
 import character.trap.FlashTrap;
+import character.trap.FragmentTrap;
 import character.trap.TrapGenerator;
-import frame.GameFrame;
 import frame.MainPanel;
-import util.PainterManager;
 import util.ResourcesManager;
 
 import java.awt.*;
@@ -21,15 +20,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class DebuggerScene extends Scene {
+    public DebuggerScene debuggerScene;
     private GameObject background_0, background_1, roof;
     private GameObject hungerCount, hungerBack;
     private int hungerValue;
     private AnimationGameObject fire_left, fire_right;
     private Actor player;
     private ArrayList<Floor> floors;
-
-    private BufferedImage darkness;
-    private boolean isDark;
 
     // 名稱儲存
     private String name; // 儲存名稱
@@ -70,6 +67,7 @@ public class DebuggerScene extends Scene {
 
     public DebuggerScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
+        debuggerScene = this;
         // 場景物件
         setSceneObject();
         roof = new GameObject(0, 0, 500, 64, 500, 64,"background/Roof_new.png");
@@ -84,16 +82,19 @@ public class DebuggerScene extends Scene {
         floors.add(new Floor(player.getModX() - (64 - 32), 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_NORMAL))); // 初始站立
         floors.add(new Floor(player.getModX() - (64 - 32) + 64, 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_NORMAL))); // 初始站立
         floors.add(new Floor(player.getModX() - (64 - 32) + 64 + 64, 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_NORMAL))); // 初始站立
-        floors.add(new Floor(player.getModX() - 96, 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_RUNNING))); // 初始站立
-        floors.add(new Floor(player.getModX() - 96 - 64, 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_RUNNING))); // 初始站立
+//        floors.add(new Floor(player.getModX() - 96, 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_DARKNESS))); // 初始站立
+        Floor dFloor = new Floor(player.getModX() - 96, 400 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_DARKNESS));
+        dFloor.setSpeedY(-1);
+        floors.add(dFloor); // 初始站立
+        floors.add(new Floor(player.getModX() - 96 - 64, 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_FLIPPING))); // 初始站立
         floors.add(new Floor(player.getModX() - 96 - 64 - 64, 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_RUNNING))); // 初始站立
 //        for (int i = 0; i < 9; i++) {
-//            floors.add(FloorGenerator.getInstance().genFloor(floors.get(i), 0));
+//            floors.add(FloorGenerator.getInstance().genFloor(floors, floors.get(i), 0));
 //        }
         isCalled = false;
         isPause = false;
         isOver = false;
-        isDark = true;
+        isDark = false;
         showLayer = false;
         layer = 0; // 從0層 開始
         name = "";
@@ -110,7 +111,6 @@ public class DebuggerScene extends Scene {
 //        background_1.setBoundary();
         fire_left = new AnimationGameObject(0, (int) (background_0.getModY() + background_0.getDrawHeight()*MainPanel.ratio/2), 30, 30, 64, 64,"background/Fire.png");
         fire_right = new AnimationGameObject(470, (int) (background_1.getModY() + background_1.getDrawHeight()*MainPanel.ratio/2), 30, 30, 64, 64,"background/Fire.png");
-        darkness = ResourcesManager.getInstance().getImage("background/Darkness.png");
     }
 
     @Override
@@ -247,21 +247,30 @@ public class DebuggerScene extends Scene {
     public void logicEvent() throws IOException {
         if (!player.isDie()){ // 還沒死亡的狀態
             if (!isPause){
+                if (isDark){
+                    if (darkDelay++ == 80){
+                        isDark = false;
+                        darkDelay = 0;
+                    }
+                }
                 MainPanel.checkLeftRightBoundary(player);
                 changeDirection();
                 int floorAmount = checkSceneFloorAmount();
+                checkFragmentFloorAmount();
                 hungerValue = player.getHunger();
-                if (floorAmount < 10 && floors.size() < 15){
+                if (floorAmount < 10 && floors.size() < 20){
                     for (int i = 0; i < 10 - floorAmount; i++) {
                         // 傳入現在層數，生成器將依此更新生成機率
-                        floors.add(FloorGenerator.getInstance().genFloor(findLast(), layer));
+                        floors.add(FloorGenerator.getInstance().genFloor(floors, findLast(), layer));
                     }
                 }
+//                System.out.println(player.isOn());
+
                 // 逆向摩擦力
                 friction(player);
 
                 for (int i = 0; i < floors.size(); i++) {
-                    player.checkOnFloor(floors.get(i));
+                    player.checkOnFloor(floors.get(i), this);
                     // 吃食物機制
                     if (player.eat(floors.get(i).getFood())){
                         eatenFood = floors.get(i).getFood();
@@ -274,6 +283,11 @@ public class DebuggerScene extends Scene {
                     if (checkTopBoundary(floors.get(i))){
                         floors.remove(i);
                     }
+//                    if (floors.get(i).getTrapFunction() instanceof FragmentTrap && floors.get(i).isTriggered()){
+//                        if (floors.get(i).getRemoveDelayCount() >= 60){
+//                            floors.remove(i);
+//                        }
+//                    }
                 }
                 if (checkTopBoundary(player)){
                     player.touchRoof();
@@ -461,6 +475,18 @@ public class DebuggerScene extends Scene {
         return count;
     }
 
+    // 確認生成出的破碎地板數量
+    private int checkFragmentFloorAmount(){
+        int count = 0;
+        for (int i = 0; i < floors.size(); i++){
+            Floor current = floors.get(i);
+            if (current.getTrapFunction() instanceof FragmentTrap){
+                count++;
+            }
+        }
+        return count;
+    }
+
     // 更新背景圖
     private void updateBackgroundImage(){
         int background_rising_speed = 5;
@@ -584,6 +610,14 @@ public class DebuggerScene extends Scene {
             bw.write(result + "\n");
         }
         bw.close();
+    }
+
+    public void setDark(boolean dark) {
+        isDark = dark;
+    }
+
+    public ArrayList<Floor> getFloors() {
+        return floors;
     }
 }
 

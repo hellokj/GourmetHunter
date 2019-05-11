@@ -169,13 +169,12 @@ public class GameObject implements Cloneable{
     }
 
     public void paint(Graphics g, MainPanel mainPanel){
-        Graphics2D g2d = PainterManager.g2d(g);
         modX = (int) (x * MainPanel.ratio);
         modY = (int) (y * MainPanel.ratio);
 //        g2d.drawImage(image, x, y, x + mainPanel.windowWidth/6 , y + mainPanel.windowHeight/10, 0 ,0 , 150, 100, null);
 //        g2d.fillRect(modX, modY,  modX + (int)(drawWidth*MainPanel.ratio),  modY + (int)(drawHeight*MainPanel.ratio));
-        g2d.drawImage(image, modX, modY,  modX + (int)(drawWidth*MainPanel.ratio),  modY + (int)(drawHeight*MainPanel.ratio), imageOffsetX*imageWidth, 0,imageWidth, imageHeight, null);
-        g2d.setColor(Color.BLACK);
-        g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
+        g.drawImage(image, modX, modY,  modX + (int)(drawWidth*MainPanel.ratio),  modY + (int)(drawHeight*MainPanel.ratio), imageOffsetX*imageWidth, 0,imageWidth, imageHeight, null);
+//        g2d.setColor(Color.BLACK);
+//        g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
     }
 }

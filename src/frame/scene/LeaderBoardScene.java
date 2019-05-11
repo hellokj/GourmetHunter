@@ -26,9 +26,9 @@ public class LeaderBoardScene extends Scene {
     
     public LeaderBoardScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
-        this.background = new GameObject(0,-22,500, 700,600, 840, "background/MenuBackground.png");
+        this.background = new GameObject(0,0,500, 700,600, 840, "background/MenuBackground.png");
         this.road = new GameObject(0, 644, 600, 44, 600, 44,"background/Road.png");
-        this.paper = new GameObject(50,100,350,450, 300, 450, "background/Paper.png");
+        this.paper = new GameObject(250 - 175,100,350,450, 300, 450, "background/Paper.png");
         this.buttonBack = new Button(300,475, 150, 100, 150, 100, "button/Button_Back.png");
         this.player = new Actor(250, 622, 32, 32, 32, 32, "actor/Actor1.png");
         this.names = new ArrayList<>();
@@ -83,6 +83,7 @@ public class LeaderBoardScene extends Scene {
         if(buttonBack.checkCollision(player)){
             buttonBack.setImageOffsetX(1);
             if (count++ == 10){ // 一個延遲後切換場景
+                VICTORY.stop();
                 gsChangeListener.changeScene(MainPanel.MENU_SCENE);
                 count = 0;
             }

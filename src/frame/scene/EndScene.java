@@ -21,13 +21,13 @@ public class EndScene extends Scene {
     private GameObject player;
 
     private Button buttonMenu;
-    int count;
 
     private int lightCount;
     private int key;
 
     public EndScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
+        BGM_END.loop();
         this.lightCount = 0;
         ArrayList<String> foods = new ArrayList<>();
         ArrayList<String> foodTxts = new ArrayList<>();
@@ -65,6 +65,7 @@ public class EndScene extends Scene {
             public void keyReleased(KeyEvent e){
                 buttonMenu.setImageOffsetX(0);
                 if (e.getKeyCode() == KeyEvent.VK_RIGHT){
+                    BUTTON_CLICK.play();
                     backToMenu();
                 }
             }
@@ -104,6 +105,7 @@ public class EndScene extends Scene {
     }
 
     private void backToMenu(){
+        BGM_END.stop();
         gsChangeListener.changeScene(MainPanel.MENU_SCENE);
     }
 }

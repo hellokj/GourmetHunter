@@ -13,6 +13,7 @@ public class StoneTrap implements Trap {
 
     @Override
     public void setFloorState(Floor floor) {
+        floor.setImage(ResourcesManager.getInstance().getImage("floor/StoneFloor.png"));
         for (int i = 0; i < imagePaths.length; i++) {
             floor.getFloorImages().add(ResourcesManager.getInstance().getImage(imagePaths[i]));
         }

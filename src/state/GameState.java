@@ -1,4 +1,4 @@
 package state;
 
-public class GameState {
+public interface GameState {
 }

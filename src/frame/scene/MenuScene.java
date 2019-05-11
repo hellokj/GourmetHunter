@@ -5,6 +5,7 @@ import character.Button;
 import character.GameObject;
 import frame.MainPanel;
 import util.ResourcesManager;
+import util.TypingMachine;
 
 
 import java.awt.*;
@@ -18,20 +19,25 @@ public class MenuScene extends Scene{
     private Actor player;
     private int countM,countL,countE; // 碰觸按鈕延遲
     private int key;
+    private boolean isRead; // 確認閱讀完說明
 
     // 人物操控
     private boolean up = false, down = false, left = false, right = false;
 
     public MenuScene(MainPanel.GameStatusChangeListener gsChangeListener){
         super(gsChangeListener);
+        MainPanel.player1 = "actor/Actor1.png";
         this.background = new GameObject(0,-22,500, 700,600, 840, "background/MenuBackground.png");
         this.logo = new GameObject(50,60,400,200,300, 100,"background/Logo.png");
         this.road = new GameObject(0, 644, 600, 44, 600, 44, "background/Road.png");
         this.buttonMode = new Button(60,400, 100, 75, 150, 100, "button/Button_Mode.png");
         this.buttonLeader = new Button(190,400,100, 75, 150, 100,"button/Button_LB.png");
         this.buttonGuide = new Button(320,400,100, 75, 150, 100,"button/Button_Guide.png");
-        this.player = MainPanel.player1;
+//        MainPanel.player1.setY(road.getY() - 32);
+        this.player = new Actor(250, road.getY() - 32, 32, 32, 32, 32, MainPanel.player1);
         this.introduction = new GameObject(this.player.getX(), this.player.getY() - 144, 162, 144,225, 200, "background/MenuGuide.png");
+        this.isRead = false;
+        BGM_MENU.loop();
     }
 
     @Override
@@ -50,9 +56,10 @@ public class MenuScene extends Scene{
                     case KeyEvent.VK_UP:
                         if (player.canJump()){
                             player.jump();
-                            ResourcesManager.getInstance().getSound("sound/jump.au").play();
                         }
                         break;
+                    case KeyEvent.VK_ESCAPE:
+                        isRead = true;
                 }
             }
             @Override
@@ -102,6 +109,9 @@ public class MenuScene extends Scene{
         // 切換至模式場景
         if(buttonMode.checkCollision(player)){
             buttonMode.setImageOffsetX(1);
+            if (countM == 1){
+                BUTTON_CLICK.play();
+            }
             if (countM++ == 20){ // 一個延遲後切換場景
                 gsChangeListener.changeScene(MainPanel.MODE_SCENE);
                 countM = 0;
@@ -111,17 +121,22 @@ public class MenuScene extends Scene{
         // 切換至排行榜場景
         if(buttonLeader.checkCollision(player)){
             buttonLeader.setImageOffsetX(1);
+            if (countL == 1){
+                BUTTON_CLICK.play();
+            }
             if (countL++ == 20){ // 一個延遲後切換場景
                 gsChangeListener.changeScene(MainPanel.LEADER_BOARD_SCENE);
                 countL = 0;
             }
         }
 
-        // 結束遊戲
+        // 遊戲介紹
         if(buttonGuide.checkCollision(player)){
             buttonGuide.setImageOffsetX(1);
-            if (countE++ == 40){ // 一個延遲後切換場景
-//                System.exit(1);
+            if (countE == 1){
+                BUTTON_CLICK.play();
+            }
+            if (countE++ == 20){ // 一個延遲後切換場景
                 gsChangeListener.changeScene(MainPanel.GUIDE_SCENE_1);
                 countE = 0;
             }
@@ -138,7 +153,9 @@ public class MenuScene extends Scene{
         buttonGuide.paint(g, mainPanel);
         logo.paint(g, mainPanel);
         player.paint(g, mainPanel);
-        introduction.paint(g, mainPanel);
+        if (!isRead){
+            introduction.paint(g, mainPanel);
+        }
     }
 
     private void changeDirection(){

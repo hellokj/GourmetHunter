@@ -58,11 +58,14 @@ public class DancingTrap implements Trap {
 //        player.setX(player.getX());
         for (int i = 0; i < directions.size(); i++) {
             if (player.dance() == directions.get(0)){
+                Scene.CORRECT.play();
                 directions.remove(0);
                 floor.getFloorImages().remove(0); // 把原圖清掉
                 // 製作新圖
                 images.set(count++, ResourcesManager.getInstance().getImage(imagePath));
                 floor.getFloorImages().add(PainterManager.mergeImages(images)); // 塞新圖回去
+            }else {
+//                Scene.ERROR.play();
             }
         }
         if (directions.size() == 0){

@@ -13,6 +13,7 @@ public class SpringTrap implements Trap {
 
     @Override
     public void setFloorState(Floor floor) {
+        floor.setImage(ResourcesManager.getInstance().getImage("floor/SpringFloor_1.png"));
         for (int i = 0; i < imagePaths.length; i++) {
             floor.getFloorImages().add(ResourcesManager.getInstance().getImage(imagePaths[i]));
         }
@@ -33,6 +34,7 @@ public class SpringTrap implements Trap {
         // 彈飛初速度
         int bounceSpeed = -15;
         if (floor.isTriggered()){
+            Scene.JUMP.play();
             floor.setChoosingImagesMode(CHOOSING_IMAGES_MODE);
             // 彈簧機制
             // 依照現在畫的圖的高度做偏移

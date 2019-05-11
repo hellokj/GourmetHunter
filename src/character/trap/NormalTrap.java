@@ -29,7 +29,7 @@ public class NormalTrap implements Trap {
         // 機率食物生成，只在普通地板有機會生成食物
         int random = (int)(Math.random()*100);
         // 生成食物機率
-        int genFoodRate = 80;
+        int genFoodRate = 60;
         if (random < genFoodRate){
             food = new Food(floor, ((int)(Math.random()*100)%3), "food/farm_product"+ ((int)(Math.random()*32)+1) +".png");
         }

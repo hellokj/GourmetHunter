@@ -48,14 +48,14 @@ public class GuideScene_1 extends Scene {
         this.num2 = new GameObject(260,80,30,30,32, 32,"background/num2.png");
         this.num3 = new GameObject(90,340,30,30,32, 32,"background/num3.png");
         this.num4 = new GameObject(260,340,30,30,32, 32,"background/num4.png");
-        floorRunning = new Floor(130, 270, TrapGenerator.getInstance().genSpecificTrap(1));
-        floorSpring = new Floor(130, 530, TrapGenerator.getInstance().genSpecificTrap(4));
-        floorFlashing = new Floor(300, 530, TrapGenerator.getInstance().genSpecificTrap(5));
+        floorRunning = new Floor(130, 270, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_RUNNING));
+        floorSpring = new Floor(130, 530, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_SPRING));
+        floorFlashing = new Floor(300, 530, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_FLASH));
         DanceTest = new AnimationGameObject(300, 230, 64, 80, 64, 80,"floor/DanceTest.png");
         int[] moving = {0,1,2,3,4,5};
         direction = 0;
         DanceTest.setMovingPattern(moving);
-        DanceTest.setStayDelay(15);
+        DanceTest.setStayDelay(20);
         player1 = new Actor(140, 130, 32, 32, 32, 32, "actor/Actor1.png");
         player2 = new Actor(310, 130, 32, 32,32, 32, "actor/Actor1.png");
         player3 = new Actor(140, 390, 32, 32,32, 32, "actor/Actor1.png");
@@ -71,15 +71,19 @@ public class GuideScene_1 extends Scene {
                 int key = e.getKeyCode();
                 switch (key){                   
                     case KeyEvent.VK_1:
+                        BUTTON_CLICK.play();
                         setChoose(1);
                         break;
                     case KeyEvent.VK_2:
+                        BUTTON_CLICK.play();
                         setChoose(2);
                         break;
                     case KeyEvent.VK_3:
+                        BUTTON_CLICK.play();
                         setChoose(3);
                         break;
                     case KeyEvent.VK_4:
+                        BUTTON_CLICK.play();
                         setChoose(4);
                         break;
                     case KeyEvent.VK_RIGHT:
@@ -95,10 +99,12 @@ public class GuideScene_1 extends Scene {
                 int key = e.getKeyCode();
                 if(key==KeyEvent.VK_RIGHT){
                     next.setImageOffsetX(0);
-                    gsChangeListener.changeScene(MainPanel.MENU_SCENE);
+                    BUTTON_CLICK.play();
+                    gsChangeListener.changeScene(MainPanel.GUIDE_SCENE_2);
                 }
                 if(key==KeyEvent.VK_LEFT){
                     menu.setImageOffsetX(0);
+                    BUTTON_CLICK.play();
                     gsChangeListener.changeScene(MainPanel.MENU_SCENE);
                 }
             }
@@ -157,7 +163,7 @@ public class GuideScene_1 extends Scene {
     public void outOfFrame(Actor player, Floor floor, GameObject frame, int x, int y){
         player.stay();
         player.update();
-        player.checkOnFloor(floor);
+        player.checkOnFloor(floor, this);
         if(player.getBottom()>frame.getBottom()||player.getLeft()<frame.getLeft()||
             player.getRight()>frame.getRight()){
             player.setX(x);
