@@ -137,7 +137,6 @@ public class TrapGenerator {
             genRate_DarknessTrap = 20;
         }
         if (layer > 5){
-            System.out.println("layer > 5");
             genRate_RunningTrap = 30 + 5 * layer/5;
             genRate_DancingTrap = 20 + 5 * layer/5;
             genRate_SpringTrap = 25 + 5 * layer/5;

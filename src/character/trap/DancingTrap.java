@@ -71,6 +71,8 @@ public class DancingTrap implements Trap {
         if (directions.size() == 0){
             player.setStop(false);
             player.setSpeedX(initialSpeedX);
+            floor.setCompleted(true);
+
         }
     }
 }

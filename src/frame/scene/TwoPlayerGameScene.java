@@ -238,12 +238,12 @@ public class TwoPlayerGameScene extends Scene {
                     if (e.getKeyCode() == KeyEvent.VK_SPACE){
                         if (chooser == button_resume){
                             button_resume.setImageOffsetX(0);
-                            resume();
                             BUTTON_CLICK.play();
+                            resume();
                         }
                         if (chooser == button_new_game){
-                            button_new_game.setImageOffsetX(0);
                             BUTTON_CLICK.play();
+                            button_new_game.setImageOffsetX(0);
                             reset();
                         }
                         if (chooser == button_menu){
@@ -784,7 +784,7 @@ public class TwoPlayerGameScene extends Scene {
             }
             msgWidth = fm.stringWidth(msg);
             msgAscent = fm.getAscent();
-//        g2d.drawString(msg, 250*MainPanel.ratio - msgWidth/2, 350*MainPanel.ratio);
+            g2d.drawString(msg, 250*MainPanel.ratio - (float) (msgWidth/2), 350*MainPanel.ratio);
 //        g2d.setFont(chiFont.deriveFont(16.0f*MainPanel.ratio));
 //        g2d.drawString("地下 " + layer + " 層", 365*MainPanel.ratio, 30*MainPanel.ratio);
 
@@ -904,7 +904,7 @@ public class TwoPlayerGameScene extends Scene {
         }
         msgWidth = fm.stringWidth(msg);
         msgAscent = fm.getAscent();
-//        g2d.drawString(msg, 250*MainPanel.ratio - msgWidth/2, 350*MainPanel.ratio);
+        g2d.drawString(msg, 250*MainPanel.ratio - msgWidth/2, 350*MainPanel.ratio);
 //        g2d.setFont(chiFont.deriveFont(16.0f*MainPanel.ratio));
 //        g2d.drawString("地下 " + layer + " 層", 365*MainPanel.ratio, 30*MainPanel.ratio);
 

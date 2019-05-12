@@ -2,7 +2,6 @@ package frame;
 
 import character.GameObject;
 import frame.scene.*;
-import util.PainterManager;
 import util.ResourcesManager;
 
 import javax.swing.*;
@@ -29,6 +28,7 @@ public class MainPanel extends javax.swing.JPanel {
     public static final int GUIDE_SCENE_1 = 11;
     public static final int GUIDE_SCENE_2 = 12;
 
+    public static final int DANCING_GAME_SCENE = 77;
     public static final int DEBUGGER_SCENE = 99;
 
     // 載入遊戲中字體
@@ -44,9 +44,6 @@ public class MainPanel extends javax.swing.JPanel {
     public static Dimension window;
     public static float ratio;
 
-//    public static Actor
-//            player1 = new Actor(250, 700, 32, 32, 32, 32, "actor/Actor1.png"),
-//            player2 = new Actor(250, 700, 32, 32, 32, 32, "actor/Actor1.png");
     public static String player1 = "actor/Actor1.png", player2 = "actor/Actor1.png";
 
     // fade in / fade out
@@ -79,9 +76,11 @@ public class MainPanel extends javax.swing.JPanel {
                 changeCurrentScene(genSceneById(sceneId));
             }
         };
+
         // 更改初始場景
-//        changeCurrentScene(genSceneById(MainPanel.DEBUGGER_SCENE));
-        changeCurrentScene(genSceneById(MainPanel.GUIDE_SCENE_2));
+        changeCurrentScene(genSceneById(MainPanel.MENU_SCENE));
+//        changeCurrentScene(genSceneById(MainPanel.DANCING_GAME_SCENE));
+
 
         // delay 25 ms
         Timer t1 = new Timer(25, new ActionListener() {
@@ -159,6 +158,8 @@ public class MainPanel extends javax.swing.JPanel {
                 return new GuideScene_1(gsChangeListener);
             case GUIDE_SCENE_2:
                 return new GuideScene_2(gsChangeListener);
+            case DANCING_GAME_SCENE:
+                return new DancingGameScene(gsChangeListener);
         }
         return null;
     }

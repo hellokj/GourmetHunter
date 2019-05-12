@@ -29,6 +29,13 @@ public class FloorGenerator {
         return floor;
     }
 
+    public Floor genDancingFloor(Floor current){
+        Trap trap = TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_DANCING);
+        Floor floor = new Floor(current.x, current.y + 32, trap);
+        floor.setSpeedY(0);
+        return floor;
+    }
+
     private int getRandom(int min, int max){
         return ((int)(Math.random()*(max - min)) + min);
     }

@@ -20,7 +20,7 @@ public class LeaderBoardScene extends Scene {
     private Actor player;
     private Button buttonBack;
     private int count;
-    private ArrayList<String> names, hungers; // 編號、名稱、飢餓值 (用來比較)
+    private String[] numbers, names, scores; // 編號、名稱、飢餓值 (用來比較)
     private ArrayList<String> ranks; // 每列資料
     private int key;
     
@@ -28,11 +28,12 @@ public class LeaderBoardScene extends Scene {
         super(gsChangeListener);
         this.background = new GameObject(0,0,500, 700,600, 840, "background/MenuBackground.png");
         this.road = new GameObject(0, 644, 600, 44, 600, 44,"background/Road.png");
-        this.paper = new GameObject(250 - 175,100,350,450, 300, 450, "background/Paper.png");
+        this.paper = new GameObject(250 - 170,50,340,510, 300, 450, "background/Paper.png");
         this.buttonBack = new Button(300,475, 150, 100, 150, 100, "button/Button_Back.png");
         this.player = new Actor(250, 622, 32, 32, 32, 32, "actor/Actor1.png");
-        this.names = new ArrayList<>();
-        this.hungers = new ArrayList<>();
+        this.numbers = new String[5];
+        this.names = new String[5];
+        this.scores = new String[5];
         this.ranks = new ArrayList<>();
         dealWithData(readLeaderBoard());
     }
@@ -98,14 +99,20 @@ public class LeaderBoardScene extends Scene {
         buttonBack.paint(g, mainPanel);
 
         // 印出排行榜
-        Font font = MainPanel.ENGLISH_FONT.deriveFont(36.0f*MainPanel.ratio);
+        Font font = MainPanel.ENGLISH_FONT.deriveFont(30.0f*MainPanel.ratio);
         g.setFont(font);
-        g.setColor(Color.BLACK);
+        g.setColor(Color.darkGray);
         FontMetrics fm = g.getFontMetrics();
         int msgWidth = fm.stringWidth(String.valueOf(ranks.get(0)));
         int msgAscent = fm.getAscent();
+//        g.drawString("Rank", (int)(110*MainPanel.ratio), (int)(160*MainPanel.ratio - 75*MainPanel.ratio));
+        g.drawString("Player", (int)(150*MainPanel.ratio), (int)(160*MainPanel.ratio - 50*MainPanel.ratio));
+        g.drawString("Score", (int)(300*MainPanel.ratio), (int)(160*MainPanel.ratio - 50*MainPanel.ratio));
         for (int i = 0; i < ranks.size(); i++) {
-            g.drawString(ranks.get(i), (int)(80*MainPanel.ratio), (int)(160*MainPanel.ratio + 75*MainPanel.ratio * i));
+//            g.drawString(ranks.get(i), (int)(100*MainPanel.ratio), (int)(160*MainPanel.ratio + 75*MainPanel.ratio * i));
+            g.drawString(numbers[i], (int)(110*MainPanel.ratio), (int)(160*MainPanel.ratio + 75*MainPanel.ratio * i));
+            g.drawString(names[i], (int)(150*MainPanel.ratio), (int)(160*MainPanel.ratio + 75*MainPanel.ratio * i));
+            g.drawString(scores[i], (int)(300*MainPanel.ratio), (int)(160*MainPanel.ratio + 75*MainPanel.ratio * i));
         }
 
         player.paint(g, mainPanel);
@@ -132,11 +139,12 @@ public class LeaderBoardScene extends Scene {
     private void dealWithData(ArrayList<String> data){
         for (int i = 0; i < data.size(); i++) {
             String[] eachRow = data.get(i).split(",");
-            names.add(eachRow[0]);
-            hungers.add(eachRow[1]);
+            numbers[i] = String.valueOf(i+1);
+            names[i] = eachRow[0];
+            scores[i] = eachRow[1];
         }
         for (int i = 0; i < data.size(); i++) {
-            String result = (i+1) + "    " + names.get(i) + "    " + hungers.get(i);
+            String result = numbers[i] + "    " + names[i] + "    " + scores[i];
             ranks.add(result);
         }
     }

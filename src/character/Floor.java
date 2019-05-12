@@ -17,6 +17,9 @@ public class Floor extends GameObject {
     private ArrayList<BufferedImage> floorImages; // 統一圖片回傳類型(處理地板有動畫的機制，取代GameObject只存一張圖)
     private Food food;
 
+    // 跳舞移除
+    private boolean isCompleted; // 被輸入完成
+
     // 依照回傳的選圖模式來印出不同圖片
     private int[] choosingImagesMode;
 
@@ -60,6 +63,14 @@ public class Floor extends GameObject {
     }
     public Trap getTrapFunction(){
         return this.trapFunction;
+    }
+
+    public boolean isCompleted() {
+        return isCompleted;
+    }
+
+    public void setCompleted(boolean completed) {
+        isCompleted = completed;
     }
 
     // 未被觸發的動畫選圖

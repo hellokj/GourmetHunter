@@ -16,6 +16,7 @@ public abstract class Scene {
     public static final float GRAVITY = 0.8f;
     public static final float FRICTION = 0.3f;
     public static boolean isDark = false;
+//    public static boolean isCorrect, isWrong; // for dancing mode
     public static final BufferedImage darkness = ResourcesManager.getInstance().getImage("background/Darkness.png");
     public int darkDelay;
     public static final AudioClip HEAL = ResourcesManager.getInstance().getSound("sound/heal.au");
@@ -26,6 +27,7 @@ public abstract class Scene {
     public static final AudioClip FLASH = ResourcesManager.getInstance().getSound("sound/Flash1.au");
     public static final AudioClip CORRECT = ResourcesManager.getInstance().getSound("sound/correct.au");
     public static final AudioClip ERROR = ResourcesManager.getInstance().getSound("sound/error.au");
+    public static final AudioClip TYPING = ResourcesManager.getInstance().getSound("sound/typing1.au");
     public static final AudioClip VICTORY = ResourcesManager.getInstance().getSound("sound/Victory2.au");
     public static final AudioClip BUTTON_CLICK = ResourcesManager.getInstance().getSound("sound/ButtonClick.au");
     public static final AudioClip BGM_MENU = ResourcesManager.getInstance().getSound("sound/Menu.au");
@@ -68,4 +70,19 @@ public abstract class Scene {
         isDark = state;
     }
 
+//    public static boolean isIsCorrect() {
+//        return isCorrect;
+//    }
+//
+//    public static void setIsCorrect(boolean isCorrect) {
+//        Scene.isCorrect = isCorrect;
+//    }
+//
+//    public static boolean isIsWrong() {
+//        return isWrong;
+//    }
+//
+//    public static void setIsWrong(boolean isWrong) {
+//        Scene.isWrong = isWrong;
+//    }
 }

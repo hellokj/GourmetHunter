@@ -25,26 +25,19 @@ public class LoadingScene extends Scene {
     private int index;
     private String msg;
     private String message; // 整篇文章
+    private boolean isTyping;
 
-    private ArrayList<TypingMachine> typingMachines;
-    private ArrayList<Integer> typingWidths, typingHeights;
     private TypingMachine tm;
 
     public LoadingScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
         this.background = ResourcesManager.getInstance().getImage("background/EndBackground.png");
         this.isOver = false;
+        this.isTyping = true;
         this.index = 0;
         this.msg = messages.get(0);
         this.message = "";
-        this.typingMachines = new ArrayList<>();
-        this.typingWidths = new ArrayList<>();
-        this.typingHeights = new ArrayList<>();
-        for (int i = 0; i < messages.size(); i++) {
-            typingMachines.add(new TypingMachine());
-            typingWidths.add(250);
-            typingHeights.add(100 + 75 * i);
-        }
+        TYPING.loop();
 
         tm = new TypingMachine(messages.size());
         for (int i = 0; i < messages.size(); i++) {
@@ -63,9 +56,9 @@ public class LoadingScene extends Scene {
                     case KeyEvent.VK_ESCAPE:
                         gsChangeListener.changeScene(MainPanel.STORY_GAME_SCENE);
                         break;
-                }
-                if (isOver){
-                    gsChangeListener.changeScene(MainPanel.STORY_GAME_SCENE);
+                    case KeyEvent.VK_ENTER:
+                        gsChangeListener.changeScene(MainPanel.STORY_GAME_SCENE);
+                        break;
                 }
             }
         };
@@ -77,19 +70,16 @@ public class LoadingScene extends Scene {
         g.setFont(font);
         g.setColor(Color.WHITE);
         g.drawImage(background, 0, 0, MainPanel.window.width, MainPanel.window.height, null);
-//        for (int i = 0; i <= index; i++) {
-//            if (typingMachines.get(i).typing(g, messages.get(i), 10, typingWidths.get(i), typingHeights.get(i))){
-//                if (index < typingMachines.size() && i == index){
-//                    index++;
-//                }
-//            }
-//        }
-        tm.typing(g, message.split("\n"), 10, 250, 200);
+//        System.out.println(tm.typing(g, message.split("\n"), 2, 200, 650));
+        if (tm.typing(g, message.split("\n"), 3, 200, 650)){
+            isTyping = false;
+            TYPING.stop();
+        }
     }
 
     @Override
     public void logicEvent() {
-//        showMsg();
+
     }
 
     // 更新文字內容

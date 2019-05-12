@@ -14,7 +14,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class MenuScene extends Scene{
-    private GameObject background, logo, road, introduction;
+    private GameObject background, logo, road, flower, introduction;
     private Button buttonMode, buttonLeader, buttonGuide;
     private Actor player;
     private int countM,countL,countE; // 碰觸按鈕延遲
@@ -30,6 +30,7 @@ public class MenuScene extends Scene{
         this.background = new GameObject(0,-22,500, 700,600, 840, "background/MenuBackground.png");
         this.logo = new GameObject(50,60,400,200,300, 100,"background/Logo.png");
         this.road = new GameObject(0, 644, 600, 44, 600, 44, "background/Road.png");
+        this.flower = new GameObject(50, 644 - 24, 21, 24, 28, 32, "background/dancing.png");
         this.buttonMode = new Button(60,400, 100, 75, 150, 100, "button/Button_Mode.png");
         this.buttonLeader = new Button(190,400,100, 75, 150, 100,"button/Button_LB.png");
         this.buttonGuide = new Button(320,400,100, 75, 150, 100,"button/Button_Guide.png");
@@ -141,6 +142,12 @@ public class MenuScene extends Scene{
                 countE = 0;
             }
         }
+
+        if (flower.checkCollision(player)){
+            if (key == KeyEvent.VK_UP){
+                gsChangeListener.changeScene(MainPanel.DANCING_GAME_SCENE);
+            }
+        }
     }
 
 
@@ -152,6 +159,7 @@ public class MenuScene extends Scene{
         buttonLeader.paint(g, mainPanel);
         buttonGuide.paint(g, mainPanel);
         logo.paint(g, mainPanel);
+        flower.paint(g, mainPanel);
         player.paint(g, mainPanel);
         if (!isRead){
             introduction.paint(g, mainPanel);
