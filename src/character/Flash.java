@@ -5,8 +5,6 @@
  */
 package character;
 
-import character.food.Food;
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -38,9 +36,9 @@ public class Flash extends GameObject{
     @Override
     public void paint(Graphics g, MainPanel mainPanel){
         Graphics2D g2d = PainterManager.g2d(g);
-        modX = (int) (x * MainPanel.ratio);
-        modY = (int) (y * MainPanel.ratio);
-        g2d.drawImage(flashImages.get(choosingImagesMode[choosingImagesCounter]), modX, modY , (int)(modX + drawWidth* MainPanel.ratio), (int)(modY + drawHeight* MainPanel.ratio), 0, 0, flashImages.get(0).getWidth(), flashImages.get(0).getHeight(), null);
+        modX = (int) (x * MainPanel.RATIO);
+        modY = (int) (y * MainPanel.RATIO);
+        g2d.drawImage(flashImages.get(choosingImagesMode[choosingImagesCounter]), modX, modY , (int)(modX + drawWidth* MainPanel.RATIO), (int)(modY + drawHeight* MainPanel.RATIO), 0, 0, flashImages.get(0).getWidth(), flashImages.get(0).getHeight(), null);
         choosingImagesCounter++;
         if(choosingImagesCounter==14){
             choosingImagesCounter = 0;

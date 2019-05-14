@@ -4,11 +4,8 @@ import character.Floor;
 import character.GameObject;
 import frame.MainPanel;
 import util.PainterManager;
-import util.ResourcesManager;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 
 public class Food extends GameObject {
     private Floor floor; // 在的那塊地板
@@ -46,9 +43,9 @@ public class Food extends GameObject {
     @Override
     public void paint(Graphics g, MainPanel mainPanel){
         Graphics2D g2d = PainterManager.g2d(g);
-        modX = (int) (x * MainPanel.ratio);
-        modY = (int) (y * MainPanel.ratio);
-        g2d.drawImage(image, modX, modY,  modX + (int)(drawWidth*MainPanel.ratio),  modY + (int)(drawHeight*MainPanel.ratio), 0, 0,imageWidth, imageHeight, null);
+        modX = (int) (x * MainPanel.RATIO);
+        modY = (int) (y * MainPanel.RATIO);
+        g2d.drawImage(image, modX, modY,  modX + (int)(drawWidth*MainPanel.RATIO),  modY + (int)(drawHeight*MainPanel.RATIO), 0, 0,imageWidth, imageHeight, null);
     }
 
 }

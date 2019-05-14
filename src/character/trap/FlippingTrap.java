@@ -6,7 +6,7 @@ import frame.scene.Scene;
 import util.ResourcesManager;
 
 public class FlippingTrap implements Trap {
-    private static final String[] imagePaths = {"floor/FlippingFloor_1.png", "floor/FlippingFloor_2.png"};
+    private final String[] imagePaths = {"floor/FlippingFloor_1.png", "floor/FlippingFloor_2.png"};
     private static final int[] CHOOSING_IMAGES_MODE = {0, 1};
     public static final int[] CHOOSING_IMAGES_MODE_BASE = {0};
 

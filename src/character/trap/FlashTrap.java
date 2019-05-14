@@ -8,14 +8,11 @@ import frame.scene.Scene;
 import util.ResourcesManager;
 
 public class FlashTrap implements Trap{
-    public static final int generationRate = 15;
-    
-    private static final String[] imagePaths = {"floor/FlashFloor.png"};
-    private static final int[] choosingImagesMode = {0};
+    private final String[] imagePaths = {"floor/FlashFloor.png"};
+    private final int[] choosingImagesMode = {0};
     public static Flash flash;
     public static boolean flashstate;
-    
-    
+
     public void setFloorState(Floor floor){
         floor.setImage(ResourcesManager.getInstance().getImage("floor/FlashFloor.png"));
         for (int i = 0; i < imagePaths.length; i++) {

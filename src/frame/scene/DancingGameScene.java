@@ -2,14 +2,11 @@ package frame.scene;
 
 import character.*;
 import character.Button;
-import character.food.Food;
 import character.trap.TrapGenerator;
 import frame.MainPanel;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -19,6 +16,8 @@ public class DancingGameScene extends Scene {
     private Actor player;
     private ArrayList<Floor> floors;
     private Floor floor;
+    private FloorGenerator fg;
+    private TrapGenerator tg;
 
     // 選單相關
     private boolean isCalled;
@@ -55,14 +54,16 @@ public class DancingGameScene extends Scene {
         endingFloor = new GameObject(0, 700 - 32, 500, 32, 500, 32,"floor/EndingFloor.png");
         endingGate = new AnimationGameObject(300, endingFloor.getTop() - 64, 64, 64, 64, 64, "background/Door.png");
         // 生成初始階梯
+        fg = new FloorGenerator();
+        tg = new TrapGenerator();
         floors = new ArrayList<>();
-        floor = new Floor((int) (250 * MainPanel.ratio) - 32, 150 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_DANCING));
+        floor = new Floor(250 - 32, 150 + 32, tg.genSpecificTrap(TrapGenerator.TRAP_DANCING));
         floor.setSpeedY(0);
         floors.add(floor);
         for (int i = 0; i < 14; i++) {
-            floors.add(FloorGenerator.getInstance().genDancingFloor(floors.get(i)));
+            floors.add(fg.genDancingFloor(floors.get(i)));
         }
-        player = new Actor(250 - 16, 150, 32, 32, 32, 32,MainPanel.player1);
+        player = new Actor(250 - 16, 150, 32, 32, 32, 32,MainPanel.P1);
     }
 
     @Override
@@ -163,7 +164,6 @@ public class DancingGameScene extends Scene {
                         if (chooser == button_menu){
                             button_menu.setImageOffsetX(0);
                             BUTTON_CLICK.play();
-                            BGM_INFINITY.stop();
                             gsChangeListener.changeScene(MainPanel.MENU_SCENE);
                         }
                         isCalled = false;
@@ -200,7 +200,7 @@ public class DancingGameScene extends Scene {
                     floor.update();
                     if (floor.isCompleted()){
 
-                        floor.setX(0);
+                        floor.setX(-64);
                         floor.setY(0);
                     }
                 }
@@ -212,7 +212,6 @@ public class DancingGameScene extends Scene {
                 if (endingGate.checkCollision(player)){
                     endingGate.playAnimation();
                     if (key == KeyEvent.VK_UP){
-                        BGM_STORY.stop();
                         gsChangeListener.changeScene(MainPanel.MENU_SCENE);
                     }
                 }
@@ -278,13 +277,13 @@ public class DancingGameScene extends Scene {
 
     private Button checkCursorPosition(){
         Point cursorCenterPoint = cursor.getCenterPoint();
-        if (cursorCenterPoint.y < button_resume.getModY() + button_resume.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_resume.getModY()){
+        if (cursorCenterPoint.y < button_resume.getModY() + button_resume.getDrawHeight()*MainPanel.RATIO && cursorCenterPoint.y > button_resume.getModY()){
             return button_resume;
         }
-        if (cursorCenterPoint.y < button_new_game.getModY() + button_new_game.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_new_game.getModY()){
+        if (cursorCenterPoint.y < button_new_game.getModY() + button_new_game.getDrawHeight()*MainPanel.RATIO && cursorCenterPoint.y > button_new_game.getModY()){
             return button_new_game;
         }
-        if (cursorCenterPoint.y < button_menu.getModY() + button_menu.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_menu.getModY()){
+        if (cursorCenterPoint.y < button_menu.getModY() + button_menu.getDrawHeight()*MainPanel.RATIO && cursorCenterPoint.y > button_menu.getModY()){
             return button_menu;
         }
         return null;
@@ -292,7 +291,7 @@ public class DancingGameScene extends Scene {
 
     // 比天花板高就消失
     private boolean checkTopBoundary(GameObject gameObject){
-        return gameObject.getTop() <= this.roof.getModY() + this.roof.getDrawHeight()*MainPanel.ratio;
+        return gameObject.getTop() <= this.roof.getModY() + this.roof.getDrawHeight()*MainPanel.RATIO;
     }
 
     private void changeDirection(){
@@ -312,24 +311,24 @@ public class DancingGameScene extends Scene {
         this.fallingDelayCount = 0;
         switch (level){
             case 1:
-                this.fallingDelay = 50;
-                this.fallingAmount = 3;
+                this.fallingDelay = 30;
+                this.fallingAmount = 4;
                 break;
             case 2:
-                this.fallingDelay = 45;
-                this.fallingAmount = 5;
+                this.fallingDelay = 30;
+                this.fallingAmount = 8;
                 break;
             case 3:
-                this.fallingDelay = 40;
-                this.fallingAmount = 6;
+                this.fallingDelay = 30;
+                this.fallingAmount = 12;
                 break;
             case 4:
                 this.fallingDelay = 30;
-                this.fallingAmount = 7;
+                this.fallingAmount = 16;
                 break;
             case 5:
                 this.fallingDelay = 20;
-                this.fallingAmount = 7;
+                this.fallingAmount = 16;
                 break;
         }
     }

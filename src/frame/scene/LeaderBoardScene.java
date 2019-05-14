@@ -15,8 +15,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class LeaderBoardScene extends Scene {
-    private static final String LEADER_BOARD_FILE_PATH = "leader_board.txt";
     private GameObject background,paper,road;
+    private GameObject playerLabel, scoreLabel;
     private Actor player;
     private Button buttonBack;
     private int count;
@@ -30,6 +30,8 @@ public class LeaderBoardScene extends Scene {
         this.road = new GameObject(0, 644, 600, 44, 600, 44,"background/Road.png");
         this.paper = new GameObject(250 - 170,50,340,510, 300, 450, "background/Paper.png");
         this.buttonBack = new Button(300,475, 150, 100, 150, 100, "button/Button_Back.png");
+        this.playerLabel = new GameObject(100, 50, 150, 100, 150, 100, "background/PlayerFont.png");
+        this.scoreLabel = new GameObject(250, 50, 150, 100, 150, 100, "background/ScoreFont.png");
         this.player = new Actor(250, 622, 32, 32, 32, 32, "actor/Actor1.png");
         this.numbers = new String[5];
         this.names = new String[5];
@@ -99,22 +101,21 @@ public class LeaderBoardScene extends Scene {
         buttonBack.paint(g, mainPanel);
 
         // 印出排行榜
-        Font font = MainPanel.ENGLISH_FONT.deriveFont(30.0f*MainPanel.ratio);
+        Font font = MainPanel.ENGLISH_FONT.deriveFont(30.0f*MainPanel.RATIO);
         g.setFont(font);
         g.setColor(Color.darkGray);
         FontMetrics fm = g.getFontMetrics();
         int msgWidth = fm.stringWidth(String.valueOf(ranks.get(0)));
         int msgAscent = fm.getAscent();
-//        g.drawString("Rank", (int)(110*MainPanel.ratio), (int)(160*MainPanel.ratio - 75*MainPanel.ratio));
-        g.drawString("Player", (int)(150*MainPanel.ratio), (int)(160*MainPanel.ratio - 50*MainPanel.ratio));
-        g.drawString("Score", (int)(300*MainPanel.ratio), (int)(160*MainPanel.ratio - 50*MainPanel.ratio));
-        for (int i = 0; i < ranks.size(); i++) {
-//            g.drawString(ranks.get(i), (int)(100*MainPanel.ratio), (int)(160*MainPanel.ratio + 75*MainPanel.ratio * i));
-            g.drawString(numbers[i], (int)(110*MainPanel.ratio), (int)(160*MainPanel.ratio + 75*MainPanel.ratio * i));
-            g.drawString(names[i], (int)(150*MainPanel.ratio), (int)(160*MainPanel.ratio + 75*MainPanel.ratio * i));
-            g.drawString(scores[i], (int)(300*MainPanel.ratio), (int)(160*MainPanel.ratio + 75*MainPanel.ratio * i));
-        }
 
+        for (int i = 0; i < ranks.size(); i++) {
+//            g.drawString(ranks.get(i), (int)(100*MainPanel.RATIO), (int)(160*MainPanel.RATIO + 75*MainPanel.RATIO * i));
+            g.drawString(numbers[i], (int)(110*MainPanel.RATIO), (int)(180*MainPanel.RATIO + 65*MainPanel.RATIO * i));
+            g.drawString(names[i], (int)(150*MainPanel.RATIO), (int)(180*MainPanel.RATIO + 65*MainPanel.RATIO * i));
+            g.drawString(scores[i], (int)(300*MainPanel.RATIO), (int)(180*MainPanel.RATIO + 65*MainPanel.RATIO * i));
+        }
+        playerLabel.paint(g, mainPanel);
+        scoreLabel.paint(g, mainPanel);
         player.paint(g, mainPanel);
     }
 
@@ -123,7 +124,8 @@ public class LeaderBoardScene extends Scene {
         BufferedReader br;
         do {
             try {
-                br = new BufferedReader(new FileReader(LEADER_BOARD_FILE_PATH));
+                String leaderBoardFilePath = "leader_board.txt";
+                br = new BufferedReader(new FileReader(leaderBoardFilePath));
                 while (br.ready()){
                     data.add(br.readLine());
                 }

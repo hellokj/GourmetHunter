@@ -5,9 +5,9 @@ import character.Button;
 import character.GameObject;
 import frame.MainPanel;
 import util.ResourcesManager;
-import util.TypingMachine;
 
 
+import java.applet.AudioClip;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -21,24 +21,27 @@ public class MenuScene extends Scene{
     private int key;
     private boolean isRead; // 確認閱讀完說明
 
+    private AudioClip bgm;
+
     // 人物操控
     private boolean up = false, down = false, left = false, right = false;
 
     public MenuScene(MainPanel.GameStatusChangeListener gsChangeListener){
         super(gsChangeListener);
-        MainPanel.player1 = "actor/Actor1.png";
+        bgm = ResourcesManager.getInstance().getSound("sound/Menu.au");
+        MainPanel.P1 = "actor/Actor1.png";
         this.background = new GameObject(0,-22,500, 700,600, 840, "background/MenuBackground.png");
         this.logo = new GameObject(50,60,400,200,300, 100,"background/Logo.png");
         this.road = new GameObject(0, 644, 600, 44, 600, 44, "background/Road.png");
-        this.flower = new GameObject(50, 644 - 24, 21, 24, 28, 32, "background/dancing.png");
+        this.flower = new GameObject(450, 644 - 24, 21, 24, 28, 32, "background/dancing.png");
         this.buttonMode = new Button(60,400, 100, 75, 150, 100, "button/Button_Mode.png");
         this.buttonLeader = new Button(190,400,100, 75, 150, 100,"button/Button_LB.png");
         this.buttonGuide = new Button(320,400,100, 75, 150, 100,"button/Button_Guide.png");
-//        MainPanel.player1.setY(road.getY() - 32);
-        this.player = new Actor(250, road.getY() - 32, 32, 32, 32, 32, MainPanel.player1);
+//        MainPanel.P1.setY(road.getY() - 32);
+        this.player = new Actor(250, road.getY() - 32, 32, 32, 32, 32, MainPanel.P1);
         this.introduction = new GameObject(this.player.getX(), this.player.getY() - 144, 162, 144,225, 200, "background/MenuGuide.png");
         this.isRead = false;
-        BGM_MENU.loop();
+        bgm.loop();
     }
 
     @Override
@@ -102,7 +105,7 @@ public class MenuScene extends Scene{
         player.update();
 
         introduction.setX(player.getX());
-        introduction.setY(player.getY() - (int)(160*MainPanel.ratio));
+        introduction.setY(player.getY() - (int)(160*MainPanel.RATIO));
 //        player.setBoundary(); // 更新完座標後，設定邊界
         player.stay();
 

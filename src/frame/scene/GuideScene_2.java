@@ -7,10 +7,8 @@ package frame.scene;
 
 import character.Button;
 import character.*;
-import character.trap.FlashTrap;
 import character.trap.TrapGenerator;
 import frame.MainPanel;
-import util.PainterManager;
 
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -23,6 +21,7 @@ public class GuideScene_2 extends Scene {
     private GameObject hungerCount, hungerBack, hungerLabel;
     private GameObject frameS,frameG,frameS2,frameG2;
     private GameObject hint,num1,num2,num3;
+    private TrapGenerator tg;
     private Floor floorStone,floorDarkness,floorFlipping;
     private Actor player1,player2,player3;
     private int choose;
@@ -30,6 +29,7 @@ public class GuideScene_2 extends Scene {
 
     public GuideScene_2(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
+        this.tg = new TrapGenerator();
         this.background = new GameObject(0,0,500,700,1024, 768,"background/EndBackground.png");
         this.frameS = new GameObject(80,70,150,250, 150, 250,"background/frameS.png");
         this.frameG = new GameObject(250,70,150,250,150, 250,"background/frameG.png");
@@ -40,9 +40,9 @@ public class GuideScene_2 extends Scene {
         this.num1 = new GameObject(90,80,30,30,32, 32,"background/num1.png");
         this.num2 = new GameObject(260,80,30,30,32, 32,"background/num2.png");
         this.num3 = new GameObject(90,340,30,30,32, 32,"background/num3.png");
-        floorStone = new Floor(130, 270, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_STONE));
-        floorFlipping = new Floor(300, 270, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_FLIPPING));
-        floorDarkness = new Floor(130, 530, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_DARKNESS));
+        floorStone = new Floor(130, 270, tg.genSpecificTrap(TrapGenerator.TRAP_STONE));
+        floorDarkness = new Floor(130, 530, tg.genSpecificTrap(TrapGenerator.TRAP_DARKNESS));
+        floorFlipping = new Floor(300, 270, tg.genSpecificTrap(TrapGenerator.TRAP_FLIPPING));
         player1 = new Actor(140, 130, 32, 32, 32, 32, "actor/Actor1.png");
         player1.setHunger(30);
         player2 = new Actor(310, 130, 32, 32,32, 32, "actor/Actor1.png");
@@ -163,9 +163,9 @@ public class GuideScene_2 extends Scene {
             hungerCount.paint(g, mainPanel);
             frameG.paint(g2d, mainPanel);
             g2d.setColor(Color.BLACK);
-            g2d.fillRect((int) (253 * MainPanel.ratio), (int) (331 * MainPanel.ratio), (int) (147 * MainPanel.ratio), (int) (249 * MainPanel.ratio));
+            g2d.fillRect((int) (253 * MainPanel.RATIO), (int) (331 * MainPanel.RATIO), (int) (147 * MainPanel.RATIO), (int) (249 * MainPanel.RATIO));
             questionMark.paint(g, mainPanel);
-            g2d.drawImage(darkness, (int) (83 * MainPanel.ratio), (int) (331 * MainPanel.ratio), (int) ((81+149) * MainPanel.ratio), (int) ((331+249) * MainPanel.ratio), 0, 0, 1024, 768, null);
+            g2d.drawImage(darkness, (int) (83 * MainPanel.RATIO), (int) (331 * MainPanel.RATIO), (int) ((81+149) * MainPanel.RATIO), (int) ((331+249) * MainPanel.RATIO), 0, 0, 1024, 768, null);
             frameG2.paint(g2d, mainPanel);
             frameS2.paint(g2d, mainPanel);
             hint.paint(g2d, mainPanel);
@@ -177,7 +177,7 @@ public class GuideScene_2 extends Scene {
             player3.paint(g2d, mainPanel);
             menu.paint(g2d, mainPanel);
             back.paint(g2d, mainPanel);
-            g2d.setClip((new Ellipse2D.Float(player3.getCenterPoint().x - 50 * MainPanel.ratio, player3.getCenterPoint().y - 50 * MainPanel.ratio, 100* MainPanel.ratio, 100* MainPanel.ratio)));
+            g2d.setClip((new Ellipse2D.Float(player3.getCenterPoint().x - 50 * MainPanel.RATIO, player3.getCenterPoint().y - 50 * MainPanel.RATIO, 100* MainPanel.RATIO, 100* MainPanel.RATIO)));
         }
         //
         background.paint(g2d, mainPanel);
@@ -189,7 +189,7 @@ public class GuideScene_2 extends Scene {
         hungerCount.paint(g, mainPanel);
         frameG.paint(g2d, mainPanel);
         g2d.setColor(Color.BLACK);
-        g2d.fillRect((int) (253 * MainPanel.ratio), (int) (331 * MainPanel.ratio), (int) (147 * MainPanel.ratio), (int) (249 * MainPanel.ratio));
+        g2d.fillRect((int) (253 * MainPanel.RATIO), (int) (331 * MainPanel.RATIO), (int) (147 * MainPanel.RATIO), (int) (249 * MainPanel.RATIO));
         questionMark.paint(g, mainPanel);
         frameG2.paint(g2d, mainPanel);
         frameS2.paint(g2d, mainPanel);

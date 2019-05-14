@@ -6,9 +6,7 @@ import frame.scene.Scene;
 import util.ResourcesManager;
 
 public class StoneTrap implements Trap {
-//    private static final String[] imagePaths = {"floor/StoneFloor_0.png", "floor/StoneFloor_1.png"};
-    private static final String[] imagePaths = {"floor/StoneFloor.png"};
-//    private static final int[] choosingImagesMode = {0, 1};
+    private final String[] imagePaths = {"floor/StoneFloor.png"};
     private static final int[] choosingImagesMode = {0 ,0};
 
     @Override

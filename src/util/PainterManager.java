@@ -11,7 +11,7 @@ public class PainterManager {
     }
 
     // 將傳入圖合併成一張回傳
-    public static BufferedImage mergeImages(ArrayList<BufferedImage> images){
+    public BufferedImage mergeImages(ArrayList<BufferedImage> images){
         ArrayList<int[]> imagesArrays = new ArrayList<>();
         BufferedImage merged = null;
         for (int i = 0; i < images.size(); i++) {

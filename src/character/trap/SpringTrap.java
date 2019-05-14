@@ -6,7 +6,7 @@ import frame.scene.Scene;
 import util.ResourcesManager;
 
 public class SpringTrap implements Trap {
-    private static final String[] imagePaths =
+    private final String[] imagePaths =
             {"floor/SpringFloor_0.png", "floor/SpringFloor_1.png", "floor/SpringFloor_2.png", "floor/SpringFloor_3.png"};
     private static final int[] CHOOSING_IMAGES_MODE = {1, 2, 3, 3, 3, 2};
     public static final int[] CHOOSING_IMAGES_MODE_BASE = {1};

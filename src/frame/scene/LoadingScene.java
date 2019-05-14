@@ -1,7 +1,7 @@
 package frame.scene;
 
 import frame.MainPanel;
-import sun.jvm.hotspot.memory.SystemDictionary;
+//import sun.jvm.hotspot.memory.SystemDictionary;
 import util.ResourcesManager;
 import util.TypingMachine;
 
@@ -16,10 +16,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class LoadingScene extends Scene {
-    private static final String INTRODUCTION_FILE_PATH = "introduction.txt";
     private BufferedImage background;
     private int key;
-    private static ArrayList<String> messages = loadMsg();
+    private ArrayList<String> messages = loadMsg();
     private boolean isOver;
     private int showMsgDelayCount, showMsgDelay = 20;
     private int index;
@@ -54,9 +53,11 @@ public class LoadingScene extends Scene {
                 key = e.getKeyCode();
                 switch (key){
                     case KeyEvent.VK_ESCAPE:
+                        TYPING.stop();
                         gsChangeListener.changeScene(MainPanel.STORY_GAME_SCENE);
                         break;
                     case KeyEvent.VK_ENTER:
+                        TYPING.stop();
                         gsChangeListener.changeScene(MainPanel.STORY_GAME_SCENE);
                         break;
                 }
@@ -66,12 +67,12 @@ public class LoadingScene extends Scene {
 
     @Override
     public void paint(Graphics g, MainPanel mainPanel) {
-        Font font = MainPanel.CHINESE_FONT.deriveFont(24.0f*MainPanel.ratio);
+        Font font = MainPanel.CHINESE_FONT.deriveFont(24.0f*MainPanel.RATIO);
         g.setFont(font);
         g.setColor(Color.WHITE);
-        g.drawImage(background, 0, 0, MainPanel.window.width, MainPanel.window.height, null);
+        g.drawImage(background, 0, 0, MainPanel.CURRENT_WINDOW.width, MainPanel.CURRENT_WINDOW.height, null);
 //        System.out.println(tm.typing(g, message.split("\n"), 2, 200, 650));
-        if (tm.typing(g, message.split("\n"), 3, 200, 650)){
+        if (tm.typing(g, message.split("\n"), 3, 250, 650)){
             isTyping = false;
             TYPING.stop();
         }
@@ -98,12 +99,13 @@ public class LoadingScene extends Scene {
         }
     }
 
-    private static ArrayList<String> loadMsg(){
+    private ArrayList<String> loadMsg(){
         ArrayList<String> data = new ArrayList<>();
         BufferedReader br;
         do {
             try {
-                br = new BufferedReader(new FileReader(INTRODUCTION_FILE_PATH));
+                String introductionFilePath = "introduction.txt";
+                br = new BufferedReader(new FileReader(introductionFilePath));
                 while (br.ready()){
                     data.add(br.readLine());
                 }

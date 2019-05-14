@@ -5,9 +5,10 @@ import character.Button;
 import character.food.Food;
 import character.trap.FlashTrap;
 import character.trap.TrapGenerator;
-import frame.GameFrame;
 import frame.MainPanel;
+import util.ResourcesManager;
 
+import java.applet.AudioClip;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Ellipse2D;
@@ -21,7 +22,8 @@ public class StoryGameScene extends Scene {
     private AnimationGameObject endingGate;
     private Actor player;
     private ArrayList<Floor> floors;
-    private FloorGenerator floorGenerator;
+    private FloorGenerator fg;
+    private TrapGenerator tg;
 
     // 選單相關
     private boolean isCalled;
@@ -52,12 +54,17 @@ public class StoryGameScene extends Scene {
 
     private int flashCount; //閃光延遲
 
+    // 音效
+    private AudioClip bgm;
+
     private boolean up = false, down = false, left = false, right = false;
 
     public StoryGameScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
-        BGM_STORY.loop();
-        floorGenerator = new FloorGenerator();
+        bgm = ResourcesManager.getInstance().getSound("sound/StoryMode.au");
+        bgm.loop();
+        fg = new FloorGenerator();
+        tg = new TrapGenerator();
         // 場景物件
         setSceneObject();
         roof = new GameObject(0, 0, 500, 64, 500, 64,"background/Roof.png");
@@ -75,9 +82,9 @@ public class StoryGameScene extends Scene {
         colon = " : ";
         // 初始10塊階梯
         floors = new ArrayList<>();
-        floors.add(new Floor(player.getX() - (64 - 32), 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_NORMAL))); // 初始站立
+        floors.add(new Floor(player.getX() - (64 - 32), 200 + 32, tg.genSpecificTrap(TrapGenerator.TRAP_NORMAL))); // 初始站立
         for (int i = 0; i < 14; i++) {
-            floors.add(floorGenerator.genFloor(floors, floors.get(i), 0));
+            floors.add(fg.genFloor(floors, floors.get(i), 10));
         }
         isOver = false;
         isCalled = false;
@@ -85,8 +92,8 @@ public class StoryGameScene extends Scene {
     }
 
     private void setSceneObject() {
-        background_0 = new GameObject(0, -22, 500, 700, 1417, 1984,"background/EgyptBackground_0.png");
-        background_1 = new GameObject(0, 678, 500, 700, 1417, 1984,"background/EgyptBackground_0.png");
+        background_0 = new GameObject(0, 0, 500, 700, 1417, 1984,"background/EgyptBackground_0.png");
+        background_1 = new GameObject(0, 700, 500, 700, 1417, 1984,"background/EgyptBackground_0.png");
         background_end = new GameObject(0, 678, 500, 700, 1417, 1984, "background/EgyptBackground_1.png");
     }
 
@@ -187,7 +194,7 @@ public class StoryGameScene extends Scene {
                         if (chooser == button_menu){
                             button_menu.setImageOffsetX(0);
                             BUTTON_CLICK.play();
-                            BGM_INFINITY.stop();
+                            bgm.stop();
                             gsChangeListener.changeScene(MainPanel.MENU_SCENE);
                         }
                         isCalled = false;
@@ -213,7 +220,7 @@ public class StoryGameScene extends Scene {
                 hungerValue = player.getHunger();
                 if (floorAmount < 15 && time > 6 && floors.size() < 20){
                     for (int i = 0; i < 15 - floorAmount; i++) {
-                        floors.add(floorGenerator.genFloor(floors, findLast(), 0));
+                        floors.add(fg.genFloor(floors, findLast(), 10));
                     }
                 }
                 // 逆向摩擦力
@@ -239,6 +246,7 @@ public class StoryGameScene extends Scene {
                     floors.get(i).stay();
                     if (checkTopBoundary(floors.get(i))){
                         floors.remove(i);
+                        break;
                     }
                 }
                 // 人物飢餓
@@ -251,7 +259,7 @@ public class StoryGameScene extends Scene {
                 }
                 player.update();
                 // 掉落死亡 or 餓死後落下
-                if (player.getModY() + player.getDrawHeight()*MainPanel.ratio > MainPanel.window.getHeight()){
+                if (player.getModY() + player.getDrawHeight()*MainPanel.RATIO > MainPanel.CURRENT_WINDOW.getHeight()){
                     player.die();
                 }
                 // 時間刷新
@@ -276,13 +284,13 @@ public class StoryGameScene extends Scene {
                     player.setSpeedX(0);
                     player.update();
                     // 完全落下後切場景
-                    if (player.getModY() + player.getDrawHeight()*MainPanel.ratio > MainPanel.window.getHeight()){
-                        BGM_STORY.stop();
+                    if (player.getModY() + player.getDrawHeight()*MainPanel.RATIO > MainPanel.CURRENT_WINDOW.getHeight()){
+                        bgm.stop();
                         gsChangeListener.changeScene(MainPanel.GAME_OVER_SCENE);
                     }
                 }
             }
-            if (background_end.getModY() + background_end.getDrawHeight() * MainPanel.ratio > MainPanel.window.getHeight()){
+            if (background_end.getModY() + background_end.getDrawHeight() * MainPanel.RATIO > MainPanel.CURRENT_WINDOW.getHeight()){
                 updateBackgroundImage();
             }else {
                 for (int i = 0; i < floors.size(); i++) {
@@ -294,7 +302,7 @@ public class StoryGameScene extends Scene {
                 if (endingGate.checkCollision(player)){
                     endingGate.playAnimation();
                     if (key == KeyEvent.VK_UP){
-                        BGM_STORY.stop();
+                        bgm.stop();
                         gsChangeListener.changeScene(MainPanel.END_SCENE);
                     }
                 }
@@ -308,80 +316,80 @@ public class StoryGameScene extends Scene {
         Graphics2D g2d = (Graphics2D)g;
         g.setColor(Color.BLACK);
         g.fillRect(0,0, 500, 700);
-        if (isDark){
-            background_0.paint(g2d, mainPanel);
-            background_1.paint(g2d, mainPanel);
-            background_end.paint(g2d, mainPanel);
-
-            roof.paint(g2d, mainPanel);
-            hungerLabel.paint(g2d, mainPanel);
-            timeLabel.paint(g2d, mainPanel);
-            hungerBack.paint(g2d, mainPanel);
-            hungerCount.paint(g2d, mainPanel);
-
-            for (Floor floor : floors) {
-                floor.paint(g2d, mainPanel);
-            }
-            if (isOver){
-                endingFloor.paint(g2d, mainPanel);
-                endingGate.paint(g2d, mainPanel);
-            }
-
-            g2d.drawImage(darkness, 0, (int) (48 * MainPanel.ratio), (int) (500 * MainPanel.ratio), (int) (700 * MainPanel.ratio), 0, 0, 1024, 768, null);
-            player.paint(g, mainPanel);
-
-            // 印出吃到食物的回覆值
-            g2d.setFont(MainPanel.ENGLISH_FONT.deriveFont(15.0f*MainPanel.ratio));
-            g2d.setColor(Color.GREEN);
-            String healMsg = "";
-            if (showHeal){
-                if (++healDrawingCount <= 50){
-                    healMsg = "+ "+ eatenFood.getHeal();
-                }else {
-                    showHeal = false;
-                    healDrawingCount = 0;
-                }
-            }
-            FontMetrics fm = g2d.getFontMetrics();
-            int msgWidth = fm.stringWidth(healMsg);
-            int msgAscent = fm.getAscent();
-            g2d.drawString(healMsg, player.getModX() - (msgWidth*MainPanel.ratio - player.getDrawWidth()*MainPanel.ratio)/ 2, player.getModY());
-
-            if (isCalled){
-                button_menu.paint(g2d, mainPanel);
-                button_resume.paint(g2d, mainPanel);
-                button_new_game.paint(g2d, mainPanel);
-                cursor.paint(g2d, mainPanel);
-            }
-
-            //閃光開始
-            if(FlashTrap.getFlashState()){
-                flashCount++;
-            }//閃光持續
-            if(flashCount < 15 && flashCount > 0){
-                FlashTrap.getFlash().setCounter(flashCount - 1);
-                //System.out.println("**"+flashCount);
-                FlashTrap.getFlash().paint(g2d, mainPanel);
-            }//閃光結束
-            else if(flashCount >= 15){
-                FlashTrap.setFlashState(false);
-                flashCount = 0;
-            }
-
-            // 印出時間
-            Font font = g2d.getFont().deriveFont(16.0f * MainPanel.ratio);
-            g2d.setFont(font);
-            g2d.setColor(Color.RED);
-            fm = g.getFontMetrics();
-            msgWidth = fm.stringWidth(String.valueOf(minute));
-            msgAscent = fm.getAscent();
-            g2d.drawString(String.valueOf(minute), (int) (384*MainPanel.ratio), (int) (30*MainPanel.ratio));
-            g2d.drawString(colon, (int) (384*MainPanel.ratio + msgWidth*MainPanel.ratio), (int) (30*MainPanel.ratio));
-            g2d.drawString(String.valueOf(second), (int) (384*MainPanel.ratio + 2*msgWidth*MainPanel.ratio), (int) (30*MainPanel.ratio));
-            g2d.drawString(String.valueOf(hungerValue), (int) (MainPanel.ratio*(96 + 112 + 10)), (int) (30*MainPanel.ratio));
-
-            g2d.setClip(new Ellipse2D.Float(player.getCenterPoint().x - 75 * MainPanel.ratio, player.getCenterPoint().y - 75 * MainPanel.ratio, 150 * MainPanel.ratio, 150 * MainPanel.ratio));
-        }
+//        if (isDark){
+//            background_0.paint(g2d, mainPanel);
+//            background_1.paint(g2d, mainPanel);
+//            background_end.paint(g2d, mainPanel);
+//
+//            roof.paint(g2d, mainPanel);
+//            hungerLabel.paint(g2d, mainPanel);
+//            timeLabel.paint(g2d, mainPanel);
+//            hungerBack.paint(g2d, mainPanel);
+//            hungerCount.paint(g2d, mainPanel);
+//
+//            for (Floor floor : floors) {
+//                floor.paint(g2d, mainPanel);
+//            }
+//            if (isOver){
+//                endingFloor.paint(g2d, mainPanel);
+//                endingGate.paint(g2d, mainPanel);
+//            }
+//
+//            g2d.drawImage(darkness, 0, (int) (48 * MainPanel.RATIO), (int) (500 * MainPanel.RATIO), (int) (700 * MainPanel.RATIO), 0, 0, 1024, 768, null);
+//            player.paint(g, mainPanel);
+//
+//            // 印出吃到食物的回覆值
+//            g2d.setFont(MainPanel.ENGLISH_FONT.deriveFont(15.0f*MainPanel.RATIO));
+//            g2d.setColor(Color.GREEN);
+//            String healMsg = "";
+//            if (showHeal){
+//                if (++healDrawingCount <= 50){
+//                    healMsg = "+ "+ eatenFood.getHeal();
+//                }else {
+//                    showHeal = false;
+//                    healDrawingCount = 0;
+//                }
+//            }
+//            FontMetrics fm = g2d.getFontMetrics();
+//            int msgWidth = fm.stringWidth(healMsg);
+//            int msgAscent = fm.getAscent();
+//            g2d.drawString(healMsg, player.getModX() - (msgWidth*MainPanel.RATIO - player.getDrawWidth()*MainPanel.RATIO)/ 2, player.getModY());
+//
+//            if (isCalled){
+//                button_menu.paint(g2d, mainPanel);
+//                button_resume.paint(g2d, mainPanel);
+//                button_new_game.paint(g2d, mainPanel);
+//                cursor.paint(g2d, mainPanel);
+//            }
+//
+//            //閃光開始
+//            if(FlashTrap.getFlashState()){
+//                flashCount++;
+//            }//閃光持續
+//            if(flashCount < 15 && flashCount > 0){
+//                FlashTrap.getFlash().setCounter(flashCount - 1);
+//                //System.out.println("**"+flashCount);
+//                FlashTrap.getFlash().paint(g2d, mainPanel);
+//            }//閃光結束
+//            else if(flashCount >= 15){
+//                FlashTrap.setFlashState(false);
+//                flashCount = 0;
+//            }
+//
+//            // 印出時間
+//            Font font = g2d.getFont().deriveFont(16.0f * MainPanel.RATIO);
+//            g2d.setFont(font);
+//            g2d.setColor(Color.RED);
+//            fm = g.getFontMetrics();
+//            msgWidth = fm.stringWidth(String.valueOf(minute));
+//            msgAscent = fm.getAscent();
+//            g2d.drawString(String.valueOf(minute), (int) (384*MainPanel.RATIO), (int) (30*MainPanel.RATIO));
+//            g2d.drawString(colon, (int) (384*MainPanel.RATIO + msgWidth*MainPanel.RATIO), (int) (30*MainPanel.RATIO));
+//            g2d.drawString(String.valueOf(second), (int) (384*MainPanel.RATIO + 2*msgWidth*MainPanel.RATIO), (int) (30*MainPanel.RATIO));
+//            g2d.drawString(String.valueOf(hungerValue), (int) (MainPanel.RATIO *(96 + 112 + 10)), (int) (30*MainPanel.RATIO));
+//
+//            g2d.setClip(new Ellipse2D.Float(player.getCenterPoint().x - 75 * MainPanel.RATIO, player.getCenterPoint().y - 75 * MainPanel.RATIO, 150 * MainPanel.RATIO, 150 * MainPanel.RATIO));
+//        }
         background_0.paint(g2d, mainPanel);
         background_1.paint(g2d, mainPanel);
         background_end.paint(g2d, mainPanel);
@@ -395,14 +403,19 @@ public class StoryGameScene extends Scene {
         for (Floor floor : floors) {
             floor.paint(g2d, mainPanel);
         }
+
+        if (isDark){
+            g.drawImage(blanket, player.getX() + 16 - 575, player.getY() + 16 - 775, player.getX() + 16 - 575 + 1150, player.getY() + 16 - 775 + 1550,0,0, 1150, 1550, null);
+        }
         if (isOver){
             endingFloor.paint(g2d, mainPanel);
             endingGate.paint(g2d, mainPanel);
         }
+
         player.paint(g, mainPanel);
 
         // 印出吃到食物的回覆值
-        g2d.setFont(MainPanel.ENGLISH_FONT.deriveFont(15.0f*MainPanel.ratio));
+        g2d.setFont(MainPanel.ENGLISH_FONT.deriveFont(15.0f*MainPanel.RATIO));
         g2d.setColor(Color.GREEN);
         String healMsg = "";
         if (showHeal){
@@ -416,7 +429,7 @@ public class StoryGameScene extends Scene {
         FontMetrics fm = g2d.getFontMetrics();
         int msgWidth = fm.stringWidth(healMsg);
         int msgAscent = fm.getAscent();
-        g2d.drawString(healMsg, player.getModX() - (msgWidth*MainPanel.ratio - player.getDrawWidth()*MainPanel.ratio)/ 2, player.getModY());
+        g2d.drawString(healMsg, player.getModX() - (msgWidth*MainPanel.RATIO - player.getDrawWidth()*MainPanel.RATIO)/ 2, player.getModY());
 
         if (isCalled){
             button_menu.paint(g2d, mainPanel);
@@ -440,21 +453,21 @@ public class StoryGameScene extends Scene {
         }
 
         // 印出時間
-        Font font = g2d.getFont().deriveFont(16.0f * MainPanel.ratio);
+        Font font = g2d.getFont().deriveFont(16.0f * MainPanel.RATIO);
         g2d.setFont(font);
         g2d.setColor(Color.RED);
         fm = g.getFontMetrics();
         msgWidth = fm.stringWidth(String.valueOf(minute));
         msgAscent = fm.getAscent();
-        g2d.drawString(String.valueOf(minute), (int) (384*MainPanel.ratio), (int) (30*MainPanel.ratio));
-        g2d.drawString(colon, (int) (384*MainPanel.ratio + msgWidth*MainPanel.ratio), (int) (30*MainPanel.ratio));
-        g2d.drawString(String.valueOf(second), (int) (384*MainPanel.ratio + 2*msgWidth*MainPanel.ratio), (int) (30*MainPanel.ratio));
-        g2d.drawString(String.valueOf(hungerValue), (int) (MainPanel.ratio*(96 + 112 + 10)), (int) (30*MainPanel.ratio));
+        g2d.drawString(String.valueOf(minute), (int) (384*MainPanel.RATIO), (int) (30*MainPanel.RATIO));
+        g2d.drawString(colon, (int) (384*MainPanel.RATIO + msgWidth*MainPanel.RATIO), (int) (30*MainPanel.RATIO));
+        g2d.drawString(String.valueOf(second), (int) (384*MainPanel.RATIO + 2*msgWidth*MainPanel.RATIO), (int) (30*MainPanel.RATIO));
+        g2d.drawString(String.valueOf(hungerValue), (int) (MainPanel.RATIO *(96 + 112 + 10)), (int) (30*MainPanel.RATIO));
     }
 
     // 比天花板高就消失
     private boolean checkTopBoundary(GameObject gameObject){
-        return gameObject.getTop() <= this.roof.getModY() + this.roof.getDrawHeight()*MainPanel.ratio;
+        return gameObject.getTop() <= this.roof.getModY() + this.roof.getDrawHeight()*MainPanel.RATIO;
     }
 
     // 確認畫面中階梯數量
@@ -462,7 +475,7 @@ public class StoryGameScene extends Scene {
         int count = 0;
         for (int i = 0; i < floors.size(); i++) {
             Floor current = floors.get(i);
-            if (current.getModY() > 0 && current.getModY() + current.getDrawHeight() * MainPanel.ratio < MainPanel.window.height){
+            if (current.getModY() > 0 && current.getModY() + current.getDrawHeight() * MainPanel.RATIO < MainPanel.CURRENT_WINDOW.height){
                 count++;
             }
         }
@@ -471,14 +484,14 @@ public class StoryGameScene extends Scene {
 
     // 更新背景圖
     private void updateBackgroundImage(){
-        if (background_0.getModY() + background_0.getDrawHeight() * MainPanel.ratio <= 0){
-            background_0 = new GameObject(0, 693, 500, 700, 1417, 1984,"background/EgyptBackground_0.png");
+        if (background_0.getModY() + background_0.getDrawHeight() * MainPanel.RATIO <= 0){
+            background_0 = new GameObject(0, 700, 500, 700, 1417, 1984,"background/EgyptBackground_0.png");
         }
-        if (background_1.getModY() + background_1.getDrawHeight() * MainPanel.ratio <= 0){
-            background_1 = new GameObject(0, 693, 500, 700, 1417, 1984,"background/EgyptBackground_0.png");
+        if (background_1.getModY() + background_1.getDrawHeight() * MainPanel.RATIO <= 0){
+            background_1 = new GameObject(0, 700, 500, 700, 1417, 1984,"background/EgyptBackground_0.png");
         }
-        background_0.setY(background_0.getY() - 3);
-        background_1.setY(background_1.getY() - 3);
+        background_0.setY(background_0.getY() - 5);
+        background_1.setY(background_1.getY() - 5);
         if (time <= 5){
             background_end.setY(background_end.getY() - 3);
             endingFloor = new GameObject(0, background_end.getY() + 700 + 3 - 32, 500, 32, 500, 32,"floor/EndingFloor.png");
@@ -542,13 +555,13 @@ public class StoryGameScene extends Scene {
 
     private Button checkCursorPosition(){
         Point cursorCenterPoint = cursor.getCenterPoint();
-        if (cursorCenterPoint.y < button_resume.getModY() + button_resume.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_resume.getModY()){
+        if (cursorCenterPoint.y < button_resume.getModY() + button_resume.getDrawHeight()*MainPanel.RATIO && cursorCenterPoint.y > button_resume.getModY()){
             return button_resume;
         }
-        if (cursorCenterPoint.y < button_new_game.getModY() + button_new_game.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_new_game.getModY()){
+        if (cursorCenterPoint.y < button_new_game.getModY() + button_new_game.getDrawHeight()*MainPanel.RATIO && cursorCenterPoint.y > button_new_game.getModY()){
             return button_new_game;
         }
-        if (cursorCenterPoint.y < button_menu.getModY() + button_menu.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_menu.getModY()){
+        if (cursorCenterPoint.y < button_menu.getModY() + button_menu.getDrawHeight()*MainPanel.RATIO && cursorCenterPoint.y > button_menu.getModY()){
             return button_menu;
         }
         return null;

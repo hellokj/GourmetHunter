@@ -7,7 +7,7 @@ import frame.scene.Scene;
 import util.ResourcesManager;
 
 public class FragmentTrap implements Trap {
-    private static final String[] imagePaths = {"floor/Brick.png"};
+    private final String[] imagePaths = {"floor/Brick.png"};
     public static final int[] CHOOSING_IMAGES_MODE_BASE = {0};
 
     private int executeDelayCount;

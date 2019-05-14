@@ -7,13 +7,11 @@ import character.trap.FlashTrap;
 import character.trap.FragmentTrap;
 import character.trap.TrapGenerator;
 import frame.MainPanel;
-import util.ResourcesManager;
 
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -27,6 +25,8 @@ public class DebuggerScene extends Scene {
     private AnimationGameObject fire_left, fire_right;
     private Actor player;
     private ArrayList<Floor> floors;
+    private FloorGenerator fg;
+    private TrapGenerator tg;
 
     // 名稱儲存
     private String name; // 儲存名稱
@@ -67,6 +67,8 @@ public class DebuggerScene extends Scene {
 
     public DebuggerScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
+        fg = new FloorGenerator();
+        tg = new TrapGenerator();
         debuggerScene = this;
         // 場景物件
         setSceneObject();
@@ -79,15 +81,15 @@ public class DebuggerScene extends Scene {
         hungerCount = new GameObject(96, 16, 0, 16, 5, 5, "background/HungerCount.png");
         // 初始10塊階梯
         floors = new ArrayList<>();
-        floors.add(new Floor(player.getModX() - (64 - 32), 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_NORMAL))); // 初始站立
-        floors.add(new Floor(player.getModX() - (64 - 32) + 64, 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_NORMAL))); // 初始站立
-        floors.add(new Floor(player.getModX() - (64 - 32) + 64 + 64, 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_NORMAL))); // 初始站立
+        floors.add(new Floor(player.getModX() - (64 - 32), 200 + 32, tg.genSpecificTrap(TrapGenerator.TRAP_NORMAL))); // 初始站立
+        floors.add(new Floor(player.getModX() - (64 - 32) + 64, 200 + 32, tg.genSpecificTrap(TrapGenerator.TRAP_NORMAL))); // 初始站立
+        floors.add(new Floor(player.getModX() - (64 - 32) + 64 + 64, 200 + 32, tg.genSpecificTrap(TrapGenerator.TRAP_NORMAL))); // 初始站立
 //        floors.add(new Floor(player.getModX() - 96, 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_DARKNESS))); // 初始站立
-        Floor dFloor = new Floor(player.getModX() - 96, 400 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_DARKNESS));
+        Floor dFloor = new Floor(player.getModX() - 96, 400 + 32, tg.genSpecificTrap(TrapGenerator.TRAP_DARKNESS));
         dFloor.setSpeedY(-1);
         floors.add(dFloor); // 初始站立
-        floors.add(new Floor(player.getModX() - 96 - 64, 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_FLIPPING))); // 初始站立
-        floors.add(new Floor(player.getModX() - 96 - 64 - 64, 200 + 32, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_RUNNING))); // 初始站立
+        floors.add(new Floor(player.getModX() - 96 - 64, 200 + 32, tg.genSpecificTrap(TrapGenerator.TRAP_FLIPPING))); // 初始站立
+        floors.add(new Floor(player.getModX() - 96 - 64 - 64, 200 + 32, tg.genSpecificTrap(TrapGenerator.TRAP_RUNNING))); // 初始站立
 //        for (int i = 0; i < 9; i++) {
 //            floors.add(FloorGenerator.getInstance().genFloor(floors, floors.get(i), 0));
 //        }
@@ -109,8 +111,8 @@ public class DebuggerScene extends Scene {
         background_1 = new GameObject(0, -22 + 700, 500, 700, 1024, 768,"background/EndBackground.png");
 //        background_0.setBoundary();
 //        background_1.setBoundary();
-        fire_left = new AnimationGameObject(0, (int) (background_0.getModY() + background_0.getDrawHeight()*MainPanel.ratio/2), 30, 30, 64, 64,"background/Fire.png");
-        fire_right = new AnimationGameObject(470, (int) (background_1.getModY() + background_1.getDrawHeight()*MainPanel.ratio/2), 30, 30, 64, 64,"background/Fire.png");
+        fire_left = new AnimationGameObject(0, (int) (background_0.getModY() + background_0.getDrawHeight()*MainPanel.RATIO /2), 30, 30, 64, 64,"background/Fire.png");
+        fire_right = new AnimationGameObject(470, (int) (background_1.getModY() + background_1.getDrawHeight()*MainPanel.RATIO /2), 30, 30, 64, 64,"background/Fire.png");
     }
 
     @Override
@@ -141,7 +143,7 @@ public class DebuggerScene extends Scene {
                             if (!isPause){
                                 up = true;
                             }else {
-                                if (!(cursor.getY() - 150*MainPanel.ratio < button_resume.getY())){
+                                if (!(cursor.getY() - 150*MainPanel.RATIO < button_resume.getY())){
                                     cursor.setY(cursor.getY() - 150);
                                 }
                             }
@@ -152,7 +154,7 @@ public class DebuggerScene extends Scene {
                             if (!isPause){
                                 down = true;
                             }else {
-                                if (!(cursor.getY() + 150*MainPanel.ratio > button_menu.getY() + button_menu.getDrawHeight())){
+                                if (!(cursor.getY() + 150*MainPanel.RATIO > button_menu.getY() + button_menu.getDrawHeight())){
                                     cursor.setY(cursor.getY() + 150);
                                 }
                             }
@@ -261,7 +263,7 @@ public class DebuggerScene extends Scene {
                 if (floorAmount < 10 && floors.size() < 20){
                     for (int i = 0; i < 10 - floorAmount; i++) {
                         // 傳入現在層數，生成器將依此更新生成機率
-                        floors.add(FloorGenerator.getInstance().genFloor(floors, findLast(), layer));
+                        floors.add(fg.genFloor(floors, findLast(), layer));
                     }
                 }
 //                System.out.println(player.isOn());
@@ -310,7 +312,7 @@ public class DebuggerScene extends Scene {
                 }
                 player.update();
                 // 掉落死亡 or 餓死後落下
-                if (player.getModY() + player.getDrawHeight() * MainPanel.ratio > MainPanel.window.height){
+                if (player.getModY() + player.getDrawHeight() * MainPanel.RATIO > MainPanel.CURRENT_WINDOW.height){
                     player.die();
                 }
                 // 背景刷新
@@ -326,7 +328,7 @@ public class DebuggerScene extends Scene {
                     player.setSpeedX(0);
                     player.update();
                     // 完全落下後切場景
-                    if (player.getModY() + player.getDrawHeight() * MainPanel.ratio > MainPanel.window.height){
+                    if (player.getModY() + player.getDrawHeight() * MainPanel.RATIO > MainPanel.CURRENT_WINDOW.height){
                         isOver = true;
                         isOnBoard = checkCurrentScoreOnBoard();
                         if (isOnBoard){
@@ -366,7 +368,7 @@ public class DebuggerScene extends Scene {
 
 
         // 印出吃到食物的回覆值
-        g2d.setFont(MainPanel.ENGLISH_FONT.deriveFont(15.0f*MainPanel.ratio));
+        g2d.setFont(MainPanel.ENGLISH_FONT.deriveFont(15.0f*MainPanel.RATIO));
         g2d.setColor(Color.GREEN);
         String healMsg = "";
         if (showHeal){
@@ -380,22 +382,22 @@ public class DebuggerScene extends Scene {
         fm = g2d.getFontMetrics();
         msgWidth = fm.stringWidth(healMsg);
         msgAscent = fm.getAscent();
-        g2d.drawString(healMsg, player.getModX() - (msgWidth*MainPanel.ratio - player.getDrawWidth()*MainPanel.ratio)/ 2, player.getModY());
+        g2d.drawString(healMsg, player.getModX() - (msgWidth*MainPanel.RATIO - player.getDrawWidth()*MainPanel.RATIO)/ 2, player.getModY());
 
         // 印出現在總體成績
-        g2d.setFont(MainPanel.ENGLISH_FONT.deriveFont(20.0f*MainPanel.ratio));
+        g2d.setFont(MainPanel.ENGLISH_FONT.deriveFont(20.0f*MainPanel.RATIO));
         g2d.setColor(Color.WHITE);
         String scoreMsg = "Score : " + player.getScore();
         msgWidth = fm.stringWidth(scoreMsg);
         msgAscent = fm.getAscent();
-        g2d.drawString(scoreMsg, 220*MainPanel.ratio + msgWidth/3, 30*MainPanel.ratio);
+        g2d.drawString(scoreMsg, 220*MainPanel.RATIO + msgWidth/3, 30*MainPanel.RATIO);
 
         // 印出飢餓值
-        Font engFont = MainPanel.ENGLISH_FONT.deriveFont(16.0f*MainPanel.ratio);
-        Font chiFont = MainPanel.CHINESE_FONT.deriveFont(36.0f*MainPanel.ratio);
+        Font engFont = MainPanel.ENGLISH_FONT.deriveFont(16.0f*MainPanel.RATIO);
+        Font chiFont = MainPanel.CHINESE_FONT.deriveFont(36.0f*MainPanel.RATIO);
         g2d.setFont(engFont);
         g2d.setColor(Color.WHITE);
-        g2d.drawString(String.valueOf(hungerValue), (96 + 112)*MainPanel.ratio, 30*MainPanel.ratio);
+        g2d.drawString(String.valueOf(hungerValue), (96 + 112)*MainPanel.RATIO, 30*MainPanel.RATIO);
         g2d.setFont(chiFont);
         fm = g2d.getFontMetrics();
 
@@ -426,9 +428,9 @@ public class DebuggerScene extends Scene {
         }
         msgWidth = fm.stringWidth(msg);
         msgAscent = fm.getAscent();
-        g2d.drawString(msg, 250*MainPanel.ratio - msgWidth/2, 350*MainPanel.ratio);
-        g2d.setFont(chiFont.deriveFont(16.0f*MainPanel.ratio));
-        g2d.drawString("地下 " + layer + " 層", 365*MainPanel.ratio, 30*MainPanel.ratio);
+        g2d.drawString(msg, 250*MainPanel.RATIO - msgWidth/2, 350*MainPanel.RATIO);
+        g2d.setFont(chiFont.deriveFont(16.0f*MainPanel.RATIO));
+        g2d.drawString("地下 " + layer + " 層", 365*MainPanel.RATIO, 30*MainPanel.RATIO);
 
         // 印出選單
         if (isCalled){
@@ -441,16 +443,16 @@ public class DebuggerScene extends Scene {
         if (isOver && isOnBoard){
             int drawWidth = 300, drawHeight = 200;
             if (record == null){
-                record = new GameObject((int) (MainPanel.window.width/2 - drawWidth*MainPanel.ratio/2), (int) (MainPanel.window.height/2*MainPanel.ratio - drawHeight*MainPanel.ratio/2), (int) (drawWidth*MainPanel.ratio), (int) (drawHeight*MainPanel.ratio), 300, 200, "background/Record.png");
+                record = new GameObject((int) (MainPanel.CURRENT_WINDOW.width/2 - drawWidth*MainPanel.RATIO /2), (int) (MainPanel.CURRENT_WINDOW.height/2*MainPanel.RATIO - drawHeight*MainPanel.RATIO /2), (int) (drawWidth*MainPanel.RATIO), (int) (drawHeight*MainPanel.RATIO), 300, 200, "background/Record.png");
             }
             // 印出名字視窗中的字
             record.paint(g, mainPanel);
-            g2d.setFont(chiFont.deriveFont(25.0f*MainPanel.ratio));
+            g2d.setFont(chiFont.deriveFont(25.0f*MainPanel.RATIO));
             msg = String.valueOf(name);
             int msgWidth = fm.stringWidth(msg);
             g2d.setColor(Color.BLACK);
-//            g2d.drawString(msg, (int)(MainPanel.window.width/2 - msgWidth*MainPanel.ratio/2), (int)(MainPanel.window.height/2*MainPanel.ratio));
-            g2d.drawString(msg, MainPanel.window.width/2 - msgWidth / 2 + 18*MainPanel.ratio, record.getModY() + 150*MainPanel.ratio);
+//            g2d.drawString(msg, (int)(MainPanel.CURRENT_WINDOW.width/2 - msgWidth*MainPanel.RATIO/2), (int)(MainPanel.CURRENT_WINDOW.height/2*MainPanel.RATIO));
+            g2d.drawString(msg, MainPanel.CURRENT_WINDOW.width/2 - msgWidth / 2 + 18*MainPanel.RATIO, record.getModY() + 150*MainPanel.RATIO);
 
             if (isDark){
                 g2d.clip(new Rectangle2D.Float(0, 0, 500, 65));
@@ -460,7 +462,7 @@ public class DebuggerScene extends Scene {
 
     // 比天花板高就消失
     private boolean checkTopBoundary(GameObject gameObject){
-        return gameObject.getTop() <= this.roof.getModY() + this.roof.getDrawHeight()*MainPanel.ratio;
+        return gameObject.getTop() <= this.roof.getModY() + this.roof.getDrawHeight()*MainPanel.RATIO;
     }
 
     // 確認畫面中階梯數量
@@ -468,7 +470,7 @@ public class DebuggerScene extends Scene {
         int count = 0;
         for (int i = 0; i < floors.size(); i++) {
             Floor current = floors.get(i);
-            if (current.getModY() > 0 && current.getModY() + current.getDrawHeight() * MainPanel.ratio < MainPanel.window.height){
+            if (current.getModY() > 0 && current.getModY() + current.getDrawHeight() * MainPanel.RATIO < MainPanel.CURRENT_WINDOW.height){
                 count++;
             }
         }
@@ -490,12 +492,12 @@ public class DebuggerScene extends Scene {
     // 更新背景圖
     private void updateBackgroundImage(){
         int background_rising_speed = 5;
-        if (background_0.getModY() + background_0.getDrawHeight() * MainPanel.ratio < 0){
+        if (background_0.getModY() + background_0.getDrawHeight() * MainPanel.RATIO < 0){
             background_0 = new GameObject(0, 678, 500, 700, 1024, 768,"background/EndBackground.png");
             layer++;
             showLayer = true;
         }
-        if (background_1.getModY() + background_1.getDrawHeight() * MainPanel.ratio < 0){
+        if (background_1.getModY() + background_1.getDrawHeight() * MainPanel.RATIO < 0){
             background_1 = new GameObject(0, 678, 500, 700, 1024, 768,"background/EndBackground.png");
         }
         background_0.setY(background_0.getY() - background_rising_speed);
@@ -549,13 +551,13 @@ public class DebuggerScene extends Scene {
 
     private Button checkCursorPosition(){
         Point cursorCenterPoint = cursor.getCenterPoint();
-        if (cursorCenterPoint.y < button_resume.getModY() + button_resume.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_resume.getModY()){
+        if (cursorCenterPoint.y < button_resume.getModY() + button_resume.getDrawHeight()*MainPanel.RATIO && cursorCenterPoint.y > button_resume.getModY()){
             return button_resume;
         }
-        if (cursorCenterPoint.y < button_new_game.getModY() + button_new_game.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_new_game.getModY()){
+        if (cursorCenterPoint.y < button_new_game.getModY() + button_new_game.getDrawHeight()*MainPanel.RATIO && cursorCenterPoint.y > button_new_game.getModY()){
             return button_new_game;
         }
-        if (cursorCenterPoint.y < button_menu.getModY() + button_menu.getDrawHeight()*MainPanel.ratio && cursorCenterPoint.y > button_menu.getModY()){
+        if (cursorCenterPoint.y < button_menu.getModY() + button_menu.getDrawHeight()*MainPanel.RATIO && cursorCenterPoint.y > button_menu.getModY()){
             return button_menu;
         }
         return null;
@@ -563,8 +565,8 @@ public class DebuggerScene extends Scene {
 
     // 火把持續生成
     private void continueGeneration(GameObject gameObject){
-        if (gameObject.getModY() + gameObject.getDrawHeight() * MainPanel.ratio < 0){
-            gameObject.setY(MainPanel.window.height);
+        if (gameObject.getModY() + gameObject.getDrawHeight() * MainPanel.RATIO < 0){
+            gameObject.setY(MainPanel.CURRENT_WINDOW.height);
         }
     }
 

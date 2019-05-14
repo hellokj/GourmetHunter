@@ -41,10 +41,10 @@ public class MainPanel extends javax.swing.JPanel {
 
     // 調整螢幕大小
     public static final Dimension BASIC_WINDOW = new Dimension(500, 700);
-    public static Dimension window;
-    public static float ratio;
+    public static Dimension CURRENT_WINDOW;
+    public static float RATIO;
 
-    public static String player1 = "actor/Actor1.png", player2 = "actor/Actor1.png";
+    public static String P1 = "actor/Actor1.png", P2 = "actor/Actor1.png";
 
     // fade in / fade out
     private float alpha;
@@ -61,9 +61,9 @@ public class MainPanel extends javax.swing.JPanel {
 
     public MainPanel() throws IOException {
         // 作為調整大小的基準
-        window = this.getSize();
+        CURRENT_WINDOW = this.getSize();
         setPreferredSize(BASIC_WINDOW);
-        ratio = 1.0f;
+        RATIO = 1.0f;
         // 透明度調整
         alpha = 0f;
         // 讀取排行
@@ -87,8 +87,8 @@ public class MainPanel extends javax.swing.JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // 每次更新此時視窗大小資訊
-                window = MainPanel.this.getSize();
-                ratio =  ((float)window.getSize().width / (float)getPreferredSize().width);
+                CURRENT_WINDOW = MainPanel.this.getSize();
+                RATIO =  ((float) CURRENT_WINDOW.getSize().width / (float)getPreferredSize().width);
 
                 alphaStep_fadeIn();
                 if (currentScene != null){

@@ -16,17 +16,17 @@ public class Actor extends AnimationGameObject{
     private static final int[] MOVING_PATTERN = {0, 1, 2, 3, 2, 1}; // 走路模式
 
     // 胖瘦圖片
-    private static final int HUNGER_LIMIT = 70;
+    private final int HUNGER_LIMIT = 70;
     private BufferedImage imageFat, imageSlim = ResourcesManager.getInstance().getImage("actor/skeletona.png");
 
     // 身材速度上限
-    private static final int MAX_SPEED_FAT = 8;
-    private static final int MAX_SPEED_SLIM = 12;
+    private final int MAX_SPEED_FAT = 8;
+    private final int MAX_SPEED_SLIM = 10;
     // 身材持續加速度
-    private static final float ACCELERATION_FAT = 1f;
-    private static final float ACCELERATION_SLIM = 2f;
+    private final float ACCELERATION_FAT = 1f;
+    private final float ACCELERATION_SLIM = 1.2f;
     // 變換方向初速度
-    private static int CHANGE_DIRECTION_INITIAL_SPEED = 2;
+    private final int CHANGE_DIRECTION_INITIAL_SPEED = 2;
 
     // 角色現在狀態
     private boolean state; // 胖瘦狀態 true:肥 false:瘦
@@ -39,13 +39,13 @@ public class Actor extends AnimationGameObject{
     private boolean isEating; // 吃到東西
 
     // 每經過100次刷新，讓飢餓值上升
-    private int hungerDelayCount, hungerDelay = 200;
+    private int hungerDelayCount, hungerDelay = 120;
     private int hunger; // 飢餓程度
     private int score; // 統計總共吃了多少食物
 
     // delay
     private int stayDelayCount, stayDelay;
-    private int invincibleDelayCount, invicibleDelay = 10;
+    private int invincibleDelayCount, invincibleDelay = 40;
     private int jumpCount = 20;
 
     public Actor(int x, int y, int drawWidth, int drawHeight){
@@ -165,7 +165,7 @@ public class Actor extends AnimationGameObject{
             y += speedY;
             checkHunger();
             setBoundary();
-            if (invincibleDelayCount++ == invicibleDelay){
+            if (invincibleDelayCount++ == invincibleDelay){
                 invincibleDelayCount = 0;
                 invincible = false;
             }
@@ -196,7 +196,7 @@ public class Actor extends AnimationGameObject{
         if (hungerDelayCount++ == hungerDelay){
             if (this.hunger + 5 >= 100){
                 this.hunger = 100;
-//                this.die();
+                this.die();
             }else {
                 this.hunger += 5; // 延遲到了，增加飢餓值
             }
@@ -322,7 +322,7 @@ public class Actor extends AnimationGameObject{
             this.setBoundary();
             if (this.hunger + 10 >= 100){
                 this.hunger = 100;
-//                this.die();
+                this.die();
             }else {
                 this.hunger += 10;
             }
@@ -399,27 +399,40 @@ public class Actor extends AnimationGameObject{
 
     public boolean checkOnObject(GameObject gameObject){
         // 於物體上
-        if(this.y + (int)(drawHeight*MainPanel.ratio) + speedY > gameObject.y){
-            y = gameObject.y - drawHeight + 1;
+        if(this.modX > gameObject.modX + gameObject.drawWidth * MainPanel.RATIO ||
+                this.modX + this.drawWidth * MainPanel.RATIO < gameObject.modX ||
+                this.modY + this.drawHeight * MainPanel.RATIO > gameObject.modY + gameObject.drawHeight * MainPanel.RATIO){
+            isOn = false;
+            return false;
+        }
+        if(this.modY + this.drawHeight * MainPanel.RATIO + speedY > gameObject.modY && this.speedY >= 0){
+            y = gameObject.y - drawHeight + 1; // 需修改
             speedY = gameObject.speedY;
-            isOn = true;
             return true;
         }
         isOn = false;
         return false;
+//        if(this.y + (int)(drawHeight*MainPanel.RATIO) + speedY > gameObject.y){
+//            y = gameObject.y - drawHeight + 1;
+//            speedY = gameObject.speedY;
+//            isOn = true;
+//            return true;
+//        }
+//        isOn = false;
+//        return false;
     }
 
     public boolean checkOnFloor(Floor floor, Scene scene){
         // 確認已完全低於此階梯
         // 確認完全走出階梯範圍
-        if(this.modX > floor.modX + floor.drawWidth * MainPanel.ratio ||
-                this.modX + this.drawWidth * MainPanel.ratio < floor.modX ||
-                this.modY + this.drawHeight * MainPanel.ratio > floor.modY + floor.drawHeight * MainPanel.ratio){
+        if(this.modX > floor.modX + floor.drawWidth * MainPanel.RATIO ||
+                this.modX + this.drawWidth * MainPanel.RATIO < floor.modX ||
+                this.modY + this.drawHeight * MainPanel.RATIO > floor.modY + floor.drawHeight * MainPanel.RATIO){
             isOn = false;
             return false;
         }
         // 於階梯上
-        if(this.modY + this.drawHeight * MainPanel.ratio + speedY > floor.modY && this.speedY >= 0){
+        if(this.modY + this.drawHeight * MainPanel.RATIO + speedY > floor.modY && this.speedY >= 0){
             y = floor.y - drawHeight + 1; // 需修改
             speedY = floor.speedY;
             // 人物去碰觸地板，將地板狀態設為被接觸，並由地板觸發機關
@@ -456,28 +469,28 @@ public class Actor extends AnimationGameObject{
 
     @Override
     public void paint(Graphics g, MainPanel mainPanel){
-        modX = (int) (x * MainPanel.ratio);
-        modY = (int) (y * MainPanel.ratio);
+        modX = (int) (x * MainPanel.RATIO);
+        modY = (int) (y * MainPanel.RATIO);
         // 人物飢餓值達到一定程度
         // 切換角色圖、速度上升等
         if (state){ // 小胖狀態
             this.drawWidth = this.drawHeight = 32;
             this.imageWidth = this.imageHeight = 32;
-            g.drawImage(image, modX, modY, modX + (int)(drawWidth*MainPanel.ratio), modY + (int)(drawHeight*MainPanel.ratio),
+            g.drawImage(image, modX, modY, modX + (int)(drawWidth*MainPanel.RATIO), modY + (int)(drawHeight*MainPanel.RATIO),
                     direction*4* imageWidth + imageWidth*imageOffsetX, imageOffsetY,
                     direction*4* imageWidth + imageWidth*imageOffsetX + imageWidth,imageOffsetY + imageHeight, null);
 //            g2d.setColor(Color.WHITE);
-//            g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
+//            g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.RATIO + 1), (int)(drawHeight*MainPanel.RATIO +1));
         }else { // 骷髏狀態
             this.drawWidth = 32;
             this.drawHeight = 64;
             this.imageWidth = 32;
             this.imageHeight = 64;
             int actualWidth = 24, actualHeight = 48;
-            g.drawImage(image, modX, modY, modX + (int)(drawWidth*MainPanel.ratio), modY + (int)(drawHeight*MainPanel.ratio),
+            g.drawImage(image, modX, modY, modX + (int)(drawWidth*MainPanel.RATIO), modY + (int)(drawHeight*MainPanel.RATIO),
                     (imageWidth*imageOffsetX),imageOffsetY*imageHeight, imageWidth*imageOffsetX + imageWidth, imageOffsetY*imageHeight + imageHeight, null);
 //            g2d.setColor(Color.WHITE);
-//            g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
+//            g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.RATIO + 1), (int)(drawHeight*MainPanel.RATIO +1));
 //            g2d.setColor(Color.RED);
 //            g2d.drawRect(modX + 4 - 1, modY + 16 - 1, actualWidth, actualHeight);
         }

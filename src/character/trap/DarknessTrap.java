@@ -6,8 +6,8 @@ import frame.scene.Scene;
 import util.ResourcesManager;
 
 public class DarknessTrap implements Trap{
-    private static final String[] imagePaths = {"floor/BlackFloor.png"};
-    private static final int[] choosingImagesMode = {0};
+    private final String[] imagePaths = {"floor/BlackFloor.png"};
+    private final int[] choosingImagesMode = {0};
     private int executeDelayCount;
     @Override
     public void setFloorState(Floor floor) {
@@ -30,6 +30,7 @@ public class DarknessTrap implements Trap{
         // 以玩家為中心，一定半徑內光亮，其餘黑暗
         player.setOn(true);
         scene.darkDelay = 0;
+        scene.touchedPlayer = player;
         scene.setIsDark(true);
     }
 }

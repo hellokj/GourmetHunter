@@ -27,6 +27,7 @@ public class GuideScene_1 extends Scene {
     private GameObject background;
     private GameObject frameS,frameG,frameS2,frameG2;
     private GameObject hint,num1,num2,num3,num4;
+    private TrapGenerator tg;
     private Floor floorSpring,floorRunning,floorFlashing;
     private Actor player1,player2,player3,player4;
     private int flashDelayCount; //閃光延遲
@@ -38,6 +39,7 @@ public class GuideScene_1 extends Scene {
     
     public GuideScene_1(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
+        this.tg = new TrapGenerator();
         this.background = new GameObject(0,0,500,700,1024, 768,"background/EndBackground.png");
         this.frameS = new GameObject(80,70,150,250, 150, 250,"background/frameS.png");
         this.frameG = new GameObject(250,70,150,250,150, 250,"background/frameG.png");
@@ -48,9 +50,9 @@ public class GuideScene_1 extends Scene {
         this.num2 = new GameObject(260,80,30,30,32, 32,"background/num2.png");
         this.num3 = new GameObject(90,340,30,30,32, 32,"background/num3.png");
         this.num4 = new GameObject(260,340,30,30,32, 32,"background/num4.png");
-        floorRunning = new Floor(130, 270, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_RUNNING));
-        floorSpring = new Floor(130, 530, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_SPRING));
-        floorFlashing = new Floor(300, 530, TrapGenerator.getInstance().genSpecificTrap(TrapGenerator.TRAP_FLASH));
+        floorRunning = new Floor(130, 270, tg.genSpecificTrap(TrapGenerator.TRAP_RUNNING));
+        floorSpring = new Floor(130, 530, tg.genSpecificTrap(TrapGenerator.TRAP_SPRING));
+        floorFlashing = new Floor(300, 530, tg.genSpecificTrap(TrapGenerator.TRAP_FLASH));
         DanceTest = new AnimationGameObject(300, 230, 64, 80, 64, 80,"floor/DanceTest.png");
         int[] moving = {0,1,2,3,4,5};
         direction = 0;

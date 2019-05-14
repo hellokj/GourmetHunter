@@ -27,7 +27,7 @@ public class TypingMachine {
         FontMetrics fm = g.getFontMetrics();
         for(int i = 0; i < count + 1; i++) {
 //            g.drawString(messages[i], typingX - msgWidth / 2, typingY - (count - i) * fm.getAscent());
-            int msgWidth = fm.stringWidth(this.messages[count]);
+            int msgWidth = fm.stringWidth(this.messages[i]);
             g.drawString(this.messages[i], typingX - msgWidth/2, typingY - (count - i) * 50);
         }
         return count == input.length - 1;

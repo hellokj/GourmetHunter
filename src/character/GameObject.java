@@ -1,7 +1,6 @@
 package character;
 
 import frame.MainPanel;
-import util.PainterManager;
 import util.ResourcesManager;
 
 import java.awt.*;
@@ -67,16 +66,16 @@ public class GameObject implements Cloneable{
 
     // 碰撞檢測
     public boolean checkCollision(GameObject gameobject){
-        if(this.modX > gameobject.modX + gameobject.getDrawWidth()*MainPanel.ratio){
+        if(this.modX > gameobject.modX + gameobject.getDrawWidth()*MainPanel.RATIO){
             return false;
         }
-        if(this.modX + this.drawWidth*MainPanel.ratio < gameobject.modX){
+        if(this.modX + this.drawWidth*MainPanel.RATIO < gameobject.modX){
             return false;
         }
-        if(this.modY + this.drawHeight*MainPanel.ratio < gameobject.modY){
+        if(this.modY + this.drawHeight*MainPanel.RATIO < gameobject.modY){
             return false;
         }
-        if(this.modY > gameobject.modY + gameobject.drawHeight*MainPanel.ratio){
+        if(this.modY > gameobject.modY + gameobject.drawHeight*MainPanel.RATIO){
             return false;
         }
         return true;
@@ -169,12 +168,12 @@ public class GameObject implements Cloneable{
     }
 
     public void paint(Graphics g, MainPanel mainPanel){
-        modX = (int) (x * MainPanel.ratio);
-        modY = (int) (y * MainPanel.ratio);
+        modX = (int) (x * MainPanel.RATIO);
+        modY = (int) (y * MainPanel.RATIO);
 //        g2d.drawImage(image, x, y, x + mainPanel.windowWidth/6 , y + mainPanel.windowHeight/10, 0 ,0 , 150, 100, null);
-//        g2d.fillRect(modX, modY,  modX + (int)(drawWidth*MainPanel.ratio),  modY + (int)(drawHeight*MainPanel.ratio));
-        g.drawImage(image, modX, modY,  modX + (int)(drawWidth*MainPanel.ratio),  modY + (int)(drawHeight*MainPanel.ratio), imageOffsetX*imageWidth, 0,imageWidth, imageHeight, null);
+//        g2d.fillRect(modX, modY,  modX + (int)(drawWidth*MainPanel.RATIO),  modY + (int)(drawHeight*MainPanel.RATIO));
+        g.drawImage(image, modX, modY,  modX + (int)(drawWidth*MainPanel.RATIO),  modY + (int)(drawHeight*MainPanel.RATIO), imageOffsetX*imageWidth, 0,imageWidth, imageHeight, null);
 //        g2d.setColor(Color.BLACK);
-//        g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
+//        g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.RATIO + 1), (int)(drawHeight*MainPanel.RATIO +1));
     }
 }

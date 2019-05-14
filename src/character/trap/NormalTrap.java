@@ -10,9 +10,9 @@ import util.ResourcesManager;
 import java.awt.image.BufferedImage;
 
 public class NormalTrap implements Trap {
-    private static String imagePath = "floor/Floor.png";
-    private static BufferedImage image = ResourcesManager.getInstance().getImage(imagePath);
-    private static final int[] choosingImagesMode = {0};
+    private String imagePath = "floor/Floor.png";
+    private BufferedImage image = ResourcesManager.getInstance().getImage(imagePath);
+    private final int[] choosingImagesMode = {0};
 
     private Food food; // 地板上的食物
 

@@ -4,7 +4,9 @@ import character.Button;
 import character.GameObject;
 import frame.MainPanel;
 import util.PainterManager;
+import util.ResourcesManager;
 
+import java.applet.AudioClip;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -25,9 +27,12 @@ public class EndScene extends Scene {
     private int lightCount;
     private int key;
 
+    private AudioClip bgm;
+
     public EndScene(MainPanel.GameStatusChangeListener gsChangeListener) {
         super(gsChangeListener);
-        BGM_END.loop();
+        bgm = ResourcesManager.getInstance().getSound("sound/Victory2.au");
+        bgm.loop();
         this.lightCount = 0;
         ArrayList<String> foods = new ArrayList<>();
         ArrayList<String> foodTxts = new ArrayList<>();
@@ -105,7 +110,7 @@ public class EndScene extends Scene {
     }
 
     private void backToMenu(){
-        BGM_END.stop();
+        bgm.stop();
         gsChangeListener.changeScene(MainPanel.MENU_SCENE);
     }
 }

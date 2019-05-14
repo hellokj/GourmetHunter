@@ -6,12 +6,12 @@ import frame.scene.Scene;
 import util.ResourcesManager;
 
 public class RunningTrap implements Trap {
-    private static final String[] imagePaths =
+    private final String[] imagePaths =
             {"floor/RunningFloor_1.png", "floor/RunningFloor_2.png", "floor/RunningFloor_3.png", "floor/RunningFloor_4.png"};
     private boolean rotateDirection; // 轉動的方向 順時針or逆時針
     // 不同轉動方向，不同的選圖模式
-    private static final int[] CHOOSING_MODE_CLOCKWISE = {0, 1, 2, 3};
-    private static final int[] CHOOSING_MODE_COUNTERCLOCKWISE = {3, 2, 1, 0};
+    private final int[] CHOOSING_MODE_CLOCKWISE = {0, 1, 2, 3};
+    private final int[] CHOOSING_MODE_COUNTERCLOCKWISE = {3, 2, 1, 0};
     private float rotateSpeed; // 本身的轉速 影響人物增減的速度
 
     public RunningTrap(){

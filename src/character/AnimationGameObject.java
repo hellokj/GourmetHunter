@@ -57,9 +57,9 @@ public class AnimationGameObject extends GameObject implements Cloneable{
     @Override
     public void paint(Graphics g, MainPanel mainPanel){
         Graphics2D g2d = PainterManager.g2d(g);
-        modX = (int) (x * MainPanel.ratio);
-        modY = (int) (y * MainPanel.ratio);
-        g2d.drawImage(image, modX, modY, modX + (int)(drawWidth* MainPanel.ratio), modY + (int)(drawHeight* MainPanel.ratio),
+        modX = (int) (x * MainPanel.RATIO);
+        modY = (int) (y * MainPanel.RATIO);
+        g2d.drawImage(image, modX, modY, modX + (int)(drawWidth* MainPanel.RATIO), modY + (int)(drawHeight* MainPanel.RATIO),
                 imageWidth*imageOffsetX, imageOffsetY,
                 imageWidth*imageOffsetX + imageWidth, imageOffsetY + imageHeight, null);
     }

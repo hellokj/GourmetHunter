@@ -20,12 +20,12 @@ public class Button extends AnimationGameObject {
     @Override
     public void paint(Graphics g, MainPanel mainPanel){
         Graphics2D g2d = PainterManager.g2d(g);
-        modX = (int) (x * MainPanel.ratio);
-        modY = (int) (y * MainPanel.ratio);
-        g2d.drawImage(image, modX, modY, (int)(modX+drawWidth* MainPanel.ratio), (int)(modY+drawHeight* MainPanel.ratio),
+        modX = (int) (x * MainPanel.RATIO);
+        modY = (int) (y * MainPanel.RATIO);
+        g2d.drawImage(image, modX, modY, (int)(modX+drawWidth* MainPanel.RATIO), (int)(modY+drawHeight* MainPanel.RATIO),
                 imageOffsetX*imageWidth, 0, imageOffsetX*imageWidth + imageWidth, imageHeight
                 ,null);
 //        g2d.setColor(Color.BLACK);
-//        g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.ratio + 1), (int)(drawHeight*MainPanel.ratio +1));
+//        g2d.drawRect(modX-1, modY-1, (int)(drawWidth*MainPanel.RATIO + 1), (int)(drawHeight*MainPanel.RATIO +1));
     }
 }

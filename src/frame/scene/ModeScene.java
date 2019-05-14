@@ -7,6 +7,7 @@ import character.GameObject;
 import frame.MainPanel;
 import util.ResourcesManager;
 
+import java.applet.AudioClip;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -34,15 +35,18 @@ public class ModeScene extends Scene{
     // timer延遲調整
     private boolean up_p1 = false, down_p1 = false, left_p1 = false, right_p1 = false;
     private boolean up_p2 = false, down_p2 = false, left_p2 = false, right_p2 = false;
+
+    private AudioClip bgm;
     
     public ModeScene(MainPanel.GameStatusChangeListener gsChangeListener){
         super(gsChangeListener);
+        this.bgm = ResourcesManager.getInstance().getSound("sound/Menu.au");
         this.background = new GameObject(0,-22,500, 700, 600, 840,"background/MenuBackground.png");
         this.choosingFrame = new GameObject(50,110,400,200,400, 200,"background/ChooseFrame.png");
         this.frame = new GameObject(45+21,195,74,74, 74, 74,"background/Frame.png");
-        this.fattyFrame = new GameObject(250 - 100, 50, 200, 200, 200, 200, "background/FattyFrame.png");
-        this.fattyCharacter = new AnimationGameObject(200, 125, 100, 100, 32, 32, "actor/Actor1.png");
-        int[] movingPatter = {0, 4, 8, 12};
+        this.fattyFrame = new GameObject(250 - 100, 110, 200, 200, 200, 200, "background/FattyFrame.png");
+        this.fattyCharacter = new AnimationGameObject(200, 185, 100, 100, 32, 32, "actor/Actor1.png");
+        int[] movingPatter = {0,1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ,11, 12, 13, 14, 15};
         this.fattyCharacter.setMovingPattern(movingPatter);
         this.picker = new GameObject(57+21 ,145, 50, 50, 100, 120, "background/Picker.png");
         this.picker1 = new GameObject(frame.getX() ,270, 35, 35, 35, 35, "background/1P.png");
@@ -58,9 +62,9 @@ public class ModeScene extends Scene{
         this.buttonInfinity = new Button(190,400,100, 75, 150, 100,"button/Button_Infinity.png");
         this.button2P = new Button(320,400,100, 75, 150, 100,"button/Button_2P.png");
         this.isRead = false;
-        this.player1 = new Actor(250, road.getY() - 32, 32, 32, 32, 32, MainPanel.player1);
+        this.player1 = new Actor(250, road.getY() - 32, 32, 32, 32, 32, MainPanel.P1);
         isPicked_1 = isPicked_2 = false;
-        game_story = true;
+        game_story = false;
         game_infinity = game_2p = false;
         this.introduction = new GameObject(this.player1.getX() - 32, this.player1.getY() - 180, 162, 180,225, 250, "background/ModeGuide.png");
     }
@@ -105,13 +109,13 @@ public class ModeScene extends Scene{
                             if (!isPicked_1){
                                 picker1.setX(frame.getX());
                                 player1.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor1.png"));
-                                MainPanel.player1 = "actor/Actor1.png";
+                                MainPanel.P1 = "actor/Actor1.png";
                             }
                             if (game_2p) {
                                 if (isPicked_1 && !isPicked_2) {
                                     picker2.setX(frame.getX() + 37);
                                     player2.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor1.png"));
-                                    MainPanel.player2 = "actor/Actor1.png";
+                                    MainPanel.P2 = "actor/Actor1.png";
                                 }
                             }
                         }
@@ -123,13 +127,13 @@ public class ModeScene extends Scene{
                             if (!isPicked_1){
                                 picker1.setX(frame.getX());
                                 player1.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor2.png"));
-                                MainPanel.player1 = "actor/Actor2.png";
+                                MainPanel.P1 = "actor/Actor2.png";
                             }
                             if (game_2p){
                                 if (isPicked_1 && !isPicked_2){
                                     picker2.setX(frame.getX()+37);
                                     player2.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor2.png"));
-                                    MainPanel.player2 = "actor/Actor2.png";
+                                    MainPanel.P2 = "actor/Actor2.png";
                                 }
                             }
                         }
@@ -141,13 +145,13 @@ public class ModeScene extends Scene{
                             if (!isPicked_1){
                                 picker1.setX(frame.getX());
                                 player1.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor3.png"));
-                                MainPanel.player1 = "actor/Actor3.png";
+                                MainPanel.P1 = "actor/Actor3.png";
                             }
                             if (game_2p) {
                                 if (isPicked_1 && !isPicked_2) {
                                     picker2.setX(frame.getX()+37);
                                     player2.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor3.png"));
-                                    MainPanel.player2 = "actor/Actor3.png";
+                                    MainPanel.P2 = "actor/Actor3.png";
                                 }
                             }
                         }
@@ -159,26 +163,13 @@ public class ModeScene extends Scene{
                             if (!isPicked_1){
                                 picker1.setX(frame.getX());
                                 player1.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor4.png"));
-                                MainPanel.player1 = "actor/Actor4.png";
+                                MainPanel.P1 = "actor/Actor4.png";
                             }
                             if (game_2p) {
                                 if (isPicked_1 && !isPicked_2) {
                                     picker2.setX(frame.getX()+37);
                                     player2.setImageFat(ResourcesManager.getInstance().getImage("actor/Actor4.png"));
-                                    MainPanel.player2 = "actor/Actor4.png";
-                                }
-                            }
-                        }
-                        break;
-                    case KeyEvent.VK_ENTER:
-                        if (game_infinity || game_2p){
-                            if (!isPicked_1){
-                                isPicked_1 = true;
-                            }else {
-                                if (game_2p){
-                                    if (!isPicked_2){
-                                        isPicked_2 = true;
-                                    }
+                                    MainPanel.P2 = "actor/Actor4.png";
                                 }
                             }
                         }
@@ -217,6 +208,22 @@ public class ModeScene extends Scene{
                     case KeyEvent.VK_D:
                         right_p2 = false;
                         break;
+                    case KeyEvent.VK_ENTER:
+                        if (game_infinity || game_2p){
+                            if (!isPicked_1){
+                                BUTTON_CLICK.play();
+                                isPicked_1 = true;
+                                frame.setX(45+21);
+                            }else {
+                                if (game_2p){
+                                    if (!isPicked_2){
+                                        BUTTON_CLICK.play();
+                                        isPicked_2 = true;
+                                    }
+                                }
+                            }
+                        }
+                        break;
                 }
             }
         };
@@ -249,8 +256,8 @@ public class ModeScene extends Scene{
 
         player1.update();
         introduction.setX(player1.getX());
-        introduction.setY(player1.getY() - (int)(160*MainPanel.ratio));
-//        player1.setBoundary(); // 更新完座標後，設定邊界
+        introduction.setY(player1.getY() - (int)(160*MainPanel.RATIO));
+//        P1.setBoundary(); // 更新完座標後，設定邊界
         player1.stay();
 
         if (game_2p){
@@ -281,7 +288,7 @@ public class ModeScene extends Scene{
         }
         // 進入故事模式
         if(game_story && hole.checkCollision(player1)){
-            BGM_MENU.stop();
+            bgm.stop();
             gsChangeListener.changeScene(MainPanel.LOADING_SCENE);
         }
 
@@ -301,7 +308,7 @@ public class ModeScene extends Scene{
             }
         // 進入無限模式
         if(game_infinity && hole.checkCollision(player1) && isPicked_1){
-            BGM_MENU.stop();
+            bgm.stop();
             gsChangeListener.changeScene(MainPanel.INFINITY_GAME_SCENE);
         }
 
@@ -323,7 +330,7 @@ public class ModeScene extends Scene{
             }
         }
         if(game_2p && hole.checkCollision(player1) && hole.checkCollision(player2) && (isPicked_1 && isPicked_2)){
-            BGM_MENU.stop();
+            bgm.stop();
             gsChangeListener.changeScene(MainPanel.TWO_PLAYER_GAME_SCENE);
         }
     }
@@ -337,7 +344,7 @@ public class ModeScene extends Scene{
             fattyFrame.paint(g, mainPanel);
             fattyCharacter.paint(g, mainPanel);
         }
-        if (!game_story){
+        if (game_infinity || game_2p){
             choosingFrame.paint(g, mainPanel);
             if (game_infinity){
                 if (!isPicked_1){
@@ -364,26 +371,31 @@ public class ModeScene extends Scene{
             picker.paint(g, mainPanel);
         }
         if (game_2p){
-            picker1.paint(g, mainPanel);
-            picker2.paint(g, mainPanel);
+            if (!isPicked_1){
+                picker1.paint(g, mainPanel);
+            }else {
+                if (!isPicked_2){
+                    picker2.paint(g, mainPanel);
+                }
+            }
             player2.paint(g, mainPanel);
             String msg = "2P";
-            g.setFont(MainPanel.ENGLISH_FONT.deriveFont(36.0f*MainPanel.ratio));
+            g.setFont(MainPanel.ENGLISH_FONT.deriveFont(36.0f*MainPanel.RATIO));
             g.setColor(Color.RED);
             FontMetrics fm = g.getFontMetrics();
             int msgWidth = fm.stringWidth(msg);
             int msgAscent = fm.getAscent();
-            g.drawString(msg, (int) (player2.getModX() + player2.getDrawWidth()*MainPanel.ratio/2 - msgWidth/2), player2.getModY());
+            g.drawString(msg, (int) (player2.getModX() + player2.getDrawWidth()*MainPanel.RATIO /2 - msgWidth/2), player2.getModY());
         }
         player1.paint(g, mainPanel);
         if (game_2p){
             String msg = "1P";
-            g.setFont(MainPanel.ENGLISH_FONT.deriveFont(36.0f*MainPanel.ratio));
+            g.setFont(MainPanel.ENGLISH_FONT.deriveFont(36.0f*MainPanel.RATIO));
             g.setColor(Color.RED);
             FontMetrics fm = g.getFontMetrics();
             int msgWidth = fm.stringWidth(msg);
             int msgAscent = fm.getAscent();
-            g.drawString(msg, (int) (player1.getModX() + player1.getDrawWidth()*MainPanel.ratio/2 - msgWidth/2), player1.getModY());
+            g.drawString(msg, (int) (player1.getModX() + player1.getDrawWidth()*MainPanel.RATIO /2 - msgWidth/2), player1.getModY());
         }
 
         if (!isRead){
