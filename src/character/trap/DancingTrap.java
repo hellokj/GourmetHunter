@@ -60,13 +60,15 @@ public class DancingTrap implements Trap {
 //        player.setSpeedX(0);
 //        player.setX(player.getX());
         for (int i = 0; i < directions.size(); i++) {
-            if (player.dance() == directions.get(0)){
+//            System.out.println(player.dance(scene) + "," + directions.get(0));
+            if (player.dance(scene) == directions.get(0)){
                 Scene.CORRECT.play();
                 directions.remove(0);
                 floor.getFloorImages().remove(0); // 把原圖清掉
                 // 製作新圖
                 images.set(count++, ResourcesManager.getInstance().getImage(imagePath));
                 floor.getFloorImages().add(pm.mergeImages(images)); // 塞新圖回去
+                scene.key = -1;
             }else {
 //                Scene.ERROR.play();
             }

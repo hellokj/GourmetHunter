@@ -42,7 +42,7 @@ public class InfinityGameScene extends Scene {
     private GameObject record;
 
     // 遊戲狀態
-    private int key; // 鍵盤輸入值
+//    private int key; // 鍵盤輸入值
     private int count; // 死亡跳起計數器
     private boolean isOver;
     private int layer; // 地下階層
@@ -218,6 +218,7 @@ public class InfinityGameScene extends Scene {
                         }
                     }
                 }
+                key = e.getKeyCode();
             }
 
             @Override
@@ -258,6 +259,7 @@ public class InfinityGameScene extends Scene {
                         isCalled = false;
                     }
                 }
+                key = -1;
             }
         };
     }
@@ -477,7 +479,7 @@ public class InfinityGameScene extends Scene {
         }
 
         if (isDark){
-            g.drawImage(blanket, player.getX() + 16 - 575, player.getY() + 16 - 775, player.getX() + 16 - 575 + 1150, player.getY() + 16 - 775 + 1550,0,0, 1150, 1550, null);
+            g.drawImage(blanket, (int) ((player.getX() + 16 - 575)*MainPanel.RATIO), (int) ((player.getY() + 16 - 775)*MainPanel.RATIO), (int) ((player.getX() + 16 - 575 + 1150)*MainPanel.RATIO), (int) ((player.getY() + 16 - 775 + 1550)*MainPanel.RATIO),0,0, 1150, 1550, null);
         }
 
         roof.paint(g, mainPanel);
@@ -597,13 +599,15 @@ public class InfinityGameScene extends Scene {
     // 更新背景圖
     private void updateBackgroundImage(){
         int background_rising_speed = 5;
-        if (background_0.getModY() + background_0.getDrawHeight() * MainPanel.RATIO <= 0){
-            background_0 = new GameObject(0, 700, 500, 700, 500, 700,"background/circus2.png");
+        if (background_0.getModY() + background_0.getDrawHeight() * MainPanel.RATIO <= 10){
+//            background_0 = new GameObject(0, 700, 500, 700, 500, 700,"background/circus2.png");
+            background_0.setY(background_1.getY() + background_1.getDrawHeight());
             layer++;
             showLayer = true;
         }
-        if (background_1.getModY() + background_1.getDrawHeight() * MainPanel.RATIO <= 0){
-            background_1 = new GameObject(0, 700, 500, 700, 500, 700,"background/circus2.png");
+        if (background_1.getModY() + background_1.getDrawHeight() * MainPanel.RATIO <= 10){
+//            background_1 = new GameObject(0, 700, 500, 700, 500, 700,"background/circus2.png");
+            background_1.setY(background_0.getY() + background_0.getDrawHeight());
         }
         background_0.setY(background_0.getY() - background_rising_speed);
         background_1.setY(background_1.getY() - background_rising_speed);

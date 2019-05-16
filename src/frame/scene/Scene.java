@@ -17,6 +17,7 @@ public abstract class Scene {
     public static final float FRICTION = 0.4f;
     public static boolean isDark = false;
     public Actor touchedPlayer;
+    public int key;
 
     public final BufferedImage darkness = ResourcesManager.getInstance().getImage("background/Darkness.png");
     public final BufferedImage blanket = ResourcesManager.getInstance().getImage("background/BlackBlanket2.png");

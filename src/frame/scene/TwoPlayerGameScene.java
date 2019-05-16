@@ -34,7 +34,7 @@ public class TwoPlayerGameScene extends Scene {
     private GameObject hungerLabel1, hungerLabel2;
 
     // 數值
-    private int key; // 鍵盤輸入值
+//    private int key; // 鍵盤輸入值
     private int count1, count2; // 死亡跳起計數器
     private int layer; // 地下階層
     private Food eatenFood1, eatenFood2;
@@ -275,6 +275,7 @@ public class TwoPlayerGameScene extends Scene {
                         isCalled = false;
                     }
                 }
+                key = -1;
             }
         };
     }
@@ -857,10 +858,10 @@ public class TwoPlayerGameScene extends Scene {
 
         if (isDark){
             if (this.touchedPlayer.equals(player1)){
-                g.drawImage(blanket, player1.getX() + 16 - 575, player1.getY() + 16 - 775, player1.getX() + 16 - 575 + 1150, player1.getY() + 16 - 775 + 1550,0,0, 1150, 1550, null);
+                g.drawImage(blanket, (int) ((player1.getX() + 16 - 575)*MainPanel.RATIO), (int) ((player1.getY() + 16 - 775)*MainPanel.RATIO), (int) ((player1.getX() + 16 - 575 + 1150)*MainPanel.RATIO), (int) ((player1.getY() + 16 - 775 + 1550)*MainPanel.RATIO),0,0, 1150, 1550, null);
             }
             if (this.touchedPlayer.equals(player2)){
-                g.drawImage(blanket2, player2.getX() + 16 - 575, player2.getY() + 16 - 775, player2.getX() + 16 - 575 + 1150, player2.getY() + 16 - 775 + 1550,0,0, 1150, 1550, null);
+                g.drawImage(blanket2, (int) ((player2.getX() + 16 - 575)*MainPanel.RATIO), (int) ((player2.getY() + 16 - 775)*MainPanel.RATIO), (int) ((player2.getX() + 16 - 575 + 1150)*MainPanel.RATIO), (int) ((player2.getY() + 16 - 775 + 1550)*MainPanel.RATIO),0,0, 1150, 1550, null);
             }
         }
 
@@ -996,13 +997,15 @@ public class TwoPlayerGameScene extends Scene {
     // 更新背景圖
     private void updateBackgroundImage(){
         int background_rising_speed = 5;
-        if (background_0.getModY() + background_0.getDrawHeight()*MainPanel.RATIO <= 0){
-            background_0 = new GameObject(0, 700, 500, 700, 500, 700, "background/Jungle2.png");
+        if (background_0.getModY() + background_0.getDrawHeight()*MainPanel.RATIO <= 10){
+//            background_0 = new GameObject(0, 700, 500, 700, 500, 700, "background/Jungle2.png");
+            background_0.setY(background_1.getY() + background_1.getDrawHeight());
             layer++;
             showLayer = true;
         }
-        if (background_1.getModY() + background_1.getDrawHeight()*MainPanel.RATIO <= 0){
-            background_1 = new GameObject(0, 700, 500, 700, 500, 700, "background/Jungle2.png");
+        if (background_1.getModY() + background_1.getDrawHeight()*MainPanel.RATIO <= 10){
+//            background_1 = new GameObject(0, 700, 500, 700, 500, 700, "background/Jungle2.png");
+            background_1.setY(background_0.getY() + background_0.getDrawHeight());
         }
         background_0.setY(background_0.getY() - background_rising_speed);
         background_1.setY(background_1.getY() - background_rising_speed);

@@ -6,6 +6,7 @@ import frame.scene.Scene;
 import util.ResourcesManager;
 
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
 public class Actor extends AnimationGameObject{
@@ -462,8 +463,22 @@ public class Actor extends AnimationGameObject{
     }
 
     // 人物做動作
-    public int dance(){
-        return direction;
+    public int dance(Scene scene){
+        switch (scene.key){
+            case KeyEvent.VK_RIGHT:
+            case KeyEvent.VK_D:
+                return MOVE_RIGHT;
+            case KeyEvent.VK_LEFT:
+            case KeyEvent.VK_A:
+                return MOVE_LEFT;
+            case KeyEvent.VK_UP:
+            case KeyEvent.VK_W:
+                return MOVE_UP;
+            case KeyEvent.VK_DOWN:
+            case KeyEvent.VK_S:
+                return MOVE_DOWN;
+        }
+        return -1;
     }
 
 
@@ -476,6 +491,7 @@ public class Actor extends AnimationGameObject{
         if (state){ // 小胖狀態
             this.drawWidth = this.drawHeight = 32;
             this.imageWidth = this.imageHeight = 32;
+            setBoundary();
             g.drawImage(image, modX, modY, modX + (int)(drawWidth*MainPanel.RATIO), modY + (int)(drawHeight*MainPanel.RATIO),
                     direction*4* imageWidth + imageWidth*imageOffsetX, imageOffsetY,
                     direction*4* imageWidth + imageWidth*imageOffsetX + imageWidth,imageOffsetY + imageHeight, null);
@@ -486,6 +502,7 @@ public class Actor extends AnimationGameObject{
             this.drawHeight = 64;
             this.imageWidth = 32;
             this.imageHeight = 64;
+            setBoundary();
             int actualWidth = 24, actualHeight = 48;
             g.drawImage(image, modX, modY, modX + (int)(drawWidth*MainPanel.RATIO), modY + (int)(drawHeight*MainPanel.RATIO),
                     (imageWidth*imageOffsetX),imageOffsetY*imageHeight, imageWidth*imageOffsetX + imageWidth, imageOffsetY*imageHeight + imageHeight, null);

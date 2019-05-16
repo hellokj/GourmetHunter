@@ -16,6 +16,7 @@ import java.awt.event.KeyListener;
 public class ModeScene extends Scene{
     private GameObject background, road, hole_top, hole;
     private GameObject character_1,character_2,character_3,character_4;
+    private AnimationGameObject arrow;
     private GameObject fattyFrame;
     private AnimationGameObject fattyCharacter;
     private GameObject frame; // 人物選擇底版
@@ -47,6 +48,9 @@ public class ModeScene extends Scene{
         this.fattyFrame = new GameObject(250 - 100, 110, 200, 200, 200, 200, "background/FattyFrame.png");
         this.fattyCharacter = new AnimationGameObject(200, 185, 100, 100, 32, 32, "actor/Actor1.png");
         int[] movingPatter = {0,1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ,11, 12, 13, 14, 15};
+        this.arrow = new AnimationGameObject(395, 630 - 64, 64, 64, 64, 64, "background/arrow.png");
+        int[] arrowMovingPattern = {0, 1};
+        this.arrow.setMovingPattern(arrowMovingPattern);
         this.fattyCharacter.setMovingPattern(movingPatter);
         this.picker = new GameObject(57+21 ,145, 50, 50, 100, 120, "background/Picker.png");
         this.picker1 = new GameObject(frame.getX() ,270, 35, 35, 35, 35, "background/1P.png");
@@ -231,6 +235,7 @@ public class ModeScene extends Scene{
 
     @Override
     public void logicEvent() {
+        arrow.stay();
         if (game_story){
             fattyCharacter.stay();
         }
@@ -341,17 +346,24 @@ public class ModeScene extends Scene{
     public void paint(Graphics g, MainPanel mainPanel) {
         background.paint(g, mainPanel);
         if (game_story){
+            arrow.paint(g, mainPanel);
             fattyFrame.paint(g, mainPanel);
             fattyCharacter.paint(g, mainPanel);
         }
         if (game_infinity || game_2p){
             choosingFrame.paint(g, mainPanel);
             if (game_infinity){
+                if (isPicked_1){
+                    arrow.paint(g, mainPanel);
+                }
                 if (!isPicked_1){
                     frame.paint(g, mainPanel);
                 }
             }
             if (game_2p){
+                if (isPicked_1 && isPicked_2){
+                    arrow.paint(g, mainPanel);
+                }
                 if (!isPicked_1 || !isPicked_2){
                     frame.paint(g, mainPanel);
                 }
